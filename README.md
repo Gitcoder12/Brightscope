@@ -1,53 +1,60 @@
 # BrightScope
 
-BrightScope is a system for classifying and organizing research papers, patents, and innovations.
+BrightScope is a unified search platform for research papers, patents, and innovations.
 
 ---
 
 ## Overview
 
-The platform analyzes technical content and converts it into structured insights based on subject, technology, and application.
+BrightScope allows users to search across multiple knowledge sources and view results in one organized interface.
+
+Instead of searching different platforms separately, users can explore technical knowledge in a single place.
 
 ---
 
 ## Core Features
 
-* Subject classification (AI, energy, biotech, etc.)
-* Technology and device tagging
-* Keyword extraction
-* Multi-source input (papers, patents, journals)
+* Unified search across papers, patents, and articles
+* Categorized results (research, patents, innovations)
+* Keyword-based search
+* Clean and structured output
+
+---
+
+## Example
+
+Search: graphene
+
+Results:
+
+* Research papers
+* Patents
+* Related innovations
 
 ---
 
 ## MVP Scope
 
-* Text-based classification
-* Predefined categories and tags
-* Basic keyword extraction
-* Simple output (labels + tags)
+* Search integration (arXiv API)
+* Basic results display
+* Category grouping
 
 ---
 
-## Input
+## Future Enhancements
 
-* PDF documents
-* Text input
-
----
-
-## Output
-
-* Primary category
-* Sub-category
-* Tags / keywords
+* Patent integration
+* Smart classification and tagging
+* Advanced filters (date, field, relevance)
+* AI-based summarization
 
 ---
 
 ## Tech (planned)
 
-* Python (NLP / ML)
-* React / Next.js
-* API for processing
+* Next.js (frontend)
+* Python / API layer
+* External APIs (arXiv, patents)
 
 ---
 
@@ -59,4 +66,4 @@ Early-stage MVP
 
 ## Goal
 
-Help users understand and navigate complex technical knowledge more easily.
+Make it easy to explore and understand technical knowledge from multiple sources in one place.
