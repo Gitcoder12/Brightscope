@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brightscope Research Paper Search</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; transition: background-color 0.5s, color 0.5s; }
+        .dark { background-color: #121212; color: white; }
+        .light { background-color: white; color: black; }
+        .container { padding: 20px; }
+        input[type="text"] { width: calc(100% - 22px); padding: 10px; margin-right: 10px; }
+        select { padding: 10px; margin-right: 10px; }
+        button { padding: 10px; }
+        .theme-toggle { margin-bottom: 20px; }
+        .paper { border: 1px solid #ccc; padding: 10px; margin-top: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body class="light">
+    <div class="container">
+        <h1>Brightscope Research Paper Search Platform</h1>
+        <div class="theme-toggle">
+            <button id="toggleTheme">Toggle Dark/Light Theme</button>
+        </div>
+        <input type="text" id="searchInput" placeholder="Search for papers...">
+        <select id="categoryFilter">
+            <option value="">All Categories</option>
+            <option value="AI">Artificial Intelligence</option>
+            <option value="ML">Machine Learning</option>
+            <option value="DS">Data Science</option>
+            <option value="Web">Web Development</option>
+        </select>
+        <button id="searchButton">Search</button>
+        <div id="papersList"></div>
+    </div>
+    <script>
+        const papers = [
+            { title: "AI Innovations in 2021", category: "AI", details: "Lorem ipsum...", lang: "en" },
+            { title: "Machine Learning Basics", category: "ML", details: "Lorem ipsum...", lang: "en" },
+            { title: "Data Science Trends", category: "DS", details: "Lorem ipsum...", lang: "es" },
+            // Add 22 more mock paper entries here with appropriate categories and languages
+        ];
+
+        function displayPapers(paperList) {
+            const listContainer = document.getElementById('papersList');
+            listContainer.innerHTML = '';
+            paperList.forEach(paper => {
+                const paperDiv = document.createElement('div');
+                paperDiv.className = 'paper';
+                paperDiv.innerHTML = `<h3>${paper.title}</h3><p>${paper.details}</p>`;
+                listContainer.appendChild(paperDiv);
+            });
+        }
+
+        document.getElementById('searchButton').addEventListener('click', () => {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const filteredPapers = papers.filter(paper => {
+                const matchesSearch = paper.title.toLowerCase().includes(searchTerm);
+                const matchesCategory = category ? paper.category === category : true;
+                return matchesSearch && matchesCategory;
+            });
+            displayPapers(filteredPapers);
+        });
+
+        document.getElementById('toggleTheme').addEventListener('click', () => {
+            document.body.classList.toggle('dark');
+            document.body.classList.toggle('light');
+        });
+
+        // Initialize with all papers displayed
+        displayPapers(papers);
+    </script>
+</body>
+</html>
