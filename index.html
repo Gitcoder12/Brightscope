@@ -448,7 +448,7 @@
 
 <script>
 // =============================================================
-// MOCK DATA – 25 research papers
+// MOCK DATA – 28 research papers
 // To replace with live data: see arXiv API notes in <head>
 // =============================================================
 const PAPERS = [
@@ -872,7 +872,7 @@ function renderPapers() {
       card.setAttribute('aria-expanded', expanded);
     };
     card.addEventListener('click', toggle);
-    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { if (e.key === ' ') e.preventDefault(); toggle(); } });
   });
 }
 
@@ -887,7 +887,7 @@ document.getElementById('searchInput').addEventListener('input', e => {
   debounceTimer = setTimeout(() => {
     searchQuery = e.target.value;
     renderPapers();
-  }, 200);
+  }, 150);
 });
 
 // Category filters
