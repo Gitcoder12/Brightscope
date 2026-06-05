@@ -65,6 +65,20 @@ Search
 
 <hr>
 
+<h2>👨‍🔬 Top Authors</h2>
+<div id="authors"></div>
+
+<h2>🏛 Top Institutions</h2>
+<div id="institutions"></div>
+
+<h2>🔥 Top Topics</h2>
+<div id="topics"></div>
+
+<h2>📚 Top Papers</h2>
+<div id="papers"></div>
+
+<hr>
+
 <div id="results"></div>
 
 <script type="module">
@@ -157,22 +171,105 @@ window.searchAll = async function() {
             "❌ OpenAlex failed<br>";
     }
 
-    const unique =
-        [...new Map(
-            results.map(r => [r.title, r])
-        ).values()];
+   const unique =
+    [...new Map(
+        results.map(r => [r.title, r])
+    ).values()];
 
-    unique.sort(
-        (a,b)=>(b.year||0)-(a.year||0)
-    );
+const authorCount = {};
+const topicCount = {};
 
-    if(unique.length === 0){
+unique.forEach(paper => {
 
-        resultsDiv.innerHTML =
-            "<h3>No results found</h3>";
+    // Authors
+    paper.authors
+        .split(",")
+        .forEach(author => {
 
-        return;
-    }
+            author = author.trim();
+
+            if(
+                !author ||
+                author === "Unknown"
+            ) return;
+
+            authorCount[author] =
+                (authorCount[author] || 0) + 1;
+        });
+
+    // Topics
+    const words =
+        paper.title
+            .toLowerCase()
+            .replace(/[^a-z0-9 ]/g,"")
+            .split(" ");
+
+    words.forEach(word => {
+
+        if(word.length < 5) return;
+
+        topicCount[word] =
+            (topicCount[word] || 0) + 1;
+    });
+
+});
+
+const topAuthors =
+    Object.entries(authorCount)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,10);
+
+const topTopics =
+    Object.entries(topicCount)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,10);
+
+const topPapers =
+    unique.slice(0,10);
+
+unique.sort(
+    (a,b)=>(b.year||0)-(a.year||0)
+);
+
+if(unique.length === 0){
+
+    resultsDiv.innerHTML =
+        "<h3>No results found</h3>";
+
+    return;
+}
+
+document.getElementById("authors").innerHTML =
+topAuthors.map(a => `
+<div class="result">
+<b>${a[0]}</b><br>
+Papers: ${a[1]}
+</div>
+`).join("");
+
+document.getElementById("topics").innerHTML =
+topTopics.map(t => `
+<div class="result">
+<b>${t[0]}</b><br>
+Mentions: ${t[1]}
+</div>
+`).join("");
+
+document.getElementById("papers").innerHTML =
+topPapers.map(p => `
+<div class="result">
+<b>${p.title}</b><br>
+${p.year}
+</div>
+`).join("");
+
+document.getElementById("institutions").innerHTML =
+`
+<div class="result">
+OpenAlex Institution Extraction
+Coming Next Version
+</div>
+`;
 
     resultsDiv.innerHTML =
         unique.map(r => `
