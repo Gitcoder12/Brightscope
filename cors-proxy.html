@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Brightscope – CORS Proxy Fix</title>
+    <style>
+        body { font-family: monospace; max-width: 800px; margin: 2rem auto; padding: 20px; }
+        input, button { padding: 10px; font-size: 1rem; }
+        .result { border-bottom: 1px solid #ccc; margin: 1rem 0; }
+    </style>
+</head>
+<body>
+<h1>🔍 Brightscope (CORS Proxy Version)</h1>
+<p>This uses AllOrigins proxy – works on GitHub Pages.</p>
+<input type="text" id="query" placeholder="e.g., quantum machine learning" style="width: 70%;">
+<button onclick="search()">Search</button>
+<div id="results"></div>
+
+<script>
+async function search() {
+    const q = document.getElementById('query').value.trim();
+    if (!q) return;
+    document.getElementById('results').innerHTML = 'Loading...';
+    // Use AllOrigins proxy to fetch arXiv
+    const proxy = 'https://api.allorigins.win/raw?url=';
+    const arxivUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(q)}&max_results=10`;
+    try {
+        const resp = await fetch(proxy + encodeURIComponent(arxivUrl));
+        const text = await resp.text();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, 'text/xml');
+        const entries = xml.querySelectorAll('entry');
+        if (entries.length === 0) {
+            document.getElementById('results').innerHTML = 'No results.';
+            return;
+        }
+        let html = '';
+        for (let entry of entries) {
+            const title = entry.querySelector('title')?.textContent || 'No title';
+            const link = entry.querySelector('id')?.textContent || '#';
+            const summary = entry.querySelector('summary')?.textContent?.slice(0, 300) || '';
+            html += `
+                <div class="result">
+                    <strong><a href="${link}" target="_blank">${escapeHtml(title)}</a></strong><br>
+                    <small>${escapeHtml(summary)}...</small>
+                </div>
+            `;
+        }
+        document.getElementById('results').innerHTML = html;
+    } catch(e) {
+        document.getElementById('results').innerHTML = 'Error: ' + e.message;
+    }
+}
+function escapeHtml(str) {
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+</script>
+</body>
+</html>
