@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brightscope – Universal Research Search (Crossref + Semantic Scholar + arXiv)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: #f4f6fa; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        h1 { color: #1e3a8a; margin-bottom: 8px; }
+        .sub { color: #475569; margin-bottom: 24px; border-left: 4px solid #3b82f6; padding-left: 16px; }
+        .search-box { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+        input { flex: 2; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 60px; font-size: 1rem; }
+        button { padding: 12px 28px; background: #2563eb; color: white; border: none; border-radius: 60px; font-weight: bold; cursor: pointer; }
+        .debug { background: #f1f5f9; border-radius: 20px; padding: 12px; font-family: monospace; font-size: 0.7rem; margin-bottom: 20px; max-height: 200px; overflow-y: auto; }
+        .results { margin-top: 20px; }
+        .paper-card { background: #f8fafc; border-radius: 20px; padding: 16px; margin-bottom: 16px; border-left: 4px solid #3b82f6; }
+        .title { font-size: 1.1rem; font-weight: 600; margin-bottom: 6px; }
+        .title a { color: #1e3a8a; text-decoration: none; }
+        .meta { font-size: 0.7rem; color: #475569; margin: 8px 0; display: flex; gap: 12px; flex-wrap: wrap; }
+        .abstract { font-size: 0.85rem; color: #334155; margin-top: 8px; }
+        .error { background: #fee2e2; color: #991b1b; padding: 16px; border-radius: 20px; margin: 16px 0; }
+        .loading { text-align: center; padding: 40px; color: #64748b; }
+        footer { text-align: center; margin-top: 32px; font-size: 0.7rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>🔍 Brightscope · Universal Search</h1>
+    <div class="sub">Fetches papers from Crossref + Semantic Scholar + arXiv (via fallback proxies) – no network errors</div>
+    
+    <div class="search-box">
+        <input type="text" id="query" placeholder="e.g., quantum machine learning, crispr, climate change">
+        <button id="searchBtn">Search All Sources</button>
+    </div>
+    
+    <div id="debugPanel" class="debug"></div>
+    <div id="resultsArea"></div>
+    <footer>Uses multiple CORS proxies + direct CORS‑enabled APIs. If one fails, others are tried automatically.</footer>
+</div>
+
+<script>
+    const queryInput = document.getElementById('query');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultsDiv = document.getElementById('resultsArea');
+    const debugDiv = document.getElementById('debugPanel');
+
+    // ---------- Helper: fetch with timeout ----------
+    async function fetchWithTimeout(url, timeout = 8000) {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+        try {
+            const response = await fetch(url, { signal: controller.signal });
+            clearTimeout(id);
+            return response;
+        } catch (err) {
+            clearTimeout(id);
+            throw err;
+        }
+    }
+
+    // ---------- 1. Direct Crossref (CORS-enabled) ----------
+    async function fetchCrossref(query) {
+        const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=8&sort=relevance`;
+        const response = await fetchWithTimeout(url, 8000);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const items = data.message?.items || [];
+        return items.map(item => ({
+            title: item.title?.[0] || 'No title',
+            abstract: (item.abstract || '').replace(/<[^>]*>/g, '').slice(0, 350),
+            url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : '#'),
+            date: item.issued?.['date-parts']?.[0]?.[0] || 'Unknown',
+            source: 'Crossref',
+            type: 'paper'
+        }));
+    }
+
+    // ---------- 2. Semantic Scholar (CORS-enabled) ----------
+    async function fetchSemanticScholar(query) {
+        const url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=8&fields=title,abstract,url,publicationDate,venue`;
+        const response = await fetchWithTimeout(url, 8000);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const data = await response.json();
+        const papers = data.data || [];
+        return papers.map(paper => ({
+            title: paper.title || 'No title',
+            abstract: (paper.abstract || '').slice(0, 350),
+            url: paper.url || '#',
+            date: paper.publicationDate?.slice(0,10) || 'Unknown',
+            source: 'Semantic Scholar',
+            type: 'paper'
+        }));
+    }
+
+    // ---------- 3. arXiv via proxy (fallback) ----------
+    const PROXIES = [
+        'https://api.allorigins.win/raw?url=',
+        'https://corsproxy.io/?',
+        'https://thingproxy.freeboard.io/fetch/'
+    ];
+
+    async function fetchArxiv(query, proxyIndex = 0) {
+        if (proxyIndex >= PROXIES.length) throw new Error('All arXiv proxies failed');
+        const arxivUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=6`;
+        const proxyUrl = PROXIES[proxyIndex] + encodeURIComponent(arxivUrl);
+        const response = await fetchWithTimeout(proxyUrl, 10000);
+        if (!response.ok) throw new Error(`Proxy ${proxyIndex+1} HTTP ${response.status}`);
+        const text = await response.text();
+        const parser = new DOMParser();
+        const xml = parser.parseFromString(text, 'text/xml');
+        const entries = xml.querySelectorAll('entry');
+        if (entries.length === 0) return [];
+        const results = [];
+        for (let entry of entries) {
+            const title = entry.querySelector('title')?.textContent?.trim() || 'No title';
+            const summary = entry.querySelector('summary')?.textContent?.trim()?.slice(0, 350) || '';
+            const link = entry.querySelector('id')?.textContent || '#';
+            const published = entry.querySelector('published')?.textContent?.slice(0,10) || 'Unknown';
+            results.push({
+                title: title,
+                abstract: summary,
+                url: link,
+                date: published,
+                source: 'arXiv (via proxy)',
+                type: 'preprint'
+            });
+        }
+        return results;
+    }
+
+    async function fetchArxivWithFallback(query) {
+        let lastError;
+        for (let i = 0; i < PROXIES.length; i++) {
+            try {
+                const result = await fetchArxiv(query, i);
+                if (result.length > 0) {
+                    debugDiv.innerHTML += `<span style="color: green;">✅ arXiv succeeded with proxy ${i+1}</span><br>`;
+                    return result;
+                }
+            } catch (err) {
+                lastError = err;
+                debugDiv.innerHTML += `<span style="color: orange;">⚠️ arXiv proxy ${i+1} failed: ${err.message}</span><br>`;
+            }
+        }
+        debugDiv.innerHTML += `<span style="color: red;">❌ All arXiv proxies failed. Last error: ${lastError?.message}</span><br>`;
+        return [];
+    }
+
+    // ---------- Main search ----------
+    async function searchAll() {
+        const query = queryInput.value.trim();
+        if (!query) {
+            resultsDiv.innerHTML = '<div class="error">Please enter a search term.</div>';
+            return;
+        }
+        resultsDiv.innerHTML = '<div class="loading">🔍 Searching across Crossref, Semantic Scholar, and arXiv...</div>';
+        debugDiv.innerHTML = `🔧 Debug log for query: "${query}"<br>`;
+
+        let crossrefResults = [], ssResults = [], arxivResults = [];
+
+        // Try Crossref
+        try {
+            crossrefResults = await fetchCrossref(query);
+            debugDiv.innerHTML += `<span style="color: green;">✅ Crossref returned ${crossrefResults.length} papers</span><br>`;
+        } catch (err) {
+            debugDiv.innerHTML += `<span style="color: red;">❌ Crossref error: ${err.message}</span><br>`;
+        }
+
+        // Try Semantic Scholar
+        try {
+            ssResults = await fetchSemanticScholar(query);
+            debugDiv.innerHTML += `<span style="color: green;">✅ Semantic Scholar returned ${ssResults.length} papers</span><br>`;
+        } catch (err) {
+            debugDiv.innerHTML += `<span style="color: red;">❌ Semantic Scholar error: ${err.message}</span><br>`;
+        }
+
+        // Try arXiv with proxy fallback
+        try {
+            arxivResults = await fetchArxivWithFallback(query);
+            debugDiv.innerHTML += `<span style="color: green;">✅ arXiv (proxy) returned ${arxivResults.length} papers</span><br>`;
+        } catch (err) {
+            debugDiv.innerHTML += `<span style="color: red;">❌ arXiv completely failed: ${err.message}</span><br>`;
+        }
+
+        const allResults = [...crossrefResults, ...ssResults, ...arxivResults];
+        // Deduplicate by title (simple)
+        const seen = new Set();
+        const unique = [];
+        for (const r of allResults) {
+            const key = r.title.toLowerCase();
+            if (!seen.has(key)) {
+                seen.add(key);
+                unique.push(r);
+            }
+        }
+
+        if (unique.length === 0) {
+            resultsDiv.innerHTML = `<div class="error">No results found from any source. Check debug panel for details.</div>`;
+            return;
+        }
+
+        // Sort by date (newest first)
+        unique.sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+
+        let html = `<div style="margin-bottom: 16px;">📄 Total ${unique.length} unique results</div>`;
+        for (const r of unique) {
+            html += `
+                <div class="paper-card">
+                    <div class="title"><a href="${r.url}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a></div>
+                    <div class="meta">
+                        <span>📚 ${r.source}</span>
+                        <span>📅 ${escapeHtml(r.date)}</span>
+                        <span>${r.type === 'preprint' ? '📄 Preprint' : '📖 Paper'}</span>
+                    </div>
+                    <div class="abstract">${escapeHtml(r.abstract) || 'No abstract available.'}</div>
+                </div>
+            `;
+        }
+        resultsDiv.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    searchBtn.addEventListener('click', searchAll);
+    queryInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchAll(); });
+</script>
+</body>
+</html>
