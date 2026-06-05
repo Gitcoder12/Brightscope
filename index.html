@@ -240,6 +240,7 @@ if(unique.length === 0){
 }
 
 document.getElementById("authors").innerHTML =
+"<div class='result'>👨‍🔬 AUTHORS PANEL LOADED</div>" +
 topAuthors.map(a => `
 <div class="result">
 <b>${a[0]}</b><br>
@@ -248,6 +249,7 @@ Papers: ${a[1]}
 `).join("");
 
 document.getElementById("topics").innerHTML =
+"<div class='result'>🔥 TOPICS PANEL LOADED</div>" +
 topTopics.map(t => `
 <div class="result">
 <b>${t[0]}</b><br>
@@ -256,6 +258,7 @@ Mentions: ${t[1]}
 `).join("");
 
 document.getElementById("papers").innerHTML =
+"<div class='result'>📚 PAPERS PANEL LOADED</div>" +
 topPapers.map(p => `
 <div class="result">
 <b>${p.title}</b><br>
@@ -264,12 +267,7 @@ ${p.year}
 `).join("");
 
 document.getElementById("institutions").innerHTML =
-`
-<div class="result">
-OpenAlex Institution Extraction
-Coming Next Version
-</div>
-`;
+"<div class='result'>🏛 INSTITUTIONS PANEL LOADED</div>";
 
     resultsDiv.innerHTML =
         unique.map(r => `
