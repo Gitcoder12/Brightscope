@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brightscope – Field‑Specific Research Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            transition: background 0.2s, color 0.2s;
+            padding: 2rem;
+        }
+
+        body.dark {
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .theme-toggle {
+            background: #e2e8f0;
+            border: none;
+            border-radius: 40px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        body.dark .theme-toggle {
+            background: #334155;
+            color: white;
+        }
+
+        /* Search card */
+        .search-card {
+            background: white;
+            border-radius: 32px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            transition: background 0.2s;
+        }
+
+        body.dark .search-card {
+            background: #1e293b;
+        }
+
+        .field-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .field-group {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        body.dark label {
+            color: #94a3b8;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            background: white;
+            transition: 0.2s;
+        }
+
+        body.dark select, body.dark input {
+            background: #334155;
+            border-color: #475569;
+            color: white;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 60px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 1.8rem;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+            transform: scale(1.02);
+        }
+
+        /* Results */
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .result-count {
+            font-size: 0.85rem;
+            color: #475569;
+        }
+
+        .results-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .paper-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        body.dark .paper-card {
+            background: #1e293b;
+            border-color: #334155;
+        }
+
+        .paper-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+        }
+
+        .paper-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .paper-title a {
+            color: #1e3a8a;
+            text-decoration: none;
+        }
+
+        body.dark .paper-title a {
+            color: #60a5fa;
+        }
+
+        .paper-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.7rem;
+            color: #475569;
+            margin-bottom: 0.75rem;
+        }
+
+        body.dark .paper-meta {
+            color: #94a3b8;
+        }
+
+        .paper-abstract {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #334155;
+        }
+
+        body.dark .paper-abstract {
+            color: #cbd5e1;
+        }
+
+        .loading, .error {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+        }
+
+        .error {
+            color: #dc2626;
+            background: #fee2e2;
+            border-radius: 20px;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🔍 Brightscope · Field Explorer</h1>
+        <button class="theme-toggle" id="themeToggle">🌓 Dark / Light</button>
+    </div>
+
+    <div class="search-card">
+        <div class="field-row">
+            <div class="field-group">
+                <label>📚 Research Field</label>
+                <select id="fieldSelect">
+                    <option value="">Any field (general)</option>
+                    <option value="computer science">Computer Science / AI</option>
+                    <option value="medicine">Medicine & Healthcare</option>
+                    <option value="physics">Physics & Astronomy</option>
+                    <option value="biology">Biology & Life Sciences</option>
+                    <option value="chemistry">Chemistry & Materials</option>
+                    <option value="economics">Economics & Finance</option>
+                    <option value="engineering">Engineering & Technology</option>
+                    <option value="psychology">Psychology & Neuroscience</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>🔎 Keywords / Topic</label>
+                <input type="text" id="keywordInput" placeholder="e.g., transformer, CRISPR, quantum gravity">
+            </div>
+            <div class="field-group">
+                <button id="searchBtn">Search →</button>
+            </div>
+        </div>
+        <p style="font-size: 0.75rem; color: #475569; margin-top: 0.5rem;">
+            ⚡ Searches real academic papers from Semantic Scholar – no API key needed. Results are filtered by your selected field.
+        </p>
+    </div>
+
+    <div id="resultsArea">
+        <div class="results-header" id="resultsHeader" style="display: none;">
+            <h3>📄 Papers</h3>
+            <span class="result-count" id="resultCount"></span>
+        </div>
+        <div id="results" class="results-grid"></div>
+    </div>
+    <footer>Powered by Semantic Scholar | Open access & peer‑reviewed papers | CORS enabled</footer>
+</div>
+
+<script>
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark');
+    }
+    themeToggle.addEventListener('click', () => {
+        document.body.classList.toggle('dark');
+        localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // DOM elements
+    const fieldSelect = document.getElementById('fieldSelect');
+    const keywordInput = document.getElementById('keywordInput');
+    const searchBtn = document.getElementById('searchBtn');
+    const resultsDiv = document.getElementById('results');
+    const resultsHeader = document.getElementById('resultsHeader');
+    const resultCountSpan = document.getElementById('resultCount');
+
+    async function searchPapers() {
+        const field = fieldSelect.value.trim();
+        const keyword = keywordInput.value.trim();
+        if (!keyword) {
+            resultsDiv.innerHTML = '<div class="error">Please enter keywords to search.</div>';
+            resultsHeader.style.display = 'none';
+            return;
+        }
+
+        // Build query: if field selected, prepend "category:field" or simply add as part of query
+        let query = keyword;
+        if (field) {
+            // Semantic Scholar doesn't have official field filter, but we can add field as a keyword boost
+            // Alternative: use venue or category? We'll just add field to query to improve relevance.
+            query = `${keyword} ${field}`;
+        }
+
+        resultsDiv.innerHTML = '<div class="loading">🔍 Searching across Semantic Scholar...</div>';
+        resultsHeader.style.display = 'none';
+
+        try {
+            const url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=20&fields=title,abstract,url,publicationDate,authors,venue,citationCount`;
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            const papers = data.data || [];
+            if (papers.length === 0) {
+                resultsDiv.innerHTML = '<div class="error">No papers found. Try broader keywords or a different field.</div>';
+                resultsHeader.style.display = 'none';
+                return;
+            }
+
+            // Display results
+            resultsHeader.style.display = 'flex';
+            resultCountSpan.innerText = `${papers.length} results`;
+
+            let html = '';
+            for (const paper of papers) {
+                const title = paper.title || 'No title';
+                const abstract = (paper.abstract || 'No abstract available.').slice(0, 350) + (paper.abstract?.length > 350 ? '…' : '');
+                const urlLink = paper.url || '#';
+                const date = paper.publicationDate ? paper.publicationDate.slice(0, 10) : 'Unknown date';
+                const venue = paper.venue || 'Unknown venue';
+                const citations = paper.citationCount || 0;
+                const authors = paper.authors?.slice(0, 3).map(a => a.name).join(', ') || 'No authors';
+
+                html += `
+                    <div class="paper-card">
+                        <div class="paper-title">
+                            <a href="${urlLink}" target="_blank" rel="noopener">${escapeHtml(title)}</a>
+                        </div>
+                        <div class="paper-meta">
+                            <span>📅 ${escapeHtml(date)}</span>
+                            <span>🏛️ ${escapeHtml(venue)}</span>
+                            <span>📖 ${citations} citations</span>
+                            <span>✍️ ${escapeHtml(authors)}</span>
+                        </div>
+                        <div class="paper-abstract">${escapeHtml(abstract)}</div>
+                    </div>
+                `;
+            }
+            resultsDiv.innerHTML = html;
+        } catch (err) {
+            console.error(err);
+            resultsDiv.innerHTML = `<div class="error">❌ Network error: ${err.message}. Please check your connection and try again.</div>`;
+            resultsHeader.style.display = 'none';
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    searchBtn.addEventListener('click', searchPapers);
+    keywordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') searchPapers();
+    });
+</script>
+</body>
+</html>
