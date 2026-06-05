@@ -1,14 +1,17 @@
+```html
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Brightscope V1</title>
+<title>Brightscope</title>
 
 <style>
 body{
     font-family:Arial,sans-serif;
+    background:#0f172a;
+    color:white;
     max-width:1200px;
     margin:auto;
     padding:20px;
@@ -16,21 +19,32 @@ body{
 
 input{
     width:70%;
-    padding:10px;
+    padding:12px;
+    border:none;
+    border-radius:10px;
 }
 
 button{
-    padding:10px 20px;
+    padding:12px 20px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
 }
 
 .result{
-    border-bottom:1px solid #ddd;
-    padding:12px;
+    background:#1e293b;
+    margin:12px 0;
+    padding:15px;
+    border-radius:10px;
 }
 
-.debug{
+a{
+    color:#60a5fa;
+}
+
+#debug{
     margin-top:20px;
-    color:#666;
+    color:#94a3b8;
 }
 </style>
 </head>
@@ -40,31 +54,35 @@ button{
 
 <input
 id="query"
-placeholder="Search research topic..."
+placeholder="machine learning, quantum computing..."
 >
 
 <button onclick="searchAll()">
 Search
 </button>
 
+<div id="debug"></div>
+
+<hr>
+
 <div id="results"></div>
 
-<div id="debug" class="debug"></div>
-
 <script type="module">
-    
-import { searchCrossref }
-from "./crossref.js";
 
-import { searchOpenAlex }
-from "./openalex.js";
+import { searchCrossref } from "./crossref.js";
+import { searchOpenAlex } from "./openalex.js";
+
+console.log("Brightscope loaded");
 
 window.searchAll = async function() {
 
     const query =
         document.getElementById("query").value.trim();
 
-    if(!query) return;
+    if(!query){
+        alert("Enter a topic");
+        return;
+    }
 
     const resultsDiv =
         document.getElementById("results");
@@ -73,7 +91,7 @@ window.searchAll = async function() {
         document.getElementById("debug");
 
     resultsDiv.innerHTML =
-        "Searching...";
+        "<p>Searching...</p>";
 
     debugDiv.innerHTML = "";
 
@@ -84,15 +102,29 @@ window.searchAll = async function() {
         const crossref =
             await searchCrossref(query);
 
-        results.push(...crossref);
+        debugDiv.innerHTML +=
+            "✅ Crossref loaded<br>";
+
+        crossref.forEach(item => {
+
+            results.push({
+                title:item.title?.[0] || "Untitled",
+                authors:item.author?.map(a =>
+                    `${a.given || ""} ${a.family || ""}`
+                ).join(", ") || "Unknown",
+                year:item.published?.["date-parts"]?.[0]?.[0] || "",
+                link:item.URL || "#",
+                source:"Crossref"
+            });
+
+        });
+
+    } catch(err){
+
+        console.error(err);
 
         debugDiv.innerHTML +=
-            "✅ Crossref OK<br>";
-
-    } catch(err) {
-
-        debugDiv.innerHTML +=
-            "❌ Crossref Failed<br>";
+            "❌ Crossref failed<br>";
     }
 
     try {
@@ -100,15 +132,29 @@ window.searchAll = async function() {
         const openalex =
             await searchOpenAlex(query);
 
-        results.push(...openalex);
+        debugDiv.innerHTML +=
+            "✅ OpenAlex loaded<br>";
+
+        openalex.forEach(item => {
+
+            results.push({
+                title:item.display_name || "Untitled",
+                authors:item.authorships?.map(a =>
+                    a.author?.display_name
+                ).join(", ") || "Unknown",
+                year:item.publication_year || "",
+                link:item.id || "#",
+                source:"OpenAlex"
+            });
+
+        });
+
+    } catch(err){
+
+        console.error(err);
 
         debugDiv.innerHTML +=
-            "✅ OpenAlex OK<br>";
-
-    } catch(err) {
-
-        debugDiv.innerHTML +=
-            "❌ OpenAlex Failed<br>";
+            "❌ OpenAlex failed<br>";
     }
 
     const unique =
@@ -120,14 +166,21 @@ window.searchAll = async function() {
         (a,b)=>(b.year||0)-(a.year||0)
     );
 
+    if(unique.length === 0){
+
+        resultsDiv.innerHTML =
+            "<h3>No results found</h3>";
+
+        return;
+    }
+
     resultsDiv.innerHTML =
         unique.map(r => `
             <div class="result">
 
                 <h3>
-                    <a href="${r.link}"
-                       target="_blank">
-                       ${r.title}
+                    <a href="${r.link}" target="_blank">
+                        ${r.title}
                     </a>
                 </h3>
 
@@ -155,3 +208,4 @@ window.searchAll = async function() {
 
 </body>
 </html>
+```
