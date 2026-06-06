@@ -1,336 +1,524 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brightscope — Research Search</title>
-    <link rel="stylesheet" href="css/main.css">
-    <style>
-        :root { --primary: #00ff9d; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0; padding: 0;
-            background: #0a0a0f;
-            color: #e0e0e0;
-        }
-        header { text-align: center; padding: 4rem 1rem 2rem; background: linear-gradient(180deg, #1a1a2e, #0a0a0f); }
-        h1 {
-            font-size: 3.8rem;
-            margin: 0;
-            background: linear-gradient(90deg, #00ff9d, #00b8ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .tagline { font-size: 1.35rem; color: #aaa; margin: 1rem 0 2rem; }
-
-        .search-container { max-width: 720px; margin: 0 auto; padding: 0 20px; }
-        #query {
-            width: 100%;
-            padding: 18px 28px;
-            font-size: 1.25rem;
-            border: 2px solid #333;
-            border-radius: 50px;
-            background: #1f1f2b;
-            color: white;
-        }
-        #query:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(0,255,157,0.2); }
-        #searchBtn {
-            margin-top: 12px;
-            padding: 14px 40px;
-            font-size: 1.1rem;
-            background: var(--primary);
-            color: black;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        #searchBtn:disabled { opacity: 0.7; cursor: not-allowed; }
-
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        .card {
-            background: #16161f;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #333;
-        }
-        .mini-item {
-            margin: 8px 0;
-            padding: 8px;
-            background: #1f1f2b;
-            border-radius: 8px;
-        }
-        .muted { color: #888; font-size: 0.9rem; }
-
-        .results {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        .result-item {
-            background: #16161f;
-            border-radius: 12px;
-            padding: 18px;
-            margin-bottom: 16px;
-            border: 1px solid #333;
-        }
-        .result-type {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-        }
-        .type-paper { background: #004d26; color: #00ff9d; }
-        .type-patent { background: #4d2600; color: #ffaa00; }
-
-        h3 { margin: 0 0 8px 0; color: #fff; }
-        .meta { color: #888; font-size: 0.9rem; margin-bottom: 10px; }
-        .abstract { color: #bbb; line-height: 1.5; }
-        .links a {
-            color: var(--primary);
-            margin-right: 12px;
-            text-decoration: none;
-        }
-        .links a:hover { text-decoration: underline; }
-
-        #debug {
-            margin: 20px;
-            padding: 15px;
-            background: #1a1a2e;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 0.9rem;
-        }
-        .empty-message { color: #666; text-align: center; padding: 40px; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brightscope — Research Search</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --card: #16161f;
+      --border: #2a2a38;
+      --text: #e8e8ee;
+      --muted: #9aa0aa;
+      --primary: #00ff9d;
+      --primary2: #00b8ff;
+      --danger: #ff6b6b;
+      --shadow: 0 10px 30px rgba(0,0,0,0.28);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(180deg, #0d0d14, #09090d);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      text-align: center;
+      padding: 56px 20px 28px;
+      background: linear-gradient(180deg, #1a1a2e, #0a0a0f);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2.1rem, 5vw, 3.8rem);
+      background: linear-gradient(90deg, var(--primary), var(--primary2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tagline {
+      color: #adb3bd;
+      font-size: 1.06rem;
+      max-width: 860px;
+      margin: 14px auto 10px;
+    }
+    .ready { color: var(--primary); font-weight: 700; margin: 0; }
+    .search-container {
+      max-width: 760px;
+      margin: 28px auto 0;
+      padding: 0 18px;
+    }
+    .search-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #query {
+      flex: 1 1 520px;
+      min-width: 260px;
+      padding: 18px 22px;
+      font-size: 1.08rem;
+      border: 2px solid #2f3340;
+      border-radius: 999px;
+      background: #1b1d29;
+      color: #fff;
+      outline: none;
+    }
+    #query:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(0,255,157,0.16);
+    }
+    #searchBtn {
+      padding: 16px 28px;
+      font-size: 1rem;
+      background: var(--primary);
+      color: #04120c;
+      border: none;
+      border-radius: 999px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    #searchBtn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      max-width: 1200px;
+      margin: 34px auto;
+      padding: 0 20px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card h3 { margin: 0 0 12px; font-size: 1.05rem; }
+    .mini-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #111520;
+      border: 1px solid #232b39;
+      margin-bottom: 10px;
+    }
+    .mini-item strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+    .muted { color: var(--muted); font-size: 0.94rem; }
+    .results {
+      max-width: 1200px;
+      margin: 20px auto 40px;
+      padding: 0 20px;
+    }
+    .results h2 { margin: 0 0 16px; font-size: 1.35rem; }
+    .empty-message {
+      color: #727987;
+      text-align: center;
+      padding: 28px 14px;
+    }
+    #debug {
+      max-width: 1200px;
+      margin: 0 auto 36px;
+      padding: 16px 20px;
+      background: #131823;
+      border: 1px solid #213042;
+      border-radius: 12px;
+      color: #c4d2df;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92rem;
+      min-height: 58px;
+    }
+    .result-item {
+      background: linear-gradient(180deg, #171a25, #13161f);
+      border: 1px solid #2a3140;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+    .result-type {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .type-paper {
+      background: rgba(0,184,255,0.13);
+      color: #71d4ff;
+      border: 1px solid rgba(0,184,255,0.25);
+    }
+    .type-patent {
+      background: rgba(0,255,157,0.12);
+      color: #7effc6;
+      border: 1px solid rgba(0,255,157,0.22);
+    }
+    .result-item h3 { margin: 0 0 8px; font-size: 1.08rem; line-height: 1.35; }
+    .meta {
+      color: var(--muted);
+      font-size: 0.94rem;
+      margin-bottom: 10px;
+    }
+    .abstract {
+      color: #d8dce4;
+      font-size: 0.96rem;
+      margin-bottom: 12px;
+    }
+    .links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .links a {
+      text-decoration: none;
+      color: #051912;
+      background: var(--primary);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+    .links a.secondary {
+      background: #202635;
+      color: #cfe7f4;
+      border: 1px solid #334055;
+    }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>🔬 Brightscope</h1>
+    <p class="tagline">Search papers and patents from Crossref, arXiv, and open patent sources in one place.</p>
+    <p class="ready">⚡ Ready – enter a topic</p>
+  </header>
 
-    <header>
-        <h1>🔬 Brightscope</h1>
-        <p class="tagline">Search papers and patents from Crossref, arXiv, and open patent sources in one place.</p>
-        <p style="color:#00ff9d; font-weight:bold;">⚡ Ready – enter a topic</p>
-    </header>
-
-    <div class="search-container">
-        <input type="text" id="query" placeholder="Enter a research topic, paper title, or author...">
-        <center><button id="searchBtn">Search All Sources</button></center>
+  <div class="search-container">
+    <div class="search-row">
+      <input id="query" type="text" placeholder="Enter a research topic, paper title, or keyword..." />
+      <button id="searchBtn">Search All Sources</button>
     </div>
+  </div>
 
-    <div class="dashboard">
-        <div class="card">
-            <h3>👨‍🔬 Top Authors</h3>
-            <div id="authorsPanel" class="empty-message">Results will appear here</div>
-        </div>
-        <div class="card">
-            <h3>🔥 Top Topics</h3>
-            <div id="topicsPanel" class="empty-message">Results will appear here</div>
-        </div>
-        <div class="card">
-            <h3>📚 Top Papers</h3>
-            <div id="papersPanel" class="empty-message">Results will appear here</div>
-        </div>
-        <div class="card">
-            <h3>📜 Recent Patents</h3>
-            <div id="patentsPanel" class="empty-message">Results will appear here</div>
-        </div>
+  <section class="dashboard">
+    <div class="card">
+      <h3>👨‍🔬 Top Authors</h3>
+      <div id="authorsPanel">Results will appear here</div>
     </div>
-
-    <div class="results">
-        <h2>📋 All Results (<span id="resultCount">0</span>)</h2>
-        <div id="resultsList">
-            <div class="empty-message">Search something to get started</div>
-        </div>
+    <div class="card">
+      <h3>🔥 Top Topics</h3>
+      <div id="topicsPanel">Results will appear here</div>
     </div>
+    <div class="card">
+      <h3>📚 Top Papers</h3>
+      <div id="papersPanel">Results will appear here</div>
+    </div>
+    <div class="card">
+      <h3>📜 Recent Patents</h3>
+      <div id="patentsPanel">Results will appear here</div>
+    </div>
+  </section>
 
-    <div id="debug"></div>
+  <section class="results">
+    <h2>📋 All Results</h2>
+    <div id="resultsList">
+      <div class="empty-message">Search something to get started</div>
+    </div>
+  </section>
 
-    <script>
-        const queryInput = document.getElementById('query');
-        const searchBtn = document.getElementById('searchBtn');
-        const debugDiv = document.getElementById('debug');
-        const authorsPanel = document.getElementById('authorsPanel');
-        const topicsPanel = document.getElementById('topicsPanel');
-        const papersPanel = document.getElementById('papersPanel');
-        const patentsPanel = document.getElementById('patentsPanel');
-        const resultsList = document.getElementById('resultsList');
-        const resultCount = document.getElementById('resultCount');
+  <div id="debug">Idle.</div>
 
-        function escapeHtml(str = '') {
-          return str
-            .replaceAll('&', '&amp;')
-            .replaceAll('<', '&lt;')
-            .replaceAll('>', '&gt;')
-            .replaceAll('"', '&quot;')
-            .replaceAll("'", '&#039;');
-        }
+<script>
+const queryInput = document.getElementById('query');
+const searchBtn = document.getElementById('searchBtn');
+const debugDiv = document.getElementById('debug');
+const authorsPanel = document.getElementById('authorsPanel');
+const topicsPanel = document.getElementById('topicsPanel');
+const papersPanel = document.getElementById('papersPanel');
+const patentsPanel = document.getElementById('patentsPanel');
+const resultsList = document.getElementById('resultsList');
 
-        function appendDebug(msg) {
-          debugDiv.innerHTML += `${msg}<br>`;
-        }
+function escapeHtml(str = '') {
+  return str
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
 
-        function setLoading(query) {
-          debugDiv.innerHTML = `🔍 Searching for "<b>${escapeHtml(query)}</b>" ...<br>`;
-          resultsList.innerHTML = '<div class="empty-message">⏳ Loading results from all sources...</div>';
-          searchBtn.disabled = true;
-          searchBtn.textContent = 'Searching...';
-        }
+function appendDebug(msg) {
+  debugDiv.innerHTML += `${msg}<br>`;
+}
 
-        function setIdle() {
-          searchBtn.disabled = false;
-          searchBtn.textContent = 'Search All Sources';
-        }
+function setLoading(query) {
+  debugDiv.innerHTML = `🔍 Searching for "<b>${escapeHtml(query)}</b>" ...<br>`;
+  resultsList.innerHTML = '<div class="empty-message">⏳ Loading results from all sources...</div>';
+  authorsPanel.innerHTML = '<div class="empty-message">📊 Computing authors...</div>';
+  topicsPanel.innerHTML = '<div class="empty-message">📊 Extracting topics...</div>';
+  papersPanel.innerHTML = '<div class="empty-message">📚 Loading papers...</div>';
+  patentsPanel.innerHTML = '<div class="empty-message">📜 Preparing patent links...</div>';
+  searchBtn.disabled = true;
+  searchBtn.textContent = 'Searching...';
+}
 
-        async function fetchJSON(url) {
-          const res = await fetch(url, { headers: { Accept: 'application/json' } });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.json();
-        }
+function setIdle() {
+  searchBtn.disabled = false;
+  searchBtn.textContent = 'Search All Sources';
+}
 
-        async function fetchText(url) {
-          const res = await fetch(url);
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          return res.text();
-        }
+async function fetchJSON(url) {
+  const res = await fetch(url, { headers: { Accept: 'application/json' } });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
 
-        async function fetchCrossref(query) {
-          const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=25&sort=relevance&order=desc`;
-          const data = await fetchJSON(url);
-          return (data.message?.items || []).map(item => ({
-            type: 'paper',
-            source: 'Crossref',
-            title: item.title?.[0] || 'Untitled',
-            authors: (item.author || []).map(a => [a.given, a.family].filter(Boolean).join(' ')).filter(Boolean),
-            year: item.published?.['date-parts']?.[0]?.[0] || '',
-            abstract: '',
-            url: item.URL || '',
-            venue: item['container-title']?.[0] || ''
-          }));
-        }
+async function fetchText(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.text();
+}
 
-        async function fetchArxiv(query) {
-          const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&start=0&max_results=15`;
-          const xmlText = await fetchText(url);
-          const xml = new DOMParser().parseFromString(xmlText, 'text/xml');
-          const entries = [...xml.getElementsByTagName('entry')];
-          return entries.map(entry => {
-            const getText = tag => entry.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
-            const authors = [...entry.getElementsByTagName('author')].map(a => a.getElementsByTagName('name')[0]?.textContent?.trim()).filter(Boolean);
-            return {
-              type: 'paper',
-              source: 'arXiv',
-              title: getText('title').replace(/\s+/g, ' '),
-              authors,
-              year: getText('published').slice(0, 4),
-              abstract: getText('summary').replace(/\s+/g, ' '),
-              url: getText('id'),
-              venue: 'arXiv'
-            };
-          });
-        }
+async function fetchCrossref(query) {
+  const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=12&sort=relevance&order=desc`;
+  const data = await fetchJSON(url);
+  return (data.message?.items || []).map(item => ({
+    type: 'paper',
+    source: 'Crossref',
+    title: item.title?.[0] || 'Untitled',
+    authors: (item.author || []).map(a => [a.given, a.family].filter(Boolean).join(' ')).filter(Boolean),
+    date: (item.published?.['date-parts']?.[0] || item.created?.['date-parts']?.[0] || []).join('-'),
+    year: item.published?.['date-parts']?.[0]?.[0] || item.created?.['date-parts']?.[0]?.[0] || '',
+    abstract: '',
+    url: item.URL || '',
+    venue: item['container-title']?.[0] || ''
+  }));
+}
 
-        function buildPatentLinks(query) {
-          return [
-            { type: 'patent-link', source: 'Google Patents', title: `Google Patents for "${query}"`, url: `https://patents.google.com/?q=${encodeURIComponent(query)}`, abstract: 'Live patent search' },
-            { type: 'patent-link', source: 'PatentsView', title: `PatentsView for "${query}"`, url: `https://patentsview.org/search?q=${encodeURIComponent(query)}`, abstract: 'U.S. patent database' }
-          ];
-        }
+async function fetchArxiv(query) {
+  const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&start=0&max_results=8`;
+  const xmlText = await fetchText(url);
+  const xml = new DOMParser().parseFromString(xmlText, 'text/xml');
+  const entries = [...xml.getElementsByTagName('entry')];
+  return entries.map(entry => {
+    const getText = tag => entry.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
+    const authors = [...entry.getElementsByTagName('author')]
+      .map(a => a.getElementsByTagName('name')[0]?.textContent?.trim())
+      .filter(Boolean);
+    return {
+      type: 'paper',
+      source: 'arXiv',
+      title: getText('title').replace(/\s+/g, ' '),
+      authors,
+      date: getText('published').slice(0, 10),
+      year: getText('published').slice(0, 4),
+      abstract: getText('summary').replace(/\s+/g, ' '),
+      url: getText('id'),
+      venue: 'arXiv'
+    };
+  });
+}
 
-        function dedupeResults(items) {
-          const seen = new Map();
-          for (const item of items) {
-            const key = (item.title || '').toLowerCase().trim();
-            if (key && !seen.has(key)) seen.set(key, item);
-          }
-          return [...seen.values()];
-        }
+function buildPatentLinks(query) {
+  return [
+    {
+      type: 'patent-link',
+      source: 'Google Patents',
+      title: `Search Google Patents for "${query}"`,
+      authors: [],
+      date: '',
+      year: '',
+      abstract: 'Open live patent search results in Google Patents.',
+      url: `https://patents.google.com/?q=${encodeURIComponent(query)}`,
+      venue: 'Patent Search'
+    },
+    {
+      type: 'patent-link',
+      source: 'USPTO',
+      title: `Search USPTO Patent Public Search for "${query}"`,
+      authors: [],
+      date: '',
+      year: '',
+      abstract: 'Open the USPTO patent search portal for U.S. patent records.',
+      url: `https://www.uspto.gov/patents/search/patent-public-search`,
+      venue: 'Patent Search'
+    },
+    {
+      type: 'patent-link',
+      source: 'WIPO PATENTSCOPE',
+      title: `Search WIPO PATENTSCOPE for "${query}"`,
+      authors: [],
+      date: '',
+      year: '',
+      abstract: 'Open WIPO PATENTSCOPE for international patent applications and collections.',
+      url: `https://www.wipo.int/en/web/patentscope`,
+      venue: 'Patent Search'
+    }
+  ];
+}
 
-        function updateDashboard(papers, patentLinks, query) {
-          // Top Authors
-          const authorCount = new Map();
-          papers.forEach(p => (p.authors || []).forEach(a => authorCount.set(a, (authorCount.get(a) || 0) + 1)));
-          const topAuthors = [...authorCount.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6);
-          authorsPanel.innerHTML = topAuthors.map(([name, count]) => 
-            `<div class="mini-item"><strong>${escapeHtml(name)}</strong><div class="muted">${count} result(s)</div></div>`
-          ).join('') || '<div class="empty-message">No authors found</div>';
+function normalizeTitle(title = '') {
+  return title
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .replace(/\b(the|a|an|and|of|for|in|on|to|with)\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
 
-          // Top Topics (simple version)
-          topicsPanel.innerHTML = `<div class="mini-item"><strong>${escapeHtml(query)}</strong><div class="muted">Main topic</div></div>`;
+function dedupeResults(items) {
+  const seen = new Map();
+  for (const item of items) {
+    const key = `${item.type}::${normalizeTitle(item.title)}`;
+    if (!item.title) continue;
+    if (!seen.has(key)) seen.set(key, item);
+  }
+  return [...seen.values()];
+}
 
-          // Top Papers (still limited for dashboard)
-          papersPanel.innerHTML = papers.slice(0,5).map(p => 
-            `<div class="mini-item"><strong>${escapeHtml(p.title)}</strong><div class="muted">${p.source} ${p.year}</div></div>`
-          ).join('') || '<div class="empty-message">No papers found</div>';
+function scoreResult(item, query) {
+  const q = query.toLowerCase().trim();
+  const title = (item.title || '').toLowerCase();
+  let score = 0;
+  if (title === q) score += 100;
+  if (title.includes(q)) score += 40;
+  if ((item.source || '') === 'arXiv') score += 8;
+  if ((item.abstract || '').length > 40) score += 6;
+  if (item.year) score += Math.min(10, Math.max(0, Number(item.year) - 2015));
+  return score;
+}
 
-          patentsPanel.innerHTML = patentLinks.map(p => 
-            `<div class="mini-item"><strong>${escapeHtml(p.source)}</strong><div class="muted"><a href="${p.url}" target="_blank">Open</a></div></div>`
-          ).join('');
-        }
+function extractTopics(items, query) {
+  const stop = new Set([
+    'the','and','for','with','from','into','using','based','study','analysis','system','method',
+    'methods','data','model','models','approach','approaches','paper','via','new','toward','towards',
+    'over','under','that','this','their','its','are','can','not','been','than','here','work','results',
+    'devices','requirements'
+  ]);
+  const q = query.toLowerCase();
+  const counts = new Map();
 
-        function renderCombinedResults(items) {
-          resultCount.textContent = items.length;
-          if (!items.length) {
-            resultsList.innerHTML = '<div class="empty-message">No results found.</div>';
-            return;
-          }
+  items.forEach(item => {
+    const text = `${item.title || ''} ${item.abstract || ''}`;
+    text.split(/\s+/).forEach(raw => {
+      const w = raw.toLowerCase().replace(/[^a-z0-9\-]/g, '').trim();
+      if (!w || w.length < 4 || stop.has(w) || w === q) return;
+      counts.set(w, (counts.get(w) || 0) + 1);
+    });
+  });
 
-          resultsList.innerHTML = items.map(item => `
-            <article class="result-item">
-              <div class="result-type ${item.type === 'paper' ? 'type-paper' : 'type-patent'}">
-                ${item.type === 'paper' ? '📄 PAPER' : '📜 PATENT'}
-              </div>
-              <h3>${escapeHtml(item.title)}</h3>
-              <div class="meta">
-                ${escapeHtml(item.source)} ${item.year ? '• ' + item.year : ''} 
-                ${item.authors && item.authors.length ? '• ' + escapeHtml(item.authors.slice(0,3).join(', ')) : ''}
-              </div>
-              <div class="abstract">${escapeHtml(item.abstract || 'No abstract available.')}</div>
-              <div class="links">
-                ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener">Open</a>` : ''}
-                <a href="https://scholar.google.com/scholar?q=${encodeURIComponent(item.title)}" target="_blank" rel="noopener">Google Scholar</a>
-              </div>
-            </article>
-          `).join('');
-        }
+  return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+}
 
-        async function searchAll() {
-          const query = queryInput.value.trim();
-          if (!query) return;
+function updateDashboard(papers, patentLinks, query) {
+  const authorCount = new Map();
+  papers.forEach(p => (p.authors || []).forEach(a => authorCount.set(a, (authorCount.get(a) || 0) + 1)));
+  const topAuthors = [...authorCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const topTopics = extractTopics(papers, query);
+  const topPapers = [...papers].slice(0, 5);
 
-          setLoading(query);
-          const start = performance.now();
+  authorsPanel.innerHTML = topAuthors.length
+    ? topAuthors.map(([name, count]) => `<div class="mini-item"><strong>${escapeHtml(name)}</strong><div class="muted">${count} result(s)</div></div>`).join('')
+    : '<div class="empty-message">No author data found</div>';
 
-          const [cross, arxiv] = await Promise.allSettled([
-            fetchCrossref(query).catch(e => { appendDebug(`Crossref error: ${e.message}`); return []; }),
-            fetchArxiv(query).catch(e => { appendDebug(`arXiv error: ${e.message}`); return []; })
-          ]);
+  topicsPanel.innerHTML = topTopics.length
+    ? topTopics.map(([topic, count]) => `<div class="mini-item"><strong>${escapeHtml(topic)}</strong><div class="muted">${count} mention(s)</div></div>`).join('')
+    : '<div class="empty-message">No clean topics found</div>';
 
-          let papers = [];
-          if (cross.value) papers.push(...cross.value);
-          if (arxiv.value) papers.push(...arxiv.value);
+  papersPanel.innerHTML = topPapers.length
+    ? topPapers.map(p => `<div class="mini-item"><strong>${escapeHtml(p.title)}</strong><div class="muted">${escapeHtml(p.source)}${p.year ? ' • ' + escapeHtml(String(p.year)) : ''}</div></div>`).join('')
+    : '<div class="empty-message">No papers found</div>';
 
-          papers = dedupeResults(papers);
-          const patentLinks = buildPatentLinks(query);
-          const combined = [...papers, ...patentLinks];
+  patentsPanel.innerHTML = patentLinks.length
+    ? patentLinks.map(p => `<div class="mini-item"><strong>${escapeHtml(p.source)}</strong><div class="muted"><a href="${p.url}" target="_blank" rel="noopener noreferrer">Open patent search</a></div></div>`).join('')
+    : '<div class="empty-message">No patent links available</div>';
+}
 
-          updateDashboard(papers, patentLinks, query);
-          renderCombinedResults(combined);
+function renderCombinedResults(items) {
+  if (!items.length) {
+    resultsList.innerHTML = '<div class="empty-message">No results found. Try another keyword.</div>';
+    return;
+  }
 
-          const elapsed = ((performance.now() - start) / 1000).toFixed(1);
-          appendDebug(`✅ Done in ${elapsed}s • ${papers.length} papers + ${patentLinks.length} patent links`);
-          setIdle();
-        }
+  resultsList.innerHTML = items.map(item => `
+    <article class="result-item">
+      <div class="result-type ${item.type === 'paper' ? 'type-paper' : 'type-patent'}">
+        ${item.type === 'paper' ? 'paper' : 'patent search'}
+      </div>
+      <h3>${escapeHtml(item.title || 'Untitled')}</h3>
+      <div class="meta">
+        ${escapeHtml(item.source || 'Unknown source')}
+        ${item.venue ? ` • ${escapeHtml(item.venue)}` : ''}
+        ${item.year ? ` • ${escapeHtml(String(item.year))}` : ''}
+        ${(item.authors && item.authors.length) ? ` • ${escapeHtml(item.authors.slice(0, 4).join(', '))}` : ''}
+      </div>
+      <div class="abstract">${escapeHtml(item.abstract || 'No abstract available.')}</div>
+      <div class="links">
+        ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener noreferrer">Open</a>` : ''}
+        ${item.type === 'paper' ? `<a class="secondary" href="https://scholar.google.com/scholar?q=${encodeURIComponent(item.title)}" target="_blank" rel="noopener noreferrer">Scholar</a>` : ''}
+      </div>
+    </article>
+  `).join('');
+}
 
-        searchBtn.addEventListener('click', searchAll);
-        queryInput.addEventListener('keydown', e => { if (e.key === 'Enter') searchAll(); });
-    </script>
+async function searchAll() {
+  const query = queryInput.value.trim();
+  if (!query) {
+    debugDiv.innerHTML = '⚠️ Please enter a topic';
+    return;
+  }
+
+  setLoading(query);
+  const start = performance.now();
+
+  const [cross, arxiv] = await Promise.allSettled([
+    fetchCrossref(query).catch(e => {
+      appendDebug(`Crossref error: ${escapeHtml(e.message)}`);
+      return [];
+    }),
+    fetchArxiv(query).catch(e => {
+      appendDebug(`arXiv unavailable in browser: ${escapeHtml(e.message)}`);
+      return [];
+    })
+  ]);
+
+  let papers = [];
+  if (cross.status === 'fulfilled' && Array.isArray(cross.value)) {
+    papers.push(...cross.value);
+    appendDebug(`✅ Crossref: ${cross.value.length}`);
+  }
+  if (arxiv.status === 'fulfilled' && Array.isArray(arxiv.value)) {
+    papers.push(...arxiv.value);
+    appendDebug(`✅ arXiv: ${arxiv.value.length}`);
+  }
+
+  papers = dedupeResults(papers)
+    .sort((a, b) => scoreResult(b, query) - scoreResult(a, query));
+
+  const patentLinks = buildPatentLinks(query);
+  const combined = [...papers, ...patentLinks];
+
+  updateDashboard(papers, patentLinks, query);
+  renderCombinedResults(combined);
+
+  const elapsed = ((performance.now() - start) / 1000).toFixed(1);
+  appendDebug(`✅ Done in ${elapsed}s • ${papers.length} papers + ${patentLinks.length} patent links`);
+  setIdle();
+}
+
+searchBtn.addEventListener('click', searchAll);
+queryInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchAll();
+});
+</script>
 </body>
 </html>
