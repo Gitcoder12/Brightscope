@@ -174,7 +174,7 @@
     }
 
     // Helper: fetch with timeout
-    async function fetchWithTimeout(url, timeout = 8000) {
+    async function fetchWithTimeout(url, timeout = 10000) {
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeout);
         try {
@@ -187,9 +187,9 @@
         }
     }
 
-    // ========== 1. CROSSREF (Direct, CORS-enabled) ==========
+    // ========== 1. CROSSREF (Direct, CORS-enabled) - increased rows to 15 ==========
     async function fetchCrossref(query) {
-        const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=10&sort=relevance`;
+        const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=15&sort=relevance`;
         const response = await fetchWithTimeout(url, 8000);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const data = await response.json();
@@ -201,11 +201,12 @@
             date: item.issued?.['date-parts']?.[0]?.[0] || 'Unknown',
             source: 'Crossref',
             type: 'paper',
-            citations: item['is-referenced-by-count'] || 0
+            citations: item['is-referenced-by-count'] || 0,
+            authors: item.author?.map(a => `${a.given || ''} ${a.family || ''}`.trim()).join(', ') || 'Unknown'
         }));
     }
 
-    // ========== 2. SEMANTIC SCHOLAR (Direct + Proxy fallbacks) ==========
+    // ========== 2. SEMANTIC SCHOLAR (Direct + Proxy fallbacks) - increased limit to 15 ==========
     const SS_PROXIES = [
         'https://api.allorigins.win/raw?url=',
         'https://corsproxy.io/?',
@@ -213,7 +214,7 @@
     ];
 
     async function fetchSemanticScholarWithFallback(query) {
-        const directUrl = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=10&fields=title,abstract,url,publicationDate,venue,citationCount`;
+        const directUrl = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=15&fields=title,abstract,url,publicationDate,venue,citationCount,authors`;
         
         // Attempt 1: Direct
         try {
@@ -229,7 +230,8 @@
                     date: paper.publicationDate?.slice(0,10) || 'Unknown',
                     source: 'Semantic Scholar',
                     type: 'paper',
-                    citations: paper.citationCount || 0
+                    citations: paper.citationCount || 0,
+                    authors: paper.authors?.map(a => a.name).join(', ') || 'Unknown'
                 }));
             }
         } catch (e) { /* fall through to proxies */ }
@@ -250,7 +252,8 @@
                         date: paper.publicationDate?.slice(0,10) || 'Unknown',
                         source: 'Semantic Scholar',
                         type: 'paper',
-                        citations: paper.citationCount || 0
+                        citations: paper.citationCount || 0,
+                        authors: paper.authors?.map(a => a.name).join(', ') || 'Unknown'
                     }));
                 }
             } catch (err) {
@@ -261,7 +264,7 @@
         return [];
     }
 
-    // ========== 3. ARXIV (Proxy fallbacks as before) ==========
+    // ========== 3. ARXIV (Proxy fallbacks) - increased max_results to 15 ==========
     const ARXIV_PROXIES = [
         'https://api.allorigins.win/raw?url=',
         'https://corsproxy.io/?',
@@ -271,7 +274,7 @@
     async function fetchArxivWithFallback(query) {
         async function fetchArxiv(proxyIndex = 0) {
             if (proxyIndex >= ARXIV_PROXIES.length) throw new Error('No more proxies');
-            const arxivUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=12&sortBy=submittedDate&sortOrder=descending`;
+            const arxivUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=15&sortBy=submittedDate&sortOrder=descending`;
             const proxyUrl = ARXIV_PROXIES[proxyIndex] + encodeURIComponent(arxivUrl);
             const response = await fetchWithTimeout(proxyUrl, 10000);
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -288,6 +291,7 @@
                 const link = entry.querySelector('id')?.textContent || '#';
                 const publishedRaw = entry.querySelector('published')?.textContent || '';
                 const date = publishedRaw.slice(0,10) || 'Unknown';
+                const authors = Array.from(entry.querySelectorAll('author name')).map(a => a.textContent).join(', ') || 'Unknown';
                 results.push({
                     title: title,
                     abstract: summary,
@@ -295,7 +299,8 @@
                     date: date,
                     source: 'arXiv',
                     type: 'preprint',
-                    citations: 0
+                    citations: 0,
+                    authors: authors
                 });
             }
             return results;
@@ -317,8 +322,8 @@
         return [];
     }
 
-    // ========== 4. PATENTSVIEW API (Real, no proxy needed) ==========
-    async function searchPatents(query, limit = 8) {
+    // ========== 4. PATENTSVIEW API (Real, no proxy needed) - increased limit to 10 ==========
+    async function searchPatents(query, limit = 10) {
         if (!query.trim()) return [];
         const payload = {
             q: `(_text_any:${query.replace(/[^\w\s]/g, ' ')})`,
@@ -347,6 +352,7 @@
                     source: `Patent · ${assignee}`,
                     type: 'patent',
                     citations: 0,
+                    authors: assignee,
                     number: patentNumber
                 };
             });
@@ -373,25 +379,24 @@
     }
 
     function updateDashboard(papers, patents) {
-        // Authors
-        const authorFreq = new Map();
+        // Top Authors
+        const authorCount = {};
         for (const p of papers) {
-            if (p.source === 'arXiv') continue; // arXiv has no author field
             const authors = p.authors || '';
             authors.split(',').forEach(a => {
                 const name = a.trim();
-                if (name && name !== 'Unknown') authorFreq.set(name, (authorFreq.get(name)||0)+1);
+                if (name && name !== 'Unknown') authorCount[name] = (authorCount[name] || 0) + 1;
             });
         }
-        const topAuthors = [...authorFreq.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10);
+        const topAuthors = Object.entries(authorCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
         authorsPanel.innerHTML = topAuthors.length ? topAuthors.map(([name,c]) => `<div class="author-item"><b>${escapeHtml(name)}</b><div class="meta">📄 ${c} paper${c>1?'s':''}</div></div>`).join('') : '<div class="empty-message">No author data</div>';
 
-        // Topics
+        // Top Topics
         const topics = extractTopicsFromPapers(papers);
         topicsPanel.innerHTML = topics.length ? topics.map(([t,f]) => `<div class="topic-badge"><b>#${escapeHtml(t)}</b><div class="meta">${f} mentions</div></div>`).join('') : '<div class="empty-message">No topics extracted</div>';
 
         // Top Papers (by citations + recency)
-        const sortedPapers = [...papers].sort((a,b) => (b.citations||0) - (a.citations||0) || (b.year||0) - (a.year||0)).slice(0,10);
+        const sortedPapers = [...papers].sort((a,b) => (b.citations||0) - (a.citations||0) || (b.date||0) - (a.date||0)).slice(0,12);
         papersPanel.innerHTML = sortedPapers.length ? sortedPapers.map(p => `<div class="paper-mini"><b>${escapeHtml(p.title.length>80?p.title.slice(0,77)+'...':p.title)}</b><div class="meta">${p.date || 'n.d.'} · ${p.source}</div></div>`).join('') : '<div class="empty-message">No papers found</div>';
 
         // Top Patents
@@ -480,6 +485,9 @@
     // Event listeners
     searchBtn.addEventListener('click', searchAll);
     queryInput.addEventListener('keypress', e => { if (e.key === 'Enter') searchAll(); });
+    
+    // Make searchAll available globally just in case
+    window.searchAll = searchAll;
 </script>
 </body>
 </html>
