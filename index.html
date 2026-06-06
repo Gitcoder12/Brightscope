@@ -1,220 +1,499 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brightscope — Research Search</title>
-    <link rel="stylesheet" href="css/main.css">
-    <style>
-        :root {
-            --primary: #00ff9d;
-        }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            margin: 0;
-            padding: 0;
-            background: #0a0a0f;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
-        header {
-            text-align: center;
-            padding: 4rem 1rem 2rem;
-            background: linear-gradient(180deg, #1a1a2e, #0a0a0f);
-        }
-        h1 {
-            font-size: 3.8rem;
-            margin: 0;
-            background: linear-gradient(90deg, #00ff9d, #00b8ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .tagline {
-            font-size: 1.35rem;
-            color: #aaa;
-            margin: 1rem 0 2rem;
-        }
-        .search-container {
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        #query {
-            width: 100%;
-            padding: 18px 28px;
-            font-size: 1.25rem;
-            border: 2px solid #333;
-            border-radius: 50px;
-            background: #1f1f2b;
-            color: white;
-            outline: none;
-        }
-        #query:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.2);
-        }
-        #searchBtn {
-            margin-top: 12px;
-            padding: 14px 40px;
-            font-size: 1.1rem;
-            background: var(--primary);
-            color: black;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        .card {
-            background: #16161f;
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid #333;
-        }
-        .results {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-        #debug {
-            margin: 20px;
-            padding: 15px;
-            background: #1a1a2e;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 0.95rem;
-        }
-        .empty-message {
-            color: #666;
-            text-align: center;
-            padding: 40px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brightscope — Research Search</title>
+  <style>
+    :root{
+      --bg:#0a0a0f;
+      --bg2:#12121a;
+      --card:#16161f;
+      --border:#2a2a38;
+      --text:#e8e8ee;
+      --muted:#9aa0aa;
+      --primary:#00ff9d;
+      --primary2:#00b8ff;
+      --danger:#ff6b6b;
+      --shadow:0 10px 30px rgba(0,0,0,.28);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Segoe UI, system-ui, sans-serif;
+      background:linear-gradient(180deg,#0d0d14,#09090d);
+      color:var(--text);
+      line-height:1.55;
+    }
+    header{
+      text-align:center;
+      padding:56px 20px 28px;
+      background:linear-gradient(180deg,#1a1a2e,#0a0a0f);
+      border-bottom:1px solid rgba(255,255,255,.05);
+    }
+    h1{
+      margin:0;
+      font-size:clamp(2.1rem,5vw,3.8rem);
+      background:linear-gradient(90deg,var(--primary),var(--primary2));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .tagline{
+      color:#adb3bd;
+      font-size:1.06rem;
+      max-width:860px;
+      margin:14px auto 10px;
+    }
+    .ready{
+      color:var(--primary);
+      font-weight:700;
+      margin:0;
+    }
+    .search-container{
+      max-width:760px;
+      margin:28px auto 0;
+      padding:0 18px;
+    }
+    .search-row{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      justify-content:center;
+    }
+    #query{
+      flex:1 1 520px;
+      min-width:260px;
+      padding:18px 22px;
+      font-size:1.08rem;
+      border:2px solid #2f3340;
+      border-radius:999px;
+      background:#1b1d29;
+      color:#fff;
+      outline:none;
+    }
+    #query:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 4px rgba(0,255,157,.16);
+    }
+    #searchBtn{
+      padding:16px 28px;
+      font-size:1rem;
+      background:var(--primary);
+      color:#04120c;
+      border:none;
+      border-radius:999px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    #searchBtn:disabled{
+      opacity:.6;
+      cursor:not-allowed;
+    }
+    .dashboard{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:18px;
+      max-width:1200px;
+      margin:34px auto;
+      padding:0 20px;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    .card h3{
+      margin:0 0 12px;
+      font-size:1.05rem;
+    }
+    .results{
+      max-width:1200px;
+      margin:20px auto 40px;
+      padding:0 20px;
+    }
+    .results h2{
+      margin:0 0 16px;
+      font-size:1.35rem;
+    }
+    .empty-message{
+      color:#727987;
+      text-align:center;
+      padding:28px 14px;
+    }
+    #debug{
+      max-width:1200px;
+      margin:0 auto 36px;
+      padding:16px 20px;
+      background:#131823;
+      border:1px solid #213042;
+      border-radius:12px;
+      color:#c4d2df;
+      font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      font-size:.92rem;
+      min-height:58px;
+    }
+    .result-item{
+      background:linear-gradient(180deg,#171a25,#13161f);
+      border:1px solid #2a3140;
+      border-radius:16px;
+      padding:18px;
+      margin-bottom:14px;
+      box-shadow:var(--shadow);
+    }
+    .result-type{
+      display:inline-block;
+      font-size:.75rem;
+      font-weight:800;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      padding:6px 10px;
+      border-radius:999px;
+      margin-bottom:10px;
+    }
+    .type-paper{
+      background:rgba(0,184,255,.13);
+      color:#71d4ff;
+      border:1px solid rgba(0,184,255,.25);
+    }
+    .type-patent{
+      background:rgba(0,255,157,.12);
+      color:#7effc6;
+      border:1px solid rgba(0,255,157,.22);
+    }
+    .result-item h3{
+      margin:0 0 8px;
+      font-size:1.08rem;
+      line-height:1.35;
+    }
+    .meta{
+      color:var(--muted);
+      font-size:.94rem;
+      margin-bottom:10px;
+    }
+    .abstract{
+      color:#d8dce4;
+      font-size:.96rem;
+      margin-bottom:12px;
+    }
+    .links{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .links a{
+      text-decoration:none;
+      color:#051912;
+      background:var(--primary);
+      padding:10px 14px;
+      border-radius:10px;
+      font-weight:700;
+    }
+    .links a.secondary{
+      background:#202635;
+      color:#cfe7f4;
+      border:1px solid #334055;
+    }
+    .mini-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .mini-item{
+      padding:10px 12px;
+      border-radius:12px;
+      background:#111520;
+      border:1px solid #232b39;
+    }
+    .mini-item strong{
+      display:block;
+      margin-bottom:4px;
+      color:#fff;
+    }
+    .muted{ color:var(--muted); }
+    .error{ color:var(--danger); }
+  </style>
 </head>
 <body>
+  <header>
+    <h1>🔬 Brightscope</h1>
+    <p class="tagline">Search papers and patents from Crossref, arXiv, and open patent sources in one place.</p>
+    <p class="ready">⚡ Ready – enter a topic</p>
+  </header>
 
-    <header>
-        <h1>🔬 Brightscope</h1>
-        <p class="tagline">Search papers, patents – from Crossref, arXiv, Semantic Scholar, PatentsView, and more.</p>
-        <p style="color:#00ff9d; font-weight:bold;">⚡ Ready – enter a topic</p>
-    </header>
-
-    <div class="search-container">
-        <input type="text" id="query" placeholder="Enter a research topic, paper title, or author...">
-        <center>
-            <button id="searchBtn">Search All Sources</button>
-        </center>
+  <div class="search-container">
+    <div class="search-row">
+      <input id="query" type="text" placeholder="Enter a research topic, paper title, or keyword..." />
+      <button id="searchBtn">Search All Sources</button>
     </div>
+  </div>
 
-    <div class="dashboard">
-        <div class="card">
-            <h3>👨‍🔬 Top Authors</h3>
-            <div id="authorsPanel" class="empty-message">Results will appear here</div>
-        </div>
-        <div class="card">
-            <h3>🔥 Top Topics</h3>
-            <div id="topicsPanel" class="empty-message">Results will appear here</div>
-        </div>
-        <div class="card">
-            <h3>📚 Top Papers</h3>
-            <div id="papersPanel" class="empty-message">Results will appear here</div>
-        </div>
-        <div class="card">
-            <h3>📜 Recent Patents</h3>
-            <div id="patentsPanel" class="empty-message">Results will appear here</div>
-        </div>
+  <section class="dashboard">
+    <div class="card">
+      <h3>👨‍🔬 Top Authors</h3>
+      <div id="authorsPanel" class="empty-message">Results will appear here</div>
     </div>
-
-    <div class="results">
-        <h2>📋 All Results</h2>
-        <div id="resultsList">
-            <div class="empty-message">Search something to get started</div>
-        </div>
+    <div class="card">
+      <h3>🔥 Top Topics</h3>
+      <div id="topicsPanel" class="empty-message">Results will appear here</div>
     </div>
+    <div class="card">
+      <h3>📚 Top Papers</h3>
+      <div id="papersPanel" class="empty-message">Results will appear here</div>
+    </div>
+    <div class="card">
+      <h3>📜 Recent Patents</h3>
+      <div id="patentsPanel" class="empty-message">Results will appear here</div>
+    </div>
+  </section>
 
-    <div id="debug"></div>
+  <section class="results">
+    <h2>📋 All Results</h2>
+    <div id="resultsList">
+      <div class="empty-message">Search something to get started</div>
+    </div>
+  </section>
 
-    <!-- Load your JS files -->
-    <script src="api/core.js"></script>
-    <script src="api/crossref.js"></script>
-    <script src="api/arxiv.js"></script>
-    <script src="api/openalex.js"></script>
-    <script src="api/pubmed.js"></script>
-    <script src="api/doaj.js"></script>
-    <script src="api/patents.js"></script>
-    <script src="js/core/core.js"></script>
-    <script src="js/ui/ui.js"></script>
+  <div id="debug">Idle.</div>
 
-    <script>
-        // ==================== YOUR SEARCH LOGIC ====================
-        const queryInput = document.getElementById('query');
-        const searchBtn = document.getElementById('searchBtn');
-        const debugDiv = document.getElementById('debug');
-        const authorsPanel = document.getElementById('authorsPanel');
-        const topicsPanel = document.getElementById('topicsPanel');
-        const papersPanel = document.getElementById('papersPanel');
-        const patentsPanel = document.getElementById('patentsPanel');
-        const resultsList = document.getElementById('resultsList');
+  <script>
+    const queryInput = document.getElementById('query');
+    const searchBtn = document.getElementById('searchBtn');
+    const debugDiv = document.getElementById('debug');
+    const authorsPanel = document.getElementById('authorsPanel');
+    const topicsPanel = document.getElementById('topicsPanel');
+    const papersPanel = document.getElementById('papersPanel');
+    const patentsPanel = document.getElementById('patentsPanel');
+    const resultsList = document.getElementById('resultsList');
 
-        // ---------- MAIN SEARCH ----------
-        async function searchAll() {
-            const query = queryInput.value.trim();
-            if (!query) {
-                debugDiv.innerHTML = '⚠️ Please enter a topic';
-                return;
-            }
+    function escapeHtml(str='') {
+      return str
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
 
-            debugDiv.innerHTML = `🔍 Searching for "<b>${query}</b>" ...<br>`;
-            resultsList.innerHTML = '<div class="empty-message">⏳ Loading results from all sources...</div>';
+    function setLoading(query){
+      debugDiv.innerHTML = `🔍 Searching for "<b>${escapeHtml(query)}</b>" ...<br>`;
+      authorsPanel.innerHTML = '<div class="empty-message">📊 Computing...</div>';
+      topicsPanel.innerHTML = '<div class="empty-message">📊 Extracting topics...</div>';
+      papersPanel.innerHTML = '<div class="empty-message">📚 Loading papers...</div>';
+      patentsPanel.innerHTML = '<div class="empty-message">📜 Loading patents...</div>';
+      resultsList.innerHTML = '<div class="empty-message">⏳ Loading results from all sources...</div>';
+      searchBtn.disabled = true;
+      searchBtn.textContent = 'Searching...';
+    }
 
-            const start = Date.now();
+    function setIdle(){
+      searchBtn.disabled = false;
+      searchBtn.textContent = 'Search All Sources';
+    }
 
-            const [cross, arxiv, ss, pat] = await Promise.allSettled([
-                fetchCrossref ? fetchCrossref(query).catch(e => { debugDiv.innerHTML += `Crossref error<br>`; return []; }) : [],
-                fetchArxiv ? fetchArxiv(query).catch(e => { debugDiv.innerHTML += `arXiv error<br>`; return []; }) : [],
-                fetchSemanticScholar ? fetchSemanticScholar(query).catch(e => { debugDiv.innerHTML += `Semantic Scholar error<br>`; return []; }) : [],
-                fetchPatents ? fetchPatents(query).catch(e => { debugDiv.innerHTML += `Patents error<br>`; return []; }) : []
-            ]);
+    function appendDebug(msg){
+      debugDiv.innerHTML += `${msg}<br>`;
+    }
 
-            let papers = [];
-            let patents = [];
+    async function fetchJSON(url){
+      const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    }
 
-            if (cross.value?.length) { papers.push(...cross.value); debugDiv.innerHTML += `✅ Crossref: ${cross.value.length}<br>`; }
-            if (arxiv.value?.length) { papers.push(...arxiv.value); debugDiv.innerHTML += `✅ arXiv: ${arxiv.value.length}<br>`; }
-            if (ss.value?.length) { papers.push(...ss.value); debugDiv.innerHTML += `✅ Semantic Scholar: ${ss.value.length}<br>`; }
-            if (pat.value?.length) { patents = pat.value; debugDiv.innerHTML += `✅ Patents: ${pat.value.length}<br>`; }
+    async function fetchText(url){
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.text();
+    }
 
-            const allRaw = [...papers, ...patents];
-            const seen = new Map();
-            for (const item of allRaw) {
-                const key = (item.title || '').toLowerCase().trim();
-                if (key && !seen.has(key)) seen.set(key, item);
-            }
+    async function fetchCrossref(query){
+      const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=8&sort=relevance&order=desc`;
+      const data = await fetchJSON(url);
+      return (data.message?.items || []).map(item => ({
+        type: 'paper',
+        source: 'Crossref',
+        title: item.title?.[0] || 'Untitled',
+        authors: (item.author || []).map(a => [a.given, a.family].filter(Boolean).join(' ')).filter(Boolean),
+        date: (item.published?.['date-parts']?.[0] || item.created?.['date-parts']?.[0] || []).join('-'),
+        year: item.published?.['date-parts']?.[0]?.[0] || item.created?.['date-parts']?.[0]?.[0] || '',
+        abstract: '',
+        url: item.URL || '',
+        venue: item['container-title']?.[0] || ''
+      }));
+    }
 
-            let unique = Array.from(seen.values());
-            unique.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+    async function fetchArxiv(query){
+      const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&start=0&max_results=8`;
+      const xmlText = await fetchText(url);
+      const xml = new DOMParser().parseFromString(xmlText, 'text/xml');
+      const entries = [...xml.getElementsByTagName('entry')].slice(0, 8);
+      return entries.map(entry => {
+        const getText = (tag) => entry.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
+        const authors = [...entry.getElementsByTagName('author')].map(a => a.getElementsByTagName('name')[0]?.textContent?.trim()).filter(Boolean);
+        const id = getText('id');
+        return {
+          type: 'paper',
+          source: 'arXiv',
+          title: getText('title').replace(/\s+/g,' '),
+          authors,
+          date: getText('published').slice(0,10),
+          year: getText('published').slice(0,4),
+          abstract: getText('summary').replace(/\s+/g,' '),
+          url: id,
+          venue: 'arXiv'
+        };
+      });
+    }
 
-            updateDashboard?.(papers, patents);
-            renderCombinedResults?.(unique);
-
-            const elapsed = ((Date.now() - start)/1000).toFixed(1);
-            debugDiv.innerHTML += `<span style="color:#00ff9d">✅ Done in ${elapsed}s • ${unique.length} unique results</span>`;
+    async function fetchPatents(query){
+      return [
+        {
+          type: 'patent',
+          source: 'Google Patents',
+          title: `Patent results for "${query}"`,
+          authors: [],
+          date: '',
+          year: '',
+          abstract: 'Direct browser patent APIs are often unreliable in static frontend apps, so this entry links you to a live patent search for the same query.',
+          url: `https://patents.google.com/?q=${encodeURIComponent(query)}`,
+          venue: 'Patent Search'
+        },
+        {
+          type: 'patent',
+          source: 'PatentsView',
+          title: `PatentsView search for "${query}"`,
+          authors: [],
+          date: '',
+          year: '',
+          abstract: 'Open the PatentsView query for broader U.S. patent exploration if your local patent API is blocked or unavailable.',
+          url: `https://search.patentsview.org/search?query=${encodeURIComponent(query)}`,
+          venue: 'PatentsView'
         }
+      ];
+    }
 
-        // Event listeners
-        if (searchBtn) searchBtn.onclick = searchAll;
-        if (queryInput) queryInput.addEventListener('keypress', e => {
-            if (e.key === 'Enter') searchAll();
+    function normalizeTopicWord(word){
+      return word.toLowerCase().replace(/[^a-z0-9\-]/g,'').trim();
+    }
+
+    function extractTopics(items){
+      const stop = new Set(['the','and','for','with','from','into','using','based','study','analysis','system','method','methods','data','model','models','approach','approaches','paper','via','new','toward','towards','over','under','that','this','their','its','are','can','not','been','than']);
+      const counts = new Map();
+      items.forEach(item => {
+        const text = `${item.title || ''} ${item.abstract || ''}`;
+        text.split(/\s+/).forEach(raw => {
+          const w = normalizeTopicWord(raw);
+          if (!w || w.length < 4 || stop.has(w)) return;
+          counts.set(w, (counts.get(w) || 0) + 1);
         });
+      });
+      return [...counts.entries()].sort((a,b) => b[1]-a[1]).slice(0,8);
+    }
 
-        console.log("%cBrightscope index loaded successfully", "color:#00ff9d; font-weight:bold");
-    </script>
+    function updateDashboard(papers, patents){
+      const authorCount = new Map();
+      papers.forEach(p => (p.authors || []).forEach(a => authorCount.set(a, (authorCount.get(a) || 0) + 1)));
+      const topAuthors = [...authorCount.entries()].sort((a,b) => b[1]-a[1]).slice(0,5);
+      const topTopics = extractTopics(papers);
+      const topPapers = [...papers].slice(0,5);
+      const recentPatents = [...patents].slice(0,5);
+
+      authorsPanel.innerHTML = topAuthors.length
+        ? `<div class="mini-list">${topAuthors.map(([name,count]) => `<div class="mini-item"><strong>${escapeHtml(name)}</strong><span class="muted">${count} result(s)</span></div>`).join('')}</div>`
+        : '<div class="empty-message">No author data found</div>';
+
+      topicsPanel.innerHTML = topTopics.length
+        ? `<div class="mini-list">${topTopics.map(([topic,count]) => `<div class="mini-item"><strong>${escapeHtml(topic)}</strong><span class="muted">${count} mention(s)</span></div>`).join('')}</div>`
+        : '<div class="empty-message">No topic data found</div>';
+
+      papersPanel.innerHTML = topPapers.length
+        ? `<div class="mini-list">${topPapers.map(p => `<div class="mini-item"><strong>${escapeHtml(p.title)}</strong><span class="muted">${escapeHtml(p.source)} ${p.year ? '• ' + escapeHtml(String(p.year)) : ''}</span></div>`).join('')}</div>`
+        : '<div class="empty-message">No papers found</div>';
+
+      patentsPanel.innerHTML = recentPatents.length
+        ? `<div class="mini-list">${recentPatents.map(p => `<div class="mini-item"><strong>${escapeHtml(p.title)}</strong><span class="muted">${escapeHtml(p.source)}</span></div>`).join('')}</div>`
+        : '<div class="empty-message">No patents found</div>';
+    }
+
+    function renderCombinedResults(items){
+      if (!items.length){
+        resultsList.innerHTML = '<div class="empty-message">No results found. Try another keyword.</div>';
+        return;
+      }
+
+      resultsList.innerHTML = items.map(item => `
+        <article class="result-item">
+          <div class="result-type ${item.type === 'patent' ? 'type-patent' : 'type-paper'}">${escapeHtml(item.type)}</div>
+          <h3>${escapeHtml(item.title || 'Untitled')}</h3>
+          <div class="meta">
+            ${escapeHtml(item.source || 'Unknown source')}
+            ${item.venue ? ` • ${escapeHtml(item.venue)}` : ''}
+            ${item.year ? ` • ${escapeHtml(String(item.year))}` : ''}
+            ${(item.authors && item.authors.length) ? ` • ${escapeHtml(item.authors.slice(0,4).join(', '))}` : ''}
+          </div>
+          <div class="abstract">${escapeHtml(item.abstract || 'No abstract available.')}</div>
+          <div class="links">
+            ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener noreferrer">Open</a>` : ''}
+            ${item.type === 'paper' && item.title ? `<a class="secondary" href="https://scholar.google.com/scholar?q=${encodeURIComponent(item.title)}" target="_blank" rel="noopener noreferrer">Scholar</a>` : ''}
+          </div>
+        </article>
+      `).join('');
+    }
+
+    async function searchAll(){
+      const query = queryInput.value.trim();
+      if (!query){
+        debugDiv.innerHTML = '⚠️ Please enter a topic';
+        return;
+      }
+
+      setLoading(query);
+      const start = performance.now();
+
+      const [cross, arxiv, patents] = await Promise.allSettled([
+        fetchCrossref(query).catch(e => { appendDebug(`<span class="error">Crossref error: ${escapeHtml(e.message)}</span>`); return []; }),
+        fetchArxiv(query).catch(e => { appendDebug(`<span class="error">arXiv error: ${escapeHtml(e.message)}</span>`); return []; }),
+        fetchPatents(query).catch(e => { appendDebug(`<span class="error">Patent error: ${escapeHtml(e.message)}</span>`); return []; })
+      ]);
+
+      let papers = [];
+      let patentItems = [];
+
+      if (cross.status === 'fulfilled' && Array.isArray(cross.value)) {
+        papers.push(...cross.value);
+        appendDebug(`✅ Crossref: ${cross.value.length}`);
+      }
+      if (arxiv.status === 'fulfilled' && Array.isArray(arxiv.value)) {
+        papers.push(...arxiv.value);
+        appendDebug(`✅ arXiv: ${arxiv.value.length}`);
+      }
+      if (patents.status === 'fulfilled' && Array.isArray(patents.value)) {
+        patentItems.push(...patents.value);
+        appendDebug(`✅ Patents: ${patents.value.length}`);
+      }
+
+      const deduped = new Map();
+      [...papers, ...patentItems].forEach(item => {
+        const key = `${item.type || 'x'}::${(item.title || '').toLowerCase().trim()}`;
+        if (item.title && !deduped.has(key)) deduped.set(key, item);
+      });
+
+      const unique = [...deduped.values()].sort((a,b) => (b.date || '').localeCompare(a.date || ''));
+
+      updateDashboard(papers, patentItems);
+      renderCombinedResults(unique);
+
+      const elapsed = ((performance.now() - start) / 1000).toFixed(1);
+      appendDebug(`<span style="color:#00ff9d;font-weight:700;">✅ Done in ${elapsed}s • ${papers.length} papers + ${patentItems.length} patent results → ${unique.length} total</span>`);
+      setIdle();
+    }
+
+    searchBtn.addEventListener('click', searchAll);
+    queryInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') searchAll();
+    });
+  </script>
 </body>
 </html>
