@@ -1,493 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Brightscope – Research & Patent Intelligence Platform</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #f4f6fa; padding: 20px; }
-        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-        h1 { color: #1e3a8a; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-        .sub { color: #475569; margin-bottom: 24px; border-left: 4px solid #3b82f6; padding-left: 16px; }
-        .search-box { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-        input { flex: 2; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 60px; font-size: 1rem; outline: none; transition: 0.2s; }
-        input:focus { border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.2); }
-        button { padding: 12px 28px; background: #2563eb; color: white; border: none; border-radius: 60px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        button:hover { background: #1d4ed8; transform: scale(1.02); }
-        .debug { background: #f1f5f9; border-radius: 20px; padding: 12px; font-family: monospace; font-size: 0.7rem; margin-bottom: 20px; max-height: 200px; overflow-y: auto; border-left: 4px solid #2563eb; }
-        
-        /* Dashboard Grid (4 columns) */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin: 2rem 0 2rem;
-        }
-        .card {
-            background: white;
-            border-radius: 1.5rem;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-        }
-        .card-header {
-            background: #f8fafc;
-            padding: 1rem 1.5rem;
-            font-weight: 700;
-            font-size: 1.1rem;
-            border-bottom: 2px solid #e2e8f0;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            color: #0f172a;
-        }
-        .card-content {
-            padding: 1.2rem;
-            max-height: 420px;
-            overflow-y: auto;
-        }
-        .topic-badge, .author-item, .paper-mini, .patent-mini {
-            background: #f8fafc;
-            margin-bottom: 0.8rem;
-            padding: 0.7rem 1rem;
-            border-radius: 1rem;
-            border-left: 3px solid #3b82f6;
-            transition: 0.1s;
-            font-size: 0.85rem;
-        }
-        .meta {
-            font-size: 0.7rem;
-            color: #475569;
-            margin-top: 0.25rem;
-        }
-        .results-section {
-            margin-top: 2rem;
-        }
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            border-left: 4px solid #3b82f6;
-            padding-left: 1rem;
-            color: #0f172a;
-        }
-        .result-card {
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 1.2rem;
-            padding: 1.2rem 1.5rem;
-            margin-bottom: 1rem;
-            transition: 0.12s;
-        }
-        .result-card:hover {
-            background: #f1f5f9;
-            border-color: #94a3b8;
-        }
-        .result-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        .result-title a {
-            color: #1e3a8a;
-            text-decoration: none;
-        }
-        .result-title a:hover { text-decoration: underline; }
-        .result-details {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            font-size: 0.75rem;
-            color: #334155;
-            margin-top: 0.5rem;
-        }
-        .badge-source {
-            background: #e2e8f0;
-            padding: 0.2rem 0.7rem;
-            border-radius: 20px;
-        }
-        .empty-message {
-            text-align: center;
-            padding: 1.5rem;
-            color: #64748b;
-            font-style: italic;
-        }
-        footer {
-            text-align: center;
-            margin-top: 2rem;
-            font-size: 0.7rem;
-            color: #94a3b8;
-            border-top: 1px solid #e2e8f0;
-            padding-top: 1.5rem;
-        }
-        hr { margin: 1rem 0; border-color: #e2e8f0; }
-        @media (max-width: 640px) {
-            body { padding: 12px; }
-            .container { padding: 16px; }
-            .search-box { flex-direction: column; }
-            button { width: 100%; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brightscope – Unified Research + Patent Search</title>
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 <div class="container">
-    <h1>🔬 Brightscope · Research & Patent Intelligence</h1>
-    <div class="sub">Unified search across papers (Crossref, Semantic Scholar, arXiv) and US patents (PatentsView API) – with automatic proxy fallbacks.</div>
-    
-    <div class="search-box">
-        <input type="text" id="query" placeholder="e.g., quantum machine learning, crispr, graphene battery" autocomplete="off">
-        <button id="searchBtn">Search All Sources →</button>
-    </div>
-    <div id="debug" class="debug">⚡ Ready — enter a topic to search papers + patents</div>
+  <h1>🔬 Brightscope</h1>
+  <div class="sub">Search papers, preprints, patents – from Crossref, OpenAlex, arXiv, PubMed, DOAJ, and PatentsView</div>
+  <div class="search-box">
+    <input type="text" id="query" placeholder="e.g., quantum machine learning, crispr, graphene" autocomplete="off">
+    <button id="searchBtn">Search All →</button>
+  </div>
+  <div id="debug" class="debug">⚡ Ready – enter a topic</div>
 
-    <!-- Dashboard: Top Authors, Topics, Papers, Patents -->
-    <div class="dashboard">
-        <div class="card"><div class="card-header"><span>👨‍🔬</span> Top Authors</div><div id="authorsPanel" class="card-content"><div class="empty-message">— no data yet —</div></div></div>
-        <div class="card"><div class="card-header"><span>🔥</span> Top Topics</div><div id="topicsPanel" class="card-content"><div class="empty-message">— topics will appear —</div></div></div>
-        <div class="card"><div class="card-header"><span>📚</span> Top Papers</div><div id="papersPanel" class="card-content"><div class="empty-message">— search to see papers —</div></div></div>
-        <div class="card"><div class="card-header"><span>📜</span> Recent Patents</div><div id="patentsPanel" class="card-content"><div class="empty-message">— patent results will appear here —</div></div></div>
-    </div>
+  <div class="dashboard">
+    <div class="card"><div class="card-header">👨‍🔬 Top Authors</div><div id="authorsPanel" class="card-content">—</div></div>
+    <div class="card"><div class="card-header">🔥 Top Topics</div><div id="topicsPanel" class="card-content">—</div></div>
+    <div class="card"><div class="card-header">📚 Top Papers</div><div id="papersPanel" class="card-content">—</div></div>
+    <div class="card"><div class="card-header">📜 Recent Patents</div><div id="patentsPanel" class="card-content">—</div></div>
+  </div>
 
-    <div class="results-section">
-        <div class="section-title"><span>📄</span> All Publications & Patents</div>
-        <div id="resultsList"><div class="empty-message">Your search results will appear here.</div></div>
-    </div>
-    <footer>Brightscope V1.3 — Real PatentsView API | Proxy fallbacks for Semantic Scholar & arXiv</footer>
+  <div id="resultsList"></div>
+  <footer>Brightscope · All sources with CORS fallbacks · No backend required</footer>
 </div>
 
-<script>
-    // ========== DOM ELEMENTS ==========
-    const queryInput = document.getElementById('query');
-    const searchBtn = document.getElementById('searchBtn');
-    const debugDiv = document.getElementById('debug');
-    const authorsPanel = document.getElementById('authorsPanel');
-    const topicsPanel = document.getElementById('topicsPanel');
-    const papersPanel = document.getElementById('papersPanel');
-    const patentsPanel = document.getElementById('patentsPanel');
-    const resultsList = document.getElementById('resultsList');
+<script type="module">
+  import { aggregateAll } from './js/aggregator.js';
+  import { dedupeByTitle } from './js/dedupe.js';
+  import { sortByDate } from './js/sort.js';
+  import { renderResults, updateDashboard } from './js/ui.js';
 
-    // Helper: escape HTML
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]));
-    }
+  const queryInput = document.getElementById('query');
+  const searchBtn = document.getElementById('searchBtn');
+  const debugDiv = document.getElementById('debug');
+  const resultsDiv = document.getElementById('resultsList');
 
-    // Helper: fetch with timeout
-    async function fetchWithTimeout(url, timeout = 10000) {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-        try {
-            const response = await fetch(url, { signal: controller.signal });
-            clearTimeout(id);
-            return response;
-        } catch (err) {
-            clearTimeout(id);
-            throw err;
-        }
-    }
+  async function searchAll() {
+    const query = queryInput.value.trim();
+    if (!query) return;
+    debugDiv.innerHTML = `🔍 Searching for "${query}" ...<br>`;
+    resultsDiv.innerHTML = '<div class="empty-message">⏳ Loading results from all sources...</div>';
 
-    // ========== 1. CROSSREF (Direct, CORS-enabled) - increased rows to 15 ==========
-    async function fetchCrossref(query) {
-        const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=15&sort=relevance`;
-        const response = await fetchWithTimeout(url, 8000);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const data = await response.json();
-        const items = data.message?.items || [];
-        return items.map(item => ({
-            title: item.title?.[0] || 'Untitled',
-            abstract: (item.abstract || '').replace(/<[^>]*>/g, '').slice(0, 350),
-            url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : '#'),
-            date: item.issued?.['date-parts']?.[0]?.[0] || 'Unknown',
-            source: 'Crossref',
-            type: 'paper',
-            citations: item['is-referenced-by-count'] || 0,
-            authors: item.author?.map(a => `${a.given || ''} ${a.family || ''}`.trim()).join(', ') || 'Unknown'
-        }));
-    }
+    const start = Date.now();
+    let all = await aggregateAll(query);
+    all = dedupeByTitle(all);
+    all = sortByDate(all);
+    const elapsed = ((Date.now() - start)/1000).toFixed(1);
 
-    // ========== 2. SEMANTIC SCHOLAR (Direct + Proxy fallbacks) - increased limit to 15 ==========
-    const SS_PROXIES = [
-        'https://api.allorigins.win/raw?url=',
-        'https://corsproxy.io/?',
-        'https://thingproxy.freeboard.io/fetch/'
-    ];
+    renderResults(resultsDiv, all);
+    debugDiv.innerHTML += `<span style="color:green;">✅ ${all.length} unique results in ${elapsed}s</span>`;
+    // Simple dashboard placeholders
+    updateDashboard('authorsPanel', all.slice(0,5), 'authors');
+    updateDashboard('topicsPanel', all.slice(0,5), 'topics');
+    updateDashboard('papersPanel', all.filter(i => i.type !== 'patent').slice(0,8), 'papers');
+    updateDashboard('patentsPanel', all.filter(i => i.type === 'patent').slice(0,6), 'patents');
+  }
 
-    async function fetchSemanticScholarWithFallback(query) {
-        const directUrl = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=15&fields=title,abstract,url,publicationDate,venue,citationCount,authors`;
-        
-        // Attempt 1: Direct
-        try {
-            const response = await fetchWithTimeout(directUrl, 8000);
-            if (response.ok) {
-                const data = await response.json();
-                const papers = data.data || [];
-                debugDiv.innerHTML += `<span style="color: green;">✅ Semantic Scholar (direct) returned ${papers.length} papers</span><br>`;
-                return papers.map(paper => ({
-                    title: paper.title || 'Untitled',
-                    abstract: (paper.abstract || '').slice(0, 350),
-                    url: paper.url || '#',
-                    date: paper.publicationDate?.slice(0,10) || 'Unknown',
-                    source: 'Semantic Scholar',
-                    type: 'paper',
-                    citations: paper.citationCount || 0,
-                    authors: paper.authors?.map(a => a.name).join(', ') || 'Unknown'
-                }));
-            }
-        } catch (e) { /* fall through to proxies */ }
-
-        // Attempt 2: Proxy fallbacks
-        for (let i = 0; i < SS_PROXIES.length; i++) {
-            try {
-                const proxyUrl = SS_PROXIES[i] + encodeURIComponent(directUrl);
-                const response = await fetchWithTimeout(proxyUrl, 10000);
-                if (response.ok) {
-                    const data = await response.json();
-                    const papers = data.data || [];
-                    debugDiv.innerHTML += `<span style="color: green;">✅ Semantic Scholar (proxy ${i+1}) returned ${papers.length} papers</span><br>`;
-                    return papers.map(paper => ({
-                        title: paper.title || 'Untitled',
-                        abstract: (paper.abstract || '').slice(0, 350),
-                        url: paper.url || '#',
-                        date: paper.publicationDate?.slice(0,10) || 'Unknown',
-                        source: 'Semantic Scholar',
-                        type: 'paper',
-                        citations: paper.citationCount || 0,
-                        authors: paper.authors?.map(a => a.name).join(', ') || 'Unknown'
-                    }));
-                }
-            } catch (err) {
-                debugDiv.innerHTML += `<span style="color: orange;">⚠️ Semantic Scholar proxy ${i+1} failed: ${err.message}</span><br>`;
-            }
-        }
-        debugDiv.innerHTML += `<span style="color: red;">❌ Semantic Scholar all attempts failed</span><br>`;
-        return [];
-    }
-
-    // ========== 3. ARXIV (Proxy fallbacks) - increased max_results to 15 ==========
-    const ARXIV_PROXIES = [
-        'https://api.allorigins.win/raw?url=',
-        'https://corsproxy.io/?',
-        'https://thingproxy.freeboard.io/fetch/'
-    ];
-
-    async function fetchArxivWithFallback(query) {
-        async function fetchArxiv(proxyIndex = 0) {
-            if (proxyIndex >= ARXIV_PROXIES.length) throw new Error('No more proxies');
-            const arxivUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=15&sortBy=submittedDate&sortOrder=descending`;
-            const proxyUrl = ARXIV_PROXIES[proxyIndex] + encodeURIComponent(arxivUrl);
-            const response = await fetchWithTimeout(proxyUrl, 10000);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const text = await response.text();
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(text, 'text/xml');
-            const entries = xml.querySelectorAll('entry');
-            if (entries.length === 0) return [];
-            const results = [];
-            for (let entry of entries) {
-                const title = entry.querySelector('title')?.textContent?.trim() || 'Untitled';
-                let summary = entry.querySelector('summary')?.textContent?.trim() || '';
-                summary = summary.replace(/\s+/g, ' ').slice(0, 350);
-                const link = entry.querySelector('id')?.textContent || '#';
-                const publishedRaw = entry.querySelector('published')?.textContent || '';
-                const date = publishedRaw.slice(0,10) || 'Unknown';
-                const authors = Array.from(entry.querySelectorAll('author name')).map(a => a.textContent).join(', ') || 'Unknown';
-                results.push({
-                    title: title,
-                    abstract: summary,
-                    url: link,
-                    date: date,
-                    source: 'arXiv',
-                    type: 'preprint',
-                    citations: 0,
-                    authors: authors
-                });
-            }
-            return results;
-        }
-        let lastError;
-        for (let i = 0; i < ARXIV_PROXIES.length; i++) {
-            try {
-                const result = await fetchArxiv(i);
-                if (result.length > 0) {
-                    debugDiv.innerHTML += `<span style="color: green;">✅ arXiv (proxy ${i+1}) returned ${result.length} preprints</span><br>`;
-                    return result;
-                }
-            } catch (err) {
-                lastError = err;
-                debugDiv.innerHTML += `<span style="color: orange;">⚠️ arXiv proxy ${i+1} failed: ${err.message}</span><br>`;
-            }
-        }
-        debugDiv.innerHTML += `<span style="color: red;">❌ All arXiv proxies failed: ${lastError?.message}</span><br>`;
-        return [];
-    }
-
-    // ========== 4. PATENTSVIEW API (Real, no proxy needed) - increased limit to 10 ==========
-    async function searchPatents(query, limit = 10) {
-        if (!query.trim()) return [];
-        const payload = {
-            q: `(_text_any:${query.replace(/[^\w\s]/g, ' ')})`,
-            f: ["patent_id", "patent_title", "patent_abstract", "patent_date", "assignee_organization"],
-            o: { per_page: limit, matched_subentities_only: true }
-        };
-        try {
-            const response = await fetch('https://api.patentsview.org/patents/query', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const data = await response.json();
-            const patents = data.patents || [];
-            debugDiv.innerHTML += `<span style="color: green;">✅ PatentsView returned ${patents.length} patents</span><br>`;
-            return patents.map(p => {
-                const assignee = p.assignees?.[0]?.assignee_organization || 'Unknown Assignee';
-                const date = p.patent_date ? p.patent_date.slice(0,4) : 'Unknown';
-                const patentNumber = p.patent_id || '';
-                return {
-                    title: p.patent_title || 'Untitled Patent',
-                    abstract: (p.patent_abstract || 'No abstract available.').slice(0, 350),
-                    url: patentNumber ? `https://patents.google.com/patent/${patentNumber}` : '#',
-                    date: date,
-                    source: `Patent · ${assignee}`,
-                    type: 'patent',
-                    citations: 0,
-                    authors: assignee,
-                    number: patentNumber
-                };
-            });
-        } catch (err) {
-            debugDiv.innerHTML += `<span style="color: red;">❌ PatentsView error: ${err.message}</span><br>`;
-            return [];
-        }
-    }
-
-    // ========== 5. DASHBOARD & RENDERING HELPERS ==========
-    function extractTopicsFromPapers(papers) {
-        const stopWords = new Set(['using','based','model','method','analysis','study','paper','research','data','learning','network','system','approach','framework','results','performance']);
-        const freq = new Map();
-        for (const paper of papers) {
-            const title = paper.title || '';
-            const words = title.toLowerCase().replace(/[^\w\s]/g, '').split(/\s+/);
-            for (const w of words) {
-                if (w.length >= 5 && !stopWords.has(w)) {
-                    freq.set(w, (freq.get(w)||0) + 1);
-                }
-            }
-        }
-        return [...freq.entries()].sort((a,b) => b[1]-a[1]).slice(0, 12);
-    }
-
-    function updateDashboard(papers, patents) {
-        // Top Authors
-        const authorCount = {};
-        for (const p of papers) {
-            const authors = p.authors || '';
-            authors.split(',').forEach(a => {
-                const name = a.trim();
-                if (name && name !== 'Unknown') authorCount[name] = (authorCount[name] || 0) + 1;
-            });
-        }
-        const topAuthors = Object.entries(authorCount).sort((a,b)=>b[1]-a[1]).slice(0,10);
-        authorsPanel.innerHTML = topAuthors.length ? topAuthors.map(([name,c]) => `<div class="author-item"><b>${escapeHtml(name)}</b><div class="meta">📄 ${c} paper${c>1?'s':''}</div></div>`).join('') : '<div class="empty-message">No author data</div>';
-
-        // Top Topics
-        const topics = extractTopicsFromPapers(papers);
-        topicsPanel.innerHTML = topics.length ? topics.map(([t,f]) => `<div class="topic-badge"><b>#${escapeHtml(t)}</b><div class="meta">${f} mentions</div></div>`).join('') : '<div class="empty-message">No topics extracted</div>';
-
-        // Top Papers (by citations + recency)
-        const sortedPapers = [...papers].sort((a,b) => (b.citations||0) - (a.citations||0) || (b.date||0) - (a.date||0)).slice(0,12);
-        papersPanel.innerHTML = sortedPapers.length ? sortedPapers.map(p => `<div class="paper-mini"><b>${escapeHtml(p.title.length>80?p.title.slice(0,77)+'...':p.title)}</b><div class="meta">${p.date || 'n.d.'} · ${p.source}</div></div>`).join('') : '<div class="empty-message">No papers found</div>';
-
-        // Top Patents
-        patentsPanel.innerHTML = patents.length ? patents.slice(0,10).map(p => `<div class="patent-mini"><b>${escapeHtml(p.title.length>80?p.title.slice(0,77)+'...':p.title)}</b><div class="meta">${p.date} · ${p.source.replace('Patent · ','')}</div></div>`).join('') : '<div class="empty-message">No patents found</div>';
-    }
-
-    function renderCombinedResults(allItems) {
-        if (!allItems.length) {
-            resultsList.innerHTML = '<div class="empty-message">No results found from any source. Try another query.</div>';
-            return;
-        }
-        resultsList.innerHTML = `<div style="margin-bottom: 12px;">📄 Total <strong>${allItems.length}</strong> unique results</div>` +
-            allItems.map(item => `
-                <div class="result-card">
-                    <div class="result-title"><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener">${escapeHtml(item.title)}</a></div>
-                    <div class="result-details">
-                        <span><b>Source:</b> ${escapeHtml(item.source)}</span>
-                        <span><b>Date:</b> ${escapeHtml(item.date)}</span>
-                        ${item.type === 'patent' ? `<span><b>Patent</b></span>` : `<span><b>Paper</b> ${item.citations ? `· Citations: ${item.citations}` : ''}</span>`}
-                    </div>
-                    <div class="abstract">${escapeHtml(item.abstract) || 'No abstract available.'}</div>
-                </div>
-            `).join('');
-    }
-
-    // ========== MAIN SEARCH CONTROLLER ==========
-    async function searchAll() {
-        const query = queryInput.value.trim();
-        if (!query) {
-            debugDiv.innerHTML = '⚠️ Please enter a research topic or patent keyword.';
-            return;
-        }
-
-        debugDiv.innerHTML = `🔍 Searching for "${query}" across all sources...<br>`;
-        resultsList.innerHTML = '<div class="empty-message">⏳ Loading unified results...</div>';
-        authorsPanel.innerHTML = '<div class="empty-message">📊 Computing...</div>';
-        topicsPanel.innerHTML = '<div class="empty-message">📊 Extracting topics...</div>';
-        papersPanel.innerHTML = '<div class="empty-message">📊 Loading top papers...</div>';
-        patentsPanel.innerHTML = '<div class="empty-message">📊 Loading patents...</div>';
-
-        let paperResults = [];
-        let patentResults = [];
-
-        // 1. Crossref
-        try {
-            const crossref = await fetchCrossref(query);
-            paperResults.push(...crossref);
-            debugDiv.innerHTML += `<span style="color: green;">✅ Crossref: ${crossref.length} papers</span><br>`;
-        } catch (err) { debugDiv.innerHTML += `<span style="color: red;">❌ Crossref error: ${err.message}</span><br>`; }
-
-        // 2. Semantic Scholar (proxy-aware)
-        try {
-            const ss = await fetchSemanticScholarWithFallback(query);
-            paperResults.push(...ss);
-        } catch (err) { debugDiv.innerHTML += `<span style="color: red;">❌ Semantic Scholar fatal: ${err.message}</span><br>`; }
-
-        // 3. arXiv (proxy-aware)
-        try {
-            const arxiv = await fetchArxivWithFallback(query);
-            paperResults.push(...arxiv);
-        } catch (err) { debugDiv.innerHTML += `<span style="color: red;">❌ arXiv fatal: ${err.message}</span><br>`; }
-
-        // 4. PatentsView
-        try {
-            patentResults = await searchPatents(query);
-        } catch (err) { debugDiv.innerHTML += `<span style="color: red;">❌ Patents error: ${err.message}</span><br>`; }
-
-        // Combine all results (papers + patents)
-        const allRaw = [...paperResults, ...patentResults];
-        // Deduplicate by title (case‑insensitive)
-        const seen = new Map();
-        for (const item of allRaw) {
-            const key = item.title.toLowerCase();
-            if (!seen.has(key)) seen.set(key, item);
-        }
-        let unique = Array.from(seen.values());
-        // Sort by date descending (newest first)
-        unique.sort((a,b) => (b.date || '').localeCompare(a.date || ''));
-
-        // Update dashboard (papers for analytics, patents separately)
-        updateDashboard(paperResults, patentResults);
-        renderCombinedResults(unique);
-        debugDiv.innerHTML += `<span style="color: #0f172a; font-weight: bold;">✅ Done: ${paperResults.length} papers + ${patentResults.length} patents = ${unique.length} unique results.</span>`;
-    }
-
-    // Event listeners
-    searchBtn.addEventListener('click', searchAll);
-    queryInput.addEventListener('keypress', e => { if (e.key === 'Enter') searchAll(); });
-    
-    // Make searchAll available globally just in case
-    window.searchAll = searchAll;
+  searchBtn.onclick = searchAll;
+  queryInput.onkeypress = e => e.key === 'Enter' && searchAll();
 </script>
 </body>
 </html>
