@@ -1,69 +1,121 @@
 # BrightScope
 
-BrightScope is a unified search platform for research papers, patents, and innovations.
+BrightScope is an open research discovery platform that helps users search across academic literature from multiple sources through a single interface.
+
+**Live Demo:** https://gitcoder12.github.io/Brightscope/
 
 ---
 
 ## Overview
 
-BrightScope allows users to search across multiple knowledge sources and view results in one organized interface.
+BrightScope queries multiple open academic sources and returns unified results in one place.
 
-Instead of searching different platforms separately, users can explore technical knowledge in a single place.
+Instead of searching multiple databases separately, users can search once and explore research from a single interface.
+
+Current data sources:
+
+* OpenAlex
+* Crossref
+
+No API keys are required.
 
 ---
 
 ## Core Features
 
-* Unified search across papers, patents, and articles
-* Categorized results (research, patents, innovations)
-* Keyword-based search
-* Clean and structured output
+* Unified research search
+* Multi-source aggregation
+* Research paper discovery
+* Author information
+* Source attribution
+* Deduplicated results
+* Mobile-friendly interface
+* GitHub Pages deployment
 
 ---
 
 ## Example
 
-Search: graphene
+Search:
+
+```text
+graphene battery
+```
 
 Results:
 
 * Research papers
-* Patents
-* Related innovations
+* Author information
+* Publication metadata
+* Source attribution
 
 ---
 
-## MVP Scope
+## Quick Start
 
-* Search integration (arXiv API)
-* Basic results display
-* Category grouping
+```bash
+git clone https://github.com/Gitcoder12/Brightscope.git
+cd Brightscope
+
+python -m http.server 8000
+```
+
+Open:
+
+```text
+http://localhost:8000
+```
 
 ---
 
-## Future Enhancements
+## Roadmap
 
-* Patent integration
-* Smart classification and tagging
-* Advanced filters (date, field, relevance)
-* AI-based summarization
+### V2 — Research Intelligence
+
+* Top authors
+* Top institutions
+* Top topics
+* Citation insights
+
+### V3 — Research Analytics
+
+* Trend detection
+* Topic clustering
+* Emerging research areas
+
+### V4 — Patent Intelligence
+
+* Patent search
+* Inventor search
+* Technology landscapes
+
+### V5 — Innovation Engine
+
+* Research gap detection
+* Opportunity discovery
+* Commercialization insights
 
 ---
 
-## Tech (planned)
+## Technology Stack
 
-* Next.js (frontend)
-* Python / API layer
-* External APIs (arXiv, patents)
+* HTML
+* CSS
+* Vanilla JavaScript
+* OpenAlex API
+* Crossref API
+* GitHub Pages
 
 ---
 
 ## Status
 
-Early-stage MVP
+Current Version: **V1**
+
+Active development.
 
 ---
 
 ## Goal
 
-Make it easy to explore and understand technical knowledge from multiple sources in one place.
+Make research discovery accessible to students, researchers, founders, inventors, and builders by providing a fast and open platform for exploring scientific knowledge.
