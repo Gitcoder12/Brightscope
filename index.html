@@ -1,306 +1,219 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Brightscope</title>
-
-<style>
-body{
-    font-family:Arial,sans-serif;
-    background:#0f172a;
-    color:white;
-    max-width:1200px;
-    margin:auto;
-    padding:20px;
-}
-
-input{
-    width:70%;
-    padding:12px;
-    border:none;
-    border-radius:10px;
-}
-
-button{
-    padding:12px 20px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-}
-
-.result{
-    background:#1e293b;
-    margin:12px 0;
-    padding:15px;
-    border-radius:10px;
-}
-
-a{
-    color:#60a5fa;
-}
-
-#debug{
-    margin-top:20px;
-    color:#94a3b8;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Brightscope · Research Discovery</title>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #0b1120;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: #eef2ff;
+      padding: 2rem 1.5rem;
+      line-height: 1.5;
+    }
+    .container { max-width: 1300px; margin: 0 auto; }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #c084fc, #60a5fa);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .search-panel {
+      background: #111827;
+      border-radius: 2rem;
+      display: flex;
+      gap: 0.75rem;
+      margin: 1.5rem 0 1rem;
+      border: 1px solid #1e293b;
+      padding: 0.5rem;
+    }
+    #query {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 0.9rem 1.2rem;
+      font-size: 1rem;
+      color: #f1f5f9;
+      outline: none;
+    }
+    button {
+      background: #3b82f6;
+      border: none;
+      padding: 0 1.8rem;
+      border-radius: 2rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+    }
+    .debug-bar {
+      background: #0f172a;
+      border-radius: 20px;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      margin-bottom: 1.5rem;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .card {
+      background: #0f172a;
+      border-radius: 1.5rem;
+      border: 1px solid #1e293b;
+    }
+    .card-header {
+      background: #1e293b;
+      padding: 1rem 1.5rem;
+      font-weight: 700;
+      border-bottom: 1px solid #334155;
+    }
+    .card-content {
+      padding: 1.2rem;
+      max-height: 380px;
+      overflow-y: auto;
+    }
+    .result-card {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 1.2rem;
+      padding: 1rem 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .result-title a {
+      color: #93c5fd;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+    .result-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      color: #cbd5e1;
+    }
+    .badge-source {
+      background: #1e293b;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+    }
+    .empty-message {
+      text-align: center;
+      color: #64748b;
+      padding: 1rem;
+    }
+  </style>
 </head>
 <body>
+<div class="container">
+  <h1>🔬 Brightscope</h1>
+  <div class="search-panel">
+    <input id="query" placeholder="e.g., quantum machine learning, crispr, transformers">
+    <button id="searchBtn">Search</button>
+  </div>
+  <div id="debug" class="debug-bar">⚡ Ready — search any research topic</div>
 
-<h1>🔬 Brightscope</h1>
+  <div class="dashboard">
+    <div class="card"><div class="card-header">👨‍🔬 Top Authors</div><div id="authorsPanel" class="card-content">—</div></div>
+    <div class="card"><div class="card-header">🔥 Top Topics</div><div id="topicsPanel" class="card-content">—</div></div>
+    <div class="card"><div class="card-header">📚 Top Papers</div><div id="papersPanel" class="card-content">—</div></div>
+  </div>
 
-<input
-id="query"
-placeholder="machine learning, quantum computing..."
->
-
-<button onclick="searchAll()">
-Search
-</button>
-
-<div id="debug"></div>
-
-<hr>
-
-<h2>👨‍🔬 Top Authors</h2>
-<div id="authors"></div>
-
-<h2>🏛 Top Institutions</h2>
-<div id="institutions"></div>
-
-<h2>🔥 Top Topics</h2>
-<div id="topics"></div>
-
-<h2>📚 Top Papers</h2>
-<div id="papers"></div>
-
-<hr>
-
-<div id="results"></div>
+  <h2>📄 All Publications</h2>
+  <div id="resultsList"></div>
+</div>
 
 <script type="module">
+  import { searchCrossref } from "./crossref.js";
+  import { searchOpenAlex } from "./openalex.js";
 
-import { searchCrossref } from "./crossref.js";
-import { searchOpenAlex } from "./openalex.js";
+  const queryInput = document.getElementById('query');
+  const searchBtn = document.getElementById('searchBtn');
+  const debugDiv = document.getElementById('debug');
+  const authorsPanel = document.getElementById('authorsPanel');
+  const topicsPanel = document.getElementById('topicsPanel');
+  const papersPanel = document.getElementById('papersPanel');
+  const resultsList = document.getElementById('resultsList');
 
-console.log("Brightscope loaded");
+  function escapeHtml(str) { return str?.replace(/[&<>]/g, function(m) { return { '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m]; }) || ''; }
 
-window.searchAll = async function() {
+  async function searchAll() {
+    const query = queryInput.value.trim();
+    if (!query) { debugDiv.innerHTML = '⚠️ Enter a topic'; return; }
+    debugDiv.innerHTML = `🔍 Searching for "${query}" ...`;
+    authorsPanel.innerHTML = '<div class="empty-message">Loading authors...</div>';
+    topicsPanel.innerHTML = '<div class="empty-message">Extracting topics...</div>';
+    papersPanel.innerHTML = '<div class="empty-message">Loading papers...</div>';
+    resultsList.innerHTML = '<div class="empty-message">Fetching results...</div>';
 
-    const query =
-        document.getElementById("query").value.trim();
+    let crossrefPapers = [], openalexPapers = [];
+    try { crossrefPapers = await searchCrossref(query); } catch(e) { debugDiv.innerHTML += `<br>❌ Crossref error: ${e.message}`; }
+    try { openalexPapers = await searchOpenAlex(query); } catch(e) { debugDiv.innerHTML += `<br>❌ OpenAlex error: ${e.message}`; }
 
-    if(!query){
-        alert("Enter a topic");
-        return;
+    const all = [...crossrefPapers, ...openalexPapers];
+    if (all.length === 0) {
+      resultsList.innerHTML = '<div class="empty-message">No results. Try another topic.</div>';
+      return;
     }
 
-    const resultsDiv =
-        document.getElementById("results");
-
-    const debugDiv =
-        document.getElementById("debug");
-
-    resultsDiv.innerHTML =
-        "<p>Searching...</p>";
-
-    debugDiv.innerHTML = "";
-
-    let results = [];
-
-    try {
-
-        const crossref =
-            await searchCrossref(query);
-
-        debugDiv.innerHTML +=
-            "✅ Crossref loaded<br>";
-
-        crossref.forEach(item => {
-
-            results.push({
-                title:item.title?.[0] || "Untitled",
-                authors:item.author?.map(a =>
-                    `${a.given || ""} ${a.family || ""}`
-                ).join(", ") || "Unknown",
-                year:item.published?.["date-parts"]?.[0]?.[0] || "",
-                link:item.URL || "#",
-                source:"Crossref"
-            });
-
-        });
-
-    } catch(err){
-
-        console.error(err);
-
-        debugDiv.innerHTML +=
-            "❌ Crossref failed<br>";
+    // Deduplicate by title (case‑insensitive)
+    const unique = new Map();
+    for (const p of all) {
+      const key = p.title?.trim().toLowerCase();
+      if (key && !unique.has(key)) unique.set(key, p);
     }
+    let papers = Array.from(unique.values());
+    papers.sort((a,b) => (b.year||0) - (a.year||0));
 
-    try {
-
-        const openalex =
-            await searchOpenAlex(query);
-
-        debugDiv.innerHTML +=
-            "✅ OpenAlex loaded<br>";
-
-        openalex.forEach(item => {
-
-            results.push({
-                title:item.display_name || "Untitled",
-                authors:item.authorships?.map(a =>
-                    a.author?.display_name
-                ).join(", ") || "Unknown",
-                year:item.publication_year || "",
-                link:item.id || "#",
-                source:"OpenAlex"
-            });
-
-        });
-
-    } catch(err){
-
-        console.error(err);
-
-        debugDiv.innerHTML +=
-            "❌ OpenAlex failed<br>";
-    }
-
-   const unique =
-    [...new Map(
-        results.map(r => [r.title, r])
-    ).values()];
-
-const authorCount = {};
-const topicCount = {};
-
-unique.forEach(paper => {
-
-    // Authors
-    paper.authors
-        .split(",")
-        .forEach(author => {
-
-            author = author.trim();
-
-            if(
-                !author ||
-                author === "Unknown"
-            ) return;
-
-            authorCount[author] =
-                (authorCount[author] || 0) + 1;
-        });
-
-    // Topics
-    const words =
-        paper.title
-            .toLowerCase()
-            .replace(/[^a-z0-9 ]/g,"")
-            .split(" ");
-
-    words.forEach(word => {
-
-        if(word.length < 5) return;
-
-        topicCount[word] =
-            (topicCount[word] || 0) + 1;
+    // --- Top Authors ---
+    const authorCount = new Map();
+    papers.forEach(p => {
+      const authors = p.authors || '';
+      authors.split(',').forEach(a => {
+        const name = a.trim();
+        if (name && name !== 'Unknown') authorCount.set(name, (authorCount.get(name)||0)+1);
+      });
     });
+    const topAuthors = Array.from(authorCount.entries()).sort((a,b)=>b[1]-a[1]).slice(0,10);
+    authorsPanel.innerHTML = topAuthors.length ? topAuthors.map(([name, cnt]) => `<div><b>${escapeHtml(name)}</b> · ${cnt} paper${cnt>1?'s':''}</div>`).join('') : '<div class="empty-message">No author data</div>';
 
-});
+    // --- Top Topics (keywords from titles) ---
+    const stopWords = new Set(['using','based','model','method','analysis','study','paper','research','data','learning','network','system','approach']);
+    const topicFreq = new Map();
+    papers.forEach(p => {
+      const words = (p.title||'').toLowerCase().replace(/[^\w\s]/g,'').split(/\s+/).filter(w => w.length>=5 && !stopWords.has(w));
+      words.forEach(w => topicFreq.set(w, (topicFreq.get(w)||0)+1));
+    });
+    const topTopics = Array.from(topicFreq.entries()).sort((a,b)=>b[1]-a[1]).slice(0,12);
+    topicsPanel.innerHTML = topTopics.length ? topTopics.map(([t,f]) => `<div><b>#${escapeHtml(t)}</b> · ${f} mentions</div>`).join('') : '<div class="empty-message">No topics extracted</div>';
 
-const topAuthors =
-    Object.entries(authorCount)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,10);
+    // --- Top Papers (first 10) ---
+    const topPapersList = papers.slice(0,10);
+    papersPanel.innerHTML = topPapersList.map(p => `<div><b>${escapeHtml(p.title.length>70?p.title.slice(0,67)+'...':p.title)}</b><br><small>${p.year||'n.d.'} · ${p.source}</small></div>`).join('');
 
-const topTopics =
-    Object.entries(topicCount)
-    .sort((a,b)=>b[1]-a[1])
-    .slice(0,10);
+    // --- Full results ---
+    resultsList.innerHTML = papers.map(p => `
+      <div class="result-card">
+        <div class="result-title"><a href="${escapeHtml(p.link)}" target="_blank">${escapeHtml(p.title)}</a></div>
+        <div class="result-details">
+          <span><b>Authors:</b> ${escapeHtml(p.authors||'Unknown')}</span>
+          <span><b>Year:</b> ${p.year||'—'}</span>
+          <span class="badge-source">${escapeHtml(p.source)}</span>
+        </div>
+      </div>
+    `).join('');
+    debugDiv.innerHTML = `✅ ${papers.length} unique papers · ${topAuthors.length} authors · ${topTopics.length} topics`;
+  }
 
-const topPapers =
-    unique.slice(0,10);
-
-unique.sort(
-    (a,b)=>(b.year||0)-(a.year||0)
-);
-
-if(unique.length === 0){
-
-    resultsDiv.innerHTML =
-        "<h3>No results found</h3>";
-
-    return;
-}
-
-document.getElementById("authors").innerHTML =
-"<div class='result'>👨‍🔬 AUTHORS PANEL LOADED</div>" +
-topAuthors.map(a => `
-<div class="result">
-<b>${a[0]}</b><br>
-Papers: ${a[1]}
-</div>
-`).join("");
-
-document.getElementById("topics").innerHTML =
-"<div class='result'>🔥 TOPICS PANEL LOADED</div>" +
-topTopics.map(t => `
-<div class="result">
-<b>${t[0]}</b><br>
-Mentions: ${t[1]}
-</div>
-`).join("");
-
-document.getElementById("papers").innerHTML =
-"<div class='result'>📚 PAPERS PANEL LOADED</div>" +
-topPapers.map(p => `
-<div class="result">
-<b>${p.title}</b><br>
-${p.year}
-</div>
-`).join("");
-
-document.getElementById("institutions").innerHTML =
-"<div class='result'>🏛 INSTITUTIONS PANEL LOADED</div>";
-
-    resultsDiv.innerHTML =
-        unique.map(r => `
-            <div class="result">
-
-                <h3>
-                    <a href="${r.link}" target="_blank">
-                        ${r.title}
-                    </a>
-                </h3>
-
-                <p>
-                    <b>Authors:</b>
-                    ${r.authors}
-                </p>
-
-                <p>
-                    <b>Year:</b>
-                    ${r.year}
-                </p>
-
-                <p>
-                    <b>Source:</b>
-                    ${r.source}
-                </p>
-
-            </div>
-        `).join("");
-
-};
-
+  searchBtn.addEventListener('click', searchAll);
+  queryInput.addEventListener('keypress', e => e.key === 'Enter' && searchAll());
 </script>
-
 </body>
 </html>
-```
