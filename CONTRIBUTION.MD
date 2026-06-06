@@ -15,4 +15,3 @@
   "date": "2025-01-01",
   "category": "research | patent | innovation"
 }
-```
