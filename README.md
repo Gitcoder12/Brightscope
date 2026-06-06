@@ -84,7 +84,7 @@ http://localhost:8000
 * Emerging research areas
 
 ### V4 — Patent Intelligence
-
+ 
 * Patent search
 * Inventor search
 * Technology landscapes
