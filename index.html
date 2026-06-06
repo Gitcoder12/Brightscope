@@ -94,7 +94,7 @@
         }));
     }
 
-    // ---------- 3. arXiv via proxy (fallback) ----------
+       // ---------- 3. arXiv via proxy (improved: more results, year extraction) ----------
     const PROXIES = [
         'https://api.allorigins.win/raw?url=',
         'https://corsproxy.io/?',
@@ -103,7 +103,8 @@
 
     async function fetchArxiv(query, proxyIndex = 0) {
         if (proxyIndex >= PROXIES.length) throw new Error('All arXiv proxies failed');
-        const arxivUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=6`;
+        // Increased max_results to 12 and sort by submission date
+        const arxivUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=12&sortBy=submittedDate&sortOrder=descending`;
         const proxyUrl = PROXIES[proxyIndex] + encodeURIComponent(arxivUrl);
         const response = await fetchWithTimeout(proxyUrl, 10000);
         if (!response.ok) throw new Error(`Proxy ${proxyIndex+1} HTTP ${response.status}`);
@@ -115,15 +116,20 @@
         const results = [];
         for (let entry of entries) {
             const title = entry.querySelector('title')?.textContent?.trim() || 'No title';
-            const summary = entry.querySelector('summary')?.textContent?.trim()?.slice(0, 350) || '';
+            let summary = entry.querySelector('summary')?.textContent?.trim() || '';
+            // Clean abstract from newlines and truncate
+            summary = summary.replace(/\s+/g, ' ').slice(0, 350);
             const link = entry.querySelector('id')?.textContent || '#';
-            const published = entry.querySelector('published')?.textContent?.slice(0,10) || 'Unknown';
+            const publishedRaw = entry.querySelector('published')?.textContent || '';
+            const date = publishedRaw.slice(0,10) || 'Unknown';
+            const year = date.split('-')[0] || '';
             results.push({
                 title: title,
                 abstract: summary,
                 url: link,
-                date: published,
-                source: 'arXiv (via proxy)',
+                date: date,
+                year: year,
+                source: 'arXiv',
                 type: 'preprint'
             });
         }
@@ -136,7 +142,7 @@
             try {
                 const result = await fetchArxiv(query, i);
                 if (result.length > 0) {
-                    debugDiv.innerHTML += `<span style="color: green;">✅ arXiv succeeded with proxy ${i+1}</span><br>`;
+                    debugDiv.innerHTML += `<span style="color: green;">✅ arXiv succeeded with proxy ${i+1} (${result.length} preprints)</span><br>`;
                     return result;
                 }
             } catch (err) {
@@ -147,7 +153,6 @@
         debugDiv.innerHTML += `<span style="color: red;">❌ All arXiv proxies failed. Last error: ${lastError?.message}</span><br>`;
         return [];
     }
-
     // ---------- Main search ----------
     async function searchAll() {
         const query = queryInput.value.trim();
