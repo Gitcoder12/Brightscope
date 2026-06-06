@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrightScope – Research Paper Search</title>
+
+  <!--
+    ============================================================
+    arXiv API INTEGRATION NOTES
+    ============================================================
+    To replace mock data with live arXiv results:
+
+    Base URL:  https://export.arxiv.org/api/query
+    Method:    GET (no API key required)
+
+    Example query:
+      https://export.arxiv.org/api/query?search_query=all:graphene&start=0&max_results=25
+
+    Parameters:
+      search_query  – e.g. "all:graphene", "cat:cs.AI", "ti:quantum"
+      start         – offset for pagination (default 0)
+      max_results   – number of results (max 2000 per request)
+
+    Response format: Atom XML feed
+    Parse with DOMParser, iterate <entry> elements and read:
+      <title>, <author><name>, <summary>, <published>, <link rel="alternate">
+      arxiv:primary_category term attribute → category
+
+    Citation counts are NOT provided by arXiv; use Semantic Scholar API
+    (https://api.semanticscholar.org/graph/v1/paper/search) for citation data.
+
+    Replace the `searchPapers()` function body with a fetch() call to the
+    arXiv API, parse the XML, and map entries to the `papers` array shape
+    used throughout this file.
+    ============================================================
+  -->
+
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #6c63ff;
+      --accent2: #00d4aa;
+      --text: #e8eaf6;
+      --muted: #8b90b0;
+      --tag-physics: #4a90d9;
+      --tag-ai: #9c59d1;
+      --tag-biology: #3cb371;
+      --tag-chemistry: #e67e22;
+      --tag-medicine: #e74c3c;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,.4);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, #1a1d27 0%, #12152a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,.5);
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Search bar ── */
+    .search-wrap {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    #searchInput {
+      width: 100%;
+      padding: 10px 14px 10px 42px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    #searchInput::placeholder { color: var(--muted); }
+    #searchInput:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(108,99,255,.2);
+    }
+
+    /* ── Main layout ── */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px;
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* ── Sidebar ── */
+    aside {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      position: sticky;
+      top: 80px;
+    }
+
+    aside h2 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .filter-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background .15s, border-color .15s;
+    }
+
+    .filter-btn:hover { background: var(--surface2); }
+    .filter-btn.active {
+      background: rgba(108,99,255,.15);
+      border-color: var(--accent);
+      color: #b8b4ff;
+    }
+
+    .filter-count {
+      font-size: 0.75rem;
+      background: var(--surface2);
+      border-radius: 20px;
+      padding: 1px 8px;
+      color: var(--muted);
+    }
+
+    .filter-btn.active .filter-count {
+      background: rgba(108,99,255,.3);
+      color: #b8b4ff;
+    }
+
+    /* ── Results header ── */
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .results-count {
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .sort-select {
+      padding: 6px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* ── Paper cards ── */
+    .papers-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .paper-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      transition: border-color .2s, box-shadow .2s;
+      cursor: pointer;
+    }
+
+    .paper-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(108,99,255,.2), var(--shadow);
+    }
+
+    .paper-card.expanded { border-color: var(--accent); }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .paper-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .category-tag {
+      flex-shrink: 0;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      color: #fff;
+    }
+
+    .tag-Physics    { background: var(--tag-physics); }
+    .tag-AI         { background: var(--tag-ai); }
+    .tag-Biology    { background: var(--tag-biology); }
+    .tag-Chemistry  { background: var(--tag-chemistry); }
+    .tag-Medicine   { background: var(--tag-medicine); }
+
+    .paper-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    .paper-meta span { display: flex; align-items: center; gap: 4px; }
+
+    .paper-authors { margin-top: 6px; font-size: 0.85rem; color: var(--muted); }
+
+    /* Expandable abstract */
+    .paper-abstract {
+      margin-top: 14px;
+      font-size: 0.88rem;
+      color: #c0c4dc;
+      line-height: 1.7;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      display: none;
+    }
+
+    .paper-card.expanded .paper-abstract { display: block; }
+
+    .expand-hint {
+      font-size: 0.78rem;
+      color: var(--accent);
+      margin-top: 10px;
+      display: inline-block;
+    }
+
+    .paper-card.expanded .expand-hint::after { content: " ▲"; }
+    .paper-card:not(.expanded) .expand-hint::after { content: " ▼"; }
+
+    /* Citation badge */
+    .cite-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(0,212,170,.12);
+      color: var(--accent2);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* ── Empty state ── */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state svg { margin-bottom: 16px; opacity: .4; }
+    .empty-state p { font-size: 1.1rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+        padding: 16px;
+      }
+
+      aside {
+        position: static;
+      }
+
+      .filter-group { flex-direction: row; flex-wrap: wrap; }
+      .filter-btn { flex: 1 1 auto; justify-content: center; }
+      .filter-count { display: none; }
+
+      .header-inner { height: auto; padding: 12px 0; flex-wrap: wrap; }
+      header { position: static; }
+    }
+
+    /* ── Highlight match ── */
+    mark {
+      background: rgba(108,99,255,.35);
+      color: inherit;
+      border-radius: 2px;
+      padding: 0 1px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-icon">🔭</div>
+      <span class="logo-text">BrightScope</span>
+    </a>
+
+    <div class="search-wrap">
+      <!-- Search icon -->
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input
+        id="searchInput"
+        type="search"
+        placeholder="Search papers, authors, topics…"
+        aria-label="Search research papers"
+        autocomplete="off"
+      />
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ── Sidebar filters ── -->
+  <aside>
+    <h2>Category</h2>
+    <div class="filter-group" id="filterGroup">
+      <button class="filter-btn active" data-cat="all">
+        All <span class="filter-count" id="count-all">0</span>
+      </button>
+      <button class="filter-btn" data-cat="Physics">
+        Physics <span class="filter-count" id="count-Physics">0</span>
+      </button>
+      <button class="filter-btn" data-cat="AI">
+        AI <span class="filter-count" id="count-AI">0</span>
+      </button>
+      <button class="filter-btn" data-cat="Biology">
+        Biology <span class="filter-count" id="count-Biology">0</span>
+      </button>
+      <button class="filter-btn" data-cat="Chemistry">
+        Chemistry <span class="filter-count" id="count-Chemistry">0</span>
+      </button>
+      <button class="filter-btn" data-cat="Medicine">
+        Medicine <span class="filter-count" id="count-Medicine">0</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── Results panel ── -->
+  <main>
+    <div class="results-header">
+      <span class="results-count" id="resultsCount">Loading…</span>
+      <select class="sort-select" id="sortSelect" aria-label="Sort results">
+        <option value="date-desc">Newest first</option>
+        <option value="date-asc">Oldest first</option>
+        <option value="citations-desc">Most cited</option>
+        <option value="title-asc">Title A–Z</option>
+      </select>
+    </div>
+
+    <div class="papers-list" id="papersList"></div>
+  </main>
+
+</div>
+
+<script>
+// =============================================================
+// MOCK DATA – 28 research papers
+// To replace with live data: see arXiv API notes in <head>
+// =============================================================
+const PAPERS = [
+  {
+    id: 1,
+    title: "Quantum Entanglement in Many-Body Systems: A Comprehensive Review",
+    authors: ["Alice Chen", "Bob Martinez", "Carol Singh"],
+    category: "Physics",
+    date: "2024-03-15",
+    citations: 312,
+    abstract: "We present a comprehensive review of quantum entanglement phenomena in many-body systems, covering recent theoretical advances and experimental demonstrations. Special attention is given to entanglement entropy scaling, area laws, and their implications for quantum computation and condensed matter physics. We discuss both bipartite and multipartite entanglement measures and survey state-of-the-art numerical methods including tensor network algorithms.",
+    arxivId: "2403.12345"
+  },
+  {
+    id: 2,
+    title: "Large Language Models for Scientific Discovery: Opportunities and Limitations",
+    authors: ["David Kim", "Eva Rossi", "Frank Liu"],
+    category: "AI",
+    date: "2024-04-02",
+    citations: 847,
+    abstract: "We examine the role of large language models (LLMs) in accelerating scientific discovery across disciplines. Through systematic benchmarking on 12 scientific domains, we identify capabilities where LLMs excel—hypothesis generation, literature synthesis—and critical failure modes including hallucination of citations, flawed mathematical reasoning, and overconfident extrapolation. We propose a human-in-the-loop framework that combines LLM fluency with domain-expert validation.",
+    arxivId: "2404.00123"
+  },
+  {
+    id: 3,
+    title: "CRISPR-Cas12a-Based Detection of Antibiotic Resistance Genes in Environmental Samples",
+    authors: ["Grace Nguyen", "Henry Patel"],
+    category: "Biology",
+    date: "2024-01-18",
+    citations: 134,
+    abstract: "Antibiotic resistance is a global public health crisis. We developed a CRISPR-Cas12a diagnostic system capable of detecting 28 resistance genes simultaneously in environmental water samples without prior culturing. The assay achieves attomolar sensitivity, 99.2% specificity, and returns results in under 45 minutes. Field validation across 6 river sites demonstrated concordance with gold-standard sequencing approaches.",
+    arxivId: "2401.07891"
+  },
+  {
+    id: 4,
+    title: "Topological Superconductivity in Twisted Bilayer Graphene at Magic Angles",
+    authors: ["Ivan Kowalski", "Julia Fernandez", "Karl Müller"],
+    category: "Physics",
+    date: "2024-02-27",
+    citations: 576,
+    abstract: "Magic-angle twisted bilayer graphene hosts a rich phase diagram including correlated insulating states and superconductivity. Using scanning tunnelling microscopy and spectroscopy at 20 mK, we identify signatures consistent with topological superconductivity near 1.05° twist angle. We observe zero-bias conductance peaks at geometric boundaries and demonstrate their robustness to non-magnetic perturbations, consistent with Majorana-like edge modes.",
+    arxivId: "2402.05678"
+  },
+  {
+    id: 5,
+    title: "Graph Neural Networks for Drug–Target Interaction Prediction",
+    authors: ["Laura Zhang", "Mike Johnson", "Nina Torres"],
+    category: "AI",
+    date: "2023-11-10",
+    citations: 1024,
+    abstract: "We introduce BindGNN, a heterogeneous graph neural network that jointly encodes molecular structure and protein sequence to predict drug-target binding affinity. Trained on 1.2 million interaction pairs from ChEMBL and BindingDB, BindGNN achieves a Pearson correlation of 0.92 on held-out benchmarks, outperforming prior sequence-only and structure-only baselines by 18%. We further demonstrate zero-shot generalisation to novel protein families.",
+    arxivId: "2311.04567"
+  },
+  {
+    id: 6,
+    title: "Organoid Models of the Human Blood-Brain Barrier for Drug Screening",
+    authors: ["Omar Hassan", "Priya Mehta", "Quinn Adams"],
+    category: "Medicine",
+    date: "2024-03-28",
+    citations: 218,
+    abstract: "The blood-brain barrier (BBB) remains the principal obstacle to central nervous system drug delivery. We developed vascularised BBB organoids from human iPSCs that recapitulate tight junction integrity, efflux transporter activity, and pericyte coverage. High-throughput screening of 3,200 FDA-approved compounds identified 14 candidates with BBB permeability profiles superior to existing CNS drugs, providing a translational bridge between in vitro and clinical stages.",
+    arxivId: "2403.09012"
+  },
+  {
+    id: 7,
+    title: "Catalytic CO₂ Reduction to Ethanol Using Bimetallic Cu-Zn Nanoparticles",
+    authors: ["Rosa Martinez", "Samuel Park"],
+    category: "Chemistry",
+    date: "2023-09-14",
+    citations: 389,
+    abstract: "Electrochemical CO₂ reduction to multi-carbon products offers a route to carbon-neutral fuels. We synthesise a Cu-Zn bimetallic catalyst with tunable surface composition and demonstrate 54% Faradaic efficiency for ethanol production at −0.9 V vs. RHE, surpassing previously reported single-metal catalysts. Operando X-ray absorption spectroscopy reveals dynamic restructuring of Cu-Zn interfaces as the mechanistic origin of enhanced C–C coupling selectivity.",
+    arxivId: "2309.11234"
+  },
+  {
+    id: 8,
+    title: "Reinforcement Learning from Human Feedback: Aligning LLMs with Human Values",
+    authors: ["Tom Wilson", "Uma Patel", "Victor Chen"],
+    category: "AI",
+    date: "2024-01-05",
+    citations: 2341,
+    abstract: "We provide a systematic analysis of Reinforcement Learning from Human Feedback (RLHF) applied to large language models. Our study covers reward model training, proximal policy optimisation, and constitutional AI variants across seven commercial and open-source model families. We identify reward hacking as the dominant failure mode and propose hybrid regularisation strategies that improve alignment stability by 31% as measured by independent human evaluation.",
+    arxivId: "2401.00321"
+  },
+  {
+    id: 9,
+    title: "Single-Cell RNA Sequencing Reveals Tumour Microenvironment Heterogeneity in Glioblastoma",
+    authors: ["Wendy Liu", "Xavier Brown", "Yuki Tanaka"],
+    category: "Medicine",
+    date: "2023-12-19",
+    citations: 467,
+    abstract: "Glioblastoma multiforme (GBM) is characterised by extreme cellular heterogeneity that confounds treatment. We profiled 94,000 single cells from 22 GBM tumours using 10x Genomics scRNA-seq, identifying 11 malignant cell states and 8 immune subtypes. Trajectory analysis revealed stem-like mesenchymal transition as a primary mechanism of therapy resistance. Integration with TCGA data validated a 12-gene resistance signature with prognostic value independent of IDH status.",
+    arxivId: "2312.08765"
+  },
+  {
+    id: 10,
+    title: "Photosynthesis-Inspired Artificial Leaf for Solar Hydrogen Production",
+    authors: ["Zara Ahmed", "Aaron Goldstein"],
+    category: "Chemistry",
+    date: "2024-02-11",
+    citations: 203,
+    abstract: "Biological photosynthesis converts sunlight to chemical energy with remarkable spatial organisation. Mimicking this, we engineered an artificial leaf integrating GaInP₂/GaAs tandem photovoltaics with earth-abundant NiMoP hydrogen evolution and cobalt phosphate oxygen evolution catalysts. Under AM1.5G illumination, the device achieves 11.6% solar-to-hydrogen efficiency and maintains performance over 1,000 hours, setting a stability benchmark for integrated solar fuel devices.",
+    arxivId: "2402.03456"
+  },
+  {
+    id: 11,
+    title: "Neuroplasticity and Machine Learning: Bridging Biological and Artificial Neural Networks",
+    authors: ["Bella Ross", "Carlos Lima", "Diana Xu"],
+    category: "AI",
+    date: "2023-08-22",
+    citations: 731,
+    abstract: "The brain's capacity for continuous learning without catastrophic forgetting inspires a new class of biologically-plausible machine learning algorithms. We survey synaptic consolidation, neuromodulatory signals, and sparse coding mechanisms and translate each into differentiable neural network components. Our resulting BioNet framework reduces catastrophic forgetting by 67% on class-incremental benchmarks while maintaining forward transfer comparable to state-of-the-art continual learning methods.",
+    arxivId: "2308.09876"
+  },
+  {
+    id: 12,
+    title: "mRNA Vaccine Design Against Rapidly Mutating Pathogens Using Ancestral Sequence Reconstruction",
+    authors: ["Ethan Clarke", "Fatima Al-Rashid"],
+    category: "Medicine",
+    date: "2024-04-07",
+    citations: 89,
+    abstract: "Rapid antigenic evolution undermines vaccines targeting current pathogen strains. We apply maximum-likelihood ancestral sequence reconstruction to infer evolutionarily central antigens for influenza, SARS-CoV-2, and HIV. Computationally predicted consensus antigens incorporated into lipid nanoparticle mRNA vaccines elicit broadly neutralising antibody responses in animal models that outperform contemporary strain-matched vaccines. Phase I trials for the influenza construct are now initiated.",
+    arxivId: "2404.00789"
+  },
+  {
+    id: 13,
+    title: "High-Entropy Alloys as Catalysts for Nitrogen Fixation at Ambient Conditions",
+    authors: ["George Han", "Helen Fischer", "Ian Osei"],
+    category: "Chemistry",
+    date: "2023-10-03",
+    citations: 156,
+    abstract: "The Haber-Bosch process for ammonia synthesis operates under extreme pressure and temperature, consuming 2% of global energy. We investigate high-entropy alloys (HEAs) as heterogeneous catalysts for ambient-condition nitrogen fixation via electroreduction. A MoFeCoNiCu HEA achieves 42% Faradaic efficiency for NH₃ production at room temperature and 1 atm, with density functional theory calculations revealing HEA surface disorder as key to weakening the N≡N triple bond.",
+    arxivId: "2310.05432"
+  },
+  {
+    id: 14,
+    title: "Dark Matter Direct Detection via Nuclear Recoil in Liquid Xenon: XENON-nT Results",
+    authors: ["Julia Hoffmann", "Kevin Park", "Lena Ivanova", "Marco Russo"],
+    category: "Physics",
+    date: "2024-01-29",
+    citations: 892,
+    abstract: "We report the latest results from the XENON-nT dark matter detector, comprising 5.9 tonne-years of live-time with a 5.9-tonne liquid xenon target. No significant excess above background is observed in the WIMP search channel, yielding the world's most stringent limit on spin-independent WIMP-nucleon cross section: σ < 1.4 × 10⁻⁴⁸ cm² at 30 GeV/c² WIMP mass. Systematic uncertainties from radon, electron recoil leakage, and detector response modelling are discussed.",
+    arxivId: "2401.11111"
+  },
+  {
+    id: 15,
+    title: "Federated Learning with Differential Privacy for Medical Imaging",
+    authors: ["Mia Thompson", "Noah Bennett", "Olivia Sanders"],
+    category: "AI",
+    date: "2023-07-14",
+    citations: 503,
+    abstract: "Medical imaging AI requires large diverse datasets but patient privacy limits data sharing. We present FedDP-MRI, a federated learning framework combining secure aggregation, gradient clipping, and Gaussian noise injection to achieve (ε=1, δ=10⁻⁵)-differential privacy across 22 hospital sites. On brain tumour segmentation, FedDP-MRI matches the Dice score of centralised training (0.89) while revealing no individual patient data. We analyse the privacy-utility trade-off across privacy budgets.",
+    arxivId: "2307.12021"
+  },
+  {
+    id: 16,
+    title: "Longitudinal Microbiome Shifts Predict Colorectal Cancer Two Years Before Clinical Diagnosis",
+    authors: ["Paul Eriksson", "Quinn Lee"],
+    category: "Biology",
+    date: "2023-11-30",
+    citations: 278,
+    abstract: "The gut microbiome influences colorectal cancer (CRC) initiation, yet prospective evidence is scarce. In a cohort of 4,200 participants followed for 5 years, we performed annual faecal 16S rRNA sequencing and metagenomics. A 23-species microbiome signature discriminates pre-cancer from healthy controls up to 2 years before colonoscopy-confirmed diagnosis (AUC=0.88). Functional analysis implicates butyrate depletion and secondary bile acid enrichment as mechanistic intermediaries.",
+    arxivId: "2311.19876"
+  },
+  {
+    id: 17,
+    title: "Gravitational Wave Astronomy with LISA: Science Cases for the 2030s",
+    authors: ["Rachel O'Brien", "Stefan Bauer", "Tanya Volkov"],
+    category: "Physics",
+    date: "2024-03-05",
+    citations: 415,
+    abstract: "The Laser Interferometer Space Antenna (LISA) will open the millihertz gravitational wave window inaccessible to ground-based detectors. We review the primary science cases: supermassive black hole mergers, extreme-mass-ratio inspirals, cosmological stochastic backgrounds, and verification galactic binaries. Signal models, parameter estimation frameworks, and global-fit algorithms developed for LISA data analysis are discussed, alongside prospects for multi-messenger synergies with electromagnetic observatories.",
+    arxivId: "2403.06789"
+  },
+  {
+    id: 18,
+    title: "Proteome-Wide Identification of Phase-Separating Proteins Using Machine Learning",
+    authors: ["Uma Singh", "Vincent Leroy"],
+    category: "Biology",
+    date: "2024-02-20",
+    citations: 193,
+    abstract: "Liquid-liquid phase separation (LLPS) underlies the formation of membraneless organelles and is implicated in neurodegenerative disease. We trained a transformer-based classifier on 1,800 experimentally validated phase-separating proteins to predict LLPS propensity from sequence alone. Applied to the human proteome, the model identifies 2,100 novel LLPS candidates with high confidence. Experimental validation of 50 top predictions confirmed phase separation for 41 (82%), revealing unexpected LLPS behaviour in cytoskeletal and metabolic proteins.",
+    arxivId: "2402.08543"
+  },
+  {
+    id: 19,
+    title: "Clinical Trials for CAR-T Cell Therapy in Solid Tumours: Meta-Analysis",
+    authors: ["Wendy Okafor", "Xavier Pinto", "Yara Lindqvist"],
+    category: "Medicine",
+    date: "2023-09-28",
+    citations: 634,
+    abstract: "CAR-T cell therapy has revolutionised treatment of haematological malignancies but results in solid tumours remain inconsistent. We conducted a pre-registered meta-analysis of 78 clinical trials enrolling 3,014 patients across 11 tumour types. Overall objective response rate was 28% (95% CI 23–34%), with highest efficacy in glioblastoma (37%) and mesothelioma (35%). Antigen heterogeneity, immunosuppressive microenvironment, and T-cell exhaustion were the dominant barriers identified by subgroup analyses.",
+    arxivId: "2309.14321"
+  },
+  {
+    id: 20,
+    title: "Self-Supervised Learning for Molecular Property Prediction",
+    authors: ["Zoe Chen", "Adam Kowalczyk", "Beatrice Moreau"],
+    category: "AI",
+    date: "2023-12-04",
+    citations: 412,
+    abstract: "Supervised molecular property prediction is limited by the scarcity of labelled experimental data. We develop MolSSL, a self-supervised framework that pre-trains a graph transformer on 10 million unlabelled molecules using masked atom and bond prediction objectives. Fine-tuning with as few as 100 labelled examples achieves state-of-the-art performance on 8 of 12 MoleculeNet benchmarks, demonstrating substantial data efficiency gains relevant to drug discovery campaigns.",
+    arxivId: "2312.01876"
+  },
+  {
+    id: 21,
+    title: "Synthetic Biology Approaches to Biosensor Design for Heavy Metal Detection",
+    authors: ["Craig Patterson", "Dina El-Sayed"],
+    category: "Biology",
+    date: "2024-01-09",
+    citations: 147,
+    abstract: "Heavy metal contamination of drinking water remains a serious public-health challenge in developing nations. We engineered whole-cell biosensors in Escherichia coli using metal-responsive promoters coupled to fluorescent reporters for cadmium, arsenic, lead, and mercury. Optimised genetic circuitry achieves detection limits of 0.1 ppb for all four metals in complex water matrices. Lyophilised sensor cells retain 95% activity after 12 months of ambient storage, enabling field deployment without cold-chain infrastructure.",
+    arxivId: "2401.03456"
+  },
+  {
+    id: 22,
+    title: "Polymer Electrolyte Membranes for Next-Generation Solid-State Batteries",
+    authors: ["Elena Vasquez", "Felix Hartmann", "Gina Nakamura"],
+    category: "Chemistry",
+    date: "2023-10-21",
+    citations: 259,
+    abstract: "Solid-state lithium batteries promise higher energy density and improved safety over conventional liquid electrolyte cells, but ionic conductivity at room temperature remains a critical barrier. We synthesised a crosslinked poly(ethylene oxide)-LLZTO composite membrane achieving 4.2 × 10⁻⁴ S/cm at 25°C, a 3-fold improvement over neat PEO. Full cells with LFP cathodes and lithium metal anodes cycled for 500 cycles with <15% capacity fade, demonstrating practical viability.",
+    arxivId: "2310.08901"
+  },
+  {
+    id: 23,
+    title: "Non-Invasive Continuous Glucose Monitoring via Mid-Infrared Spectroscopy",
+    authors: ["Hannah Klein", "Ibrahim Al-Farsi"],
+    category: "Medicine",
+    date: "2024-03-14",
+    citations: 181,
+    abstract: "Continuous glucose monitoring (CGM) currently requires subcutaneous sensors, limiting adoption. We demonstrate a wearable mid-infrared spectroscopy device that measures interstitial glucose non-invasively through intact skin. A partial least-squares regression model trained on 2,400 paired reference measurements achieves mean absolute relative difference (MARD) of 8.7% across glucose ranges 40–400 mg/dL, meeting ISO 15197:2015 clinical accuracy standards. Sensor miniaturisation and sweat interference mitigation strategies are described.",
+    arxivId: "2403.07654"
+  },
+  {
+    id: 24,
+    title: "Gravitational Lensing as a Probe of Dark Energy Equation of State",
+    authors: ["James Park", "Katrina Wolf", "Leonardo Rossi"],
+    category: "Physics",
+    date: "2023-08-05",
+    citations: 328,
+    abstract: "Weak gravitational lensing surveys provide a powerful cosmological probe complementary to CMB and baryon acoustic oscillations. Using 450 deg² of Subaru Hyper Suprime-Cam data, we constrain the dark energy equation-of-state parameter w₀ = −1.01 ± 0.09 and wa = 0.2 ± 0.5, consistent with a cosmological constant. We provide detailed assessment of shape measurement systematics, intrinsic alignments, and photometric redshift uncertainties that dominate the error budget for Stage IV surveys.",
+    arxivId: "2308.05678"
+  },
+  {
+    id: 25,
+    title: "Genome-Wide Association Study of Long COVID Identifies 12 Susceptibility Loci",
+    authors: ["Maria Osei", "Nathan Dupont", "Olivia Grant"],
+    category: "Medicine",
+    date: "2024-04-01",
+    citations: 56,
+    abstract: "Long COVID affects 10–30% of SARS-CoV-2 infections and its genetic architecture is poorly understood. We conducted a genome-wide association study (GWAS) of 12,000 long COVID cases and 45,000 controls of European, African, and East Asian ancestry. We identify 12 genome-wide significant loci, including variants near FOXP4 (lung function), HLA-DQA2 (immune response), and LNPK (Epstein-Barr virus reactivation pathway). Mendelian randomisation implicates pre-existing autoimmune predisposition as a causal factor.",
+    arxivId: "2404.00001"
+  },
+  {
+    id: 26,
+    title: "Autonomous Robot Navigation in Unstructured Environments Using Diffusion Models",
+    authors: ["Peter Walsh", "Qing Liu", "Rania Haddad"],
+    category: "AI",
+    date: "2024-02-03",
+    citations: 265,
+    abstract: "Planning collision-free paths in unstructured real-world environments remains a core robotics challenge. We propose DiffPlan, a diffusion-model-based trajectory planner conditioned on RGB-D observations and natural language goals. Trained on 50,000 robot demonstrations, DiffPlan achieves 83% task completion in novel indoor environments with moving obstacles, outperforming prior learning-based planners by 21% and model-predictive control baselines by 34%. Real-world deployment on a quadruped robot is demonstrated.",
+    arxivId: "2402.01234"
+  },
+  {
+    id: 27,
+    title: "Epigenetic Reprogramming of Ageing Cells via Partial Yamanaka Factor Expression",
+    authors: ["Sara Kim", "Thomas Becker"],
+    category: "Biology",
+    date: "2023-06-18",
+    citations: 892,
+    abstract: "Cellular ageing is associated with epigenetic drift that compromises tissue homeostasis. Building on in-vivo partial reprogramming studies, we demonstrate that transient, low-level expression of Oct4, Sox2, and Klf4 in aged human fibroblasts resets DNA methylation age by 15–20 years without inducing pluripotency or loss of cellular identity. Single-cell multi-omics profiling reveals restoration of youthful transcriptomic and chromatin accessibility signatures across 78% of cells treated.",
+    arxivId: "2306.07890"
+  },
+  {
+    id: 28,
+    title: "Metal-Organic Frameworks for Selective Carbon Capture from Flue Gas",
+    authors: ["Uma Krishnamurthy", "Victor Santos", "Wendy Zhao"],
+    category: "Chemistry",
+    date: "2024-01-22",
+    citations: 174,
+    abstract: "Post-combustion carbon capture is critical for decarbonising industrial sectors. We synthesised a series of amine-functionalised Zr-MOFs and evaluated CO₂/N₂ selectivity under simulated flue gas conditions (15% CO₂, 75°C, 90% humidity). The best-performing MOF, Zr-TPA-NH₂, shows CO₂ uptake of 3.8 mmol/g and selectivity >200 over N₂, with full regeneration at 90°C. Breakthrough column experiments demonstrate 99.2% CO₂ removal efficiency in a fixed-bed configuration.",
+    arxivId: "2401.09012"
+  }
+];
+
+// =============================================================
+// APP STATE
+// =============================================================
+let activeCategory = "all";
+let searchQuery = "";
+let sortBy = "date-desc";
+
+// =============================================================
+// HELPERS
+// =============================================================
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+function highlight(text, query) {
+  if (!query) return escapeHtml(text);
+  const safe = escapeHtml(text);
+  const safeQ = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return safe.replace(new RegExp(`(${safeQ})`, 'gi'), '<mark>$1</mark>');
+}
+
+function formatDate(dateStr) {
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric'
+  });
+}
+
+// =============================================================
+// FILTER + SORT
+// =============================================================
+function getFiltered() {
+  const q = searchQuery.toLowerCase().trim();
+
+  return PAPERS.filter(p => {
+    const matchCat = activeCategory === "all" || p.category === activeCategory;
+    if (!matchCat) return false;
+    if (!q) return true;
+    return (
+      p.title.toLowerCase().includes(q) ||
+      p.abstract.toLowerCase().includes(q) ||
+      p.authors.some(a => a.toLowerCase().includes(q)) ||
+      p.category.toLowerCase().includes(q)
+    );
+  }).sort((a, b) => {
+    if (sortBy === "date-desc") return new Date(b.date) - new Date(a.date);
+    if (sortBy === "date-asc")  return new Date(a.date) - new Date(b.date);
+    if (sortBy === "citations-desc") return b.citations - a.citations;
+    if (sortBy === "title-asc") return a.title.localeCompare(b.title);
+    return 0;
+  });
+}
+
+// =============================================================
+// RENDER
+// =============================================================
+function updateCounts() {
+  const q = searchQuery.toLowerCase().trim();
+
+  const matchQuery = p => !q || (
+    p.title.toLowerCase().includes(q) ||
+    p.abstract.toLowerCase().includes(q) ||
+    p.authors.some(a => a.toLowerCase().includes(q)) ||
+    p.category.toLowerCase().includes(q)
+  );
+
+  const cats = ["Physics", "AI", "Biology", "Chemistry", "Medicine"];
+  const allCount = PAPERS.filter(matchQuery).length;
+
+  document.getElementById("count-all").textContent = allCount;
+  cats.forEach(cat => {
+    const el = document.getElementById(`count-${cat}`);
+    if (el) el.textContent = PAPERS.filter(p => p.category === cat && matchQuery(p)).length;
+  });
+}
+
+function renderPapers() {
+  const list = document.getElementById("papersList");
+  const countEl = document.getElementById("resultsCount");
+  const filtered = getFiltered();
+  const q = searchQuery;
+
+  updateCounts();
+  countEl.textContent = `${filtered.length} paper${filtered.length !== 1 ? 's' : ''} found`;
+
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <p>No papers found for "<strong>${escapeHtml(q)}</strong>"</p>
+        <p style="font-size:.85rem;margin-top:8px">Try different keywords or clear filters.</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(p => `
+    <article class="paper-card" data-id="${p.id}" tabindex="0" role="button"
+      aria-expanded="false" aria-label="Toggle abstract for ${escapeHtml(p.title)}">
+      <div class="card-top">
+        <h3 class="paper-title">${highlight(p.title, q)}</h3>
+        <span class="category-tag tag-${p.category}">${p.category}</span>
+      </div>
+      <div class="paper-authors">${highlight(p.authors.join(', '), q)}</div>
+      <div class="paper-meta">
+        <span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          ${formatDate(p.date)}
+        </span>
+        <span class="cite-badge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+          </svg>
+          ${p.citations.toLocaleString()} citations
+        </span>
+        <!-- arXiv link integration point: replace '#' with actual arXiv URL when using live API -->
+        <span>
+          <a href="https://arxiv.org/abs/${p.arxivId}" target="_blank" rel="noopener noreferrer"
+             style="color:var(--accent);text-decoration:none;font-size:.8rem"
+             onclick="event.stopPropagation()">arXiv:${p.arxivId} ↗</a>
+        </span>
+      </div>
+      <div class="paper-abstract">${highlight(p.abstract, q)}</div>
+      <span class="expand-hint">Abstract</span>
+    </article>
+  `).join('');
+
+  // Toggle expand
+  list.querySelectorAll('.paper-card').forEach(card => {
+    const toggle = () => {
+      const expanded = card.classList.toggle('expanded');
+      card.setAttribute('aria-expanded', expanded);
+    };
+    card.addEventListener('click', toggle);
+    card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { if (e.key === ' ') e.preventDefault(); toggle(); } });
+  });
+}
+
+// =============================================================
+// EVENT LISTENERS
+// =============================================================
+
+// Search
+let debounceTimer;
+document.getElementById('searchInput').addEventListener('input', e => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    searchQuery = e.target.value;
+    renderPapers();
+  }, 150);
+});
+
+// Category filters
+document.getElementById('filterGroup').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  activeCategory = btn.dataset.cat;
+  renderPapers();
+});
+
+// Sort
+document.getElementById('sortSelect').addEventListener('change', e => {
+  sortBy = e.target.value;
+  renderPapers();
+});
+
+// =============================================================
+// INIT
+// =============================================================
+renderPapers();
+
+/*
+  ============================================================
+  HOW TO INTEGRATE REAL arXiv API (replace mock data above)
+  ============================================================
+
+  async function fetchArxiv(query, category, maxResults = 25) {
+    // Map UI categories to arXiv category codes:
+    const catMap = {
+      Physics: 'cat:physics', AI: 'cat:cs.AI',
+      Biology: 'cat:q-bio', Chemistry: 'cat:cond-mat',
+      Medicine: 'cat:q-bio.GN', all: ''
+    };
+    const catFilter = catMap[category] || '';
+    const q = [catFilter, query ? `all:${encodeURIComponent(query)}` : '']
+      .filter(Boolean).join('+AND+');
+
+    const url = `https://export.arxiv.org/api/query?search_query=${q}&start=0&max_results=${maxResults}&sortBy=submittedDate&sortOrder=descending`;
+
+    const res = await fetch(url);
+    const text = await res.text();
+    const doc = new DOMParser().parseFromString(text, 'application/xml');
+
+    return [...doc.querySelectorAll('entry')].map(entry => ({
+      id:       entry.querySelector('id').textContent.trim(),
+      title:    entry.querySelector('title').textContent.trim().replace(/\s+/g,' '),
+      authors:  [...entry.querySelectorAll('author name')].map(a => a.textContent.trim()),
+      category: entry.querySelector('primary_category')?.getAttribute('term') || 'Unknown',
+      date:     entry.querySelector('published').textContent.trim().slice(0,10),
+      citations: 0,  // fetch from Semantic Scholar if needed
+      abstract: entry.querySelector('summary').textContent.trim().replace(/\s+/g,' '),
+      arxivId:  entry.querySelector('id').textContent.trim().split('/abs/')[1]
+    }));
+  }
+
+  // Call fetchArxiv() in place of PAPERS when search or category changes.
+  ============================================================
+*/
+</script>
+</body>
+</html>
