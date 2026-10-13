@@ -1,523 +1,710 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Brightscope — Research Search</title>
-  <style>
-    :root {
-      --bg: #0a0a0f;
-      --card: #16161f;
-      --border: #2a2a38;
-      --text: #e8e8ee;
-      --muted: #9aa0aa;
-      --primary: #00ff9d;
-      --primary2: #00b8ff;
-      --danger: #ff6b6b;
-      --shadow: 0 10px 30px rgba(0,0,0,0.28);
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(180deg, #0d0d14, #09090d);
-      color: var(--text);
-      line-height: 1.55;
-    }
-    header {
-      text-align: center;
-      padding: 56px 20px 28px;
-      background: linear-gradient(180deg, #1a1a2e, #0a0a0f);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-    h1 {
-      margin: 0;
-      font-size: clamp(2.1rem, 5vw, 3.8rem);
-      background: linear-gradient(90deg, var(--primary), var(--primary2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .tagline {
-      color: #adb3bd;
-      font-size: 1.06rem;
-      max-width: 860px;
-      margin: 14px auto 10px;
-    }
-    .ready { color: var(--primary); font-weight: 700; margin: 0; }
-    .search-container {
-      max-width: 760px;
-      margin: 28px auto 0;
-      padding: 0 18px;
-    }
-    .search-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    #query {
-      flex: 1 1 520px;
-      min-width: 260px;
-      padding: 18px 22px;
-      font-size: 1.08rem;
-      border: 2px solid #2f3340;
-      border-radius: 999px;
-      background: #1b1d29;
-      color: #fff;
-      outline: none;
-    }
-    #query:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(0,255,157,0.16);
-    }
-    #searchBtn {
-      padding: 16px 28px;
-      font-size: 1rem;
-      background: var(--primary);
-      color: #04120c;
-      border: none;
-      border-radius: 999px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-    #searchBtn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    .dashboard {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 18px;
-      max-width: 1200px;
-      margin: 34px auto;
-      padding: 0 20px;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-    }
-    .card h3 { margin: 0 0 12px; font-size: 1.05rem; }
-    .mini-item {
-      padding: 10px 12px;
-      border-radius: 12px;
-      background: #111520;
-      border: 1px solid #232b39;
-      margin-bottom: 10px;
-    }
-    .mini-item strong {
-      display: block;
-      margin-bottom: 4px;
-      color: #fff;
-    }
-    .muted { color: var(--muted); font-size: 0.94rem; }
-    .results {
-      max-width: 1200px;
-      margin: 20px auto 40px;
-      padding: 0 20px;
-    }
-    .results h2 { margin: 0 0 16px; font-size: 1.35rem; }
-    .empty-message {
-      color: #727987;
-      text-align: center;
-      padding: 28px 14px;
-    }
-    #debug {
-      max-width: 1200px;
-      margin: 0 auto 36px;
-      padding: 16px 20px;
-      background: #131823;
-      border: 1px solid #213042;
-      border-radius: 12px;
-      color: #c4d2df;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 0.92rem;
-      min-height: 58px;
-    }
-    .result-item {
-      background: linear-gradient(180deg, #171a25, #13161f);
-      border: 1px solid #2a3140;
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: var(--shadow);
-    }
-    .result-type {
-      display: inline-block;
-      font-size: 0.75rem;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      padding: 6px 10px;
-      border-radius: 999px;
-      margin-bottom: 10px;
-    }
-    .type-paper {
-      background: rgba(0,184,255,0.13);
-      color: #71d4ff;
-      border: 1px solid rgba(0,184,255,0.25);
-    }
-    .type-patent {
-      background: rgba(0,255,157,0.12);
-      color: #7effc6;
-      border: 1px solid rgba(0,255,157,0.22);
-    }
-    .result-item h3 { margin: 0 0 8px; font-size: 1.08rem; line-height: 1.35; }
-    .meta {
-      color: var(--muted);
-      font-size: 0.94rem;
-      margin-bottom: 10px;
-    }
-    .abstract {
-      color: #d8dce4;
-      font-size: 0.96rem;
-      margin-bottom: 12px;
-    }
-    .links {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    .links a {
-      text-decoration: none;
-      color: #051912;
-      background: var(--primary);
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-weight: 700;
-    }
-    .links a.secondary {
-      background: #202635;
-      color: #cfe7f4;
-      border: 1px solid #334055;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BrightScope — Research Paper Search</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0a0a0a;
+  --bg2:      #111111;
+  --bg3:      #1a1a1a;
+  --surface:  #131313;
+  --surface2: #1a1a1a;
+  --border:   #2a2a2a;
+  --border2:  #3a3a3a;
+  --border3:  #525252;
+  --text:     #ffffff;
+  --text2:    #b8b8b8;
+  --text3:    #808080;
+  --text4:    #4d4d4d;
+  --teal:     #00e0b8;
+  --teal2:    #00b894;
+  --teal-dim: rgba(0,224,184,0.12);
+  --teal-border: rgba(0,224,184,0.35);
+  --mono:     'IBM Plex Mono', ui-monospace, monospace;
+  --sans:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --display:  'Anton', 'Inter', sans-serif;
+  --radius:   8px;
+  --transition: 0.15s ease;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--bg); color:var(--text);
+  min-height:100vh; overflow-x:hidden;
+  font-size:15px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:5px}
+::-webkit-scrollbar-thumb:hover{background:var(--border3)}
+
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.15rem 2rem;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.logo{
+  font-family:var(--display);font-size:1.5rem;font-weight:400;
+  letter-spacing:0.03em;text-transform:uppercase;
+  color:var(--text);line-height:1;
+}
+.logo span{color:var(--teal)}
+.header-right{
+  display:flex;align-items:center;gap:0.75rem;
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--text3);letter-spacing:0.03em;
+}
+.status-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--teal);
+  display:inline-block;margin-right:6px;
+  box-shadow:0 0 8px var(--teal);
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+.hero{
+  padding:4rem 2rem 2.5rem;
+  text-align:center;
+  max-width:800px;margin:0 auto;
+  border-bottom:1px solid var(--border);
+}
+.hero h1{
+  font-family:var(--display);
+  font-size:clamp(2.5rem,7vw,5rem);
+  font-weight:400;line-height:1;
+  letter-spacing:0.02em;
+  text-transform:uppercase;
+  color:var(--teal);
+  margin-bottom:1.5rem;
+}
+.hero h1 .halo{
+  display:inline-block;
+  position:relative;
+}
+.hero h1 .halo::after{
+  content:'';
+  position:absolute;
+  inset:-12px -20px;
+  border:1px solid var(--teal);
+  border-radius:50%;
+  opacity:0.15;
+  transform:rotate(-3deg);
+}
+.hero p{
+  font-size:1.05rem;color:var(--text3);
+  max-width:520px;margin:0 auto 1.25rem;
+  line-height:1.7;
+}
+.hero-status{
+  font-family:var(--mono);font-size:0.8rem;
+  color:var(--teal);
+  display:inline-flex;align-items:center;gap:0.5rem;
+  padding:6px 14px;
+  border:1px solid var(--teal-border);
+  border-radius:100px;
+  background:var(--teal-dim);
+}
+.hero-status::before{content:'⚡';font-size:0.9rem}
+
+.search-section{
+  padding:2.5rem 2rem 3rem;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+}
+.search-wrap{max-width:720px;margin:0 auto}
+.search-box{
+  display:flex;align-items:center;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  padding:0.55rem 0.55rem 0.55rem 1.25rem;
+  gap:0.75rem;
+  transition:border-color var(--transition);
+}
+.search-box:focus-within{border-color:var(--teal)}
+.search-icon{color:var(--text3);font-size:1.05rem;flex-shrink:0}
+.search-input{
+  flex:1;background:none;border:none;outline:none;
+  color:var(--text);font-family:var(--sans);
+  font-size:1rem;font-weight:500;
+}
+.search-input::placeholder{color:var(--text3)}
+.search-btn{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  padding:0.75rem 1.5rem;
+  background:var(--teal);color:var(--bg);
+  font-family:var(--sans);font-size:0.9rem;font-weight:600;
+  border:none;border-radius:6px;cursor:pointer;
+  transition:all var(--transition);flex-shrink:0;
+}
+.search-btn:hover:not(:disabled){background:var(--teal2)}
+.search-btn:disabled{opacity:0.6;cursor:not-allowed}
+.btn-spin{
+  width:14px;height:14px;
+  border:2px solid rgba(0,0,0,0.25);border-top-color:var(--bg);
+  border-radius:50%;animation:spin 0.6s linear infinite;
+  display:none;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.suggestions{
+  display:flex;flex-wrap:wrap;gap:0.45rem;
+  justify-content:center;margin-top:1.25rem;
+}
+.sug{
+  font-family:var(--mono);font-size:0.7rem;letter-spacing:0.03em;
+  padding:5px 12px;border-radius:100px;
+  background:transparent;border:1px solid var(--border2);
+  color:var(--text3);cursor:pointer;transition:all var(--transition);
+}
+.sug:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
+
+.main{max-width:1280px;margin:0 auto;padding:2rem}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1rem;
+  margin-bottom:2.5rem;
+}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.stats-grid{grid-template-columns:1fr}}
+
+.stat-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.25rem;
+  transition:border-color var(--transition);
+}
+.stat-card:hover{border-color:var(--border3)}
+.stat-header{
+  display:flex;align-items:center;gap:0.5rem;
+  font-family:var(--display);font-size:0.95rem;font-weight:400;
+  letter-spacing:0.04em;text-transform:uppercase;
+  color:var(--text2);
+  margin-bottom:1rem;
+  padding-bottom:0.75rem;
+  border-bottom:1px solid var(--border);
+}
+.stat-header .icon{font-size:1rem}
+.stat-list{display:flex;flex-direction:column;gap:0.5rem}
+.stat-item{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:0.75rem;
+  font-size:0.82rem;
+  padding:4px 0;
+}
+.stat-item .name{
+  color:var(--text);font-weight:500;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  flex:1;
+}
+.stat-item .count{
+  font-family:var(--mono);font-size:0.7rem;
+  color:var(--text3);flex-shrink:0;
+}
+.stat-empty{
+  font-family:var(--mono);font-size:0.75rem;
+  color:var(--text4);padding:0.5rem 0;
+}
+
+.results-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:1rem;margin-bottom:1.5rem;
+  border-bottom:1px solid var(--border);
+}
+.results-header h2{
+  font-family:var(--display);font-size:1.5rem;font-weight:400;
+  letter-spacing:0.03em;text-transform:uppercase;
+}
+.results-header .count{
+  font-family:var(--mono);font-size:0.75rem;
+  color:var(--text3);
+}
+
+.results-list{display:flex;flex-direction:column;gap:0.75rem}
+.result-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.25rem 1.4rem;
+  transition:all var(--transition);
+  animation:slideIn 0.25s ease both;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.result-card:hover{border-color:var(--border3);background:var(--surface2)}
+
+.result-top{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:1rem;margin-bottom:0.75rem;flex-wrap:wrap;
+}
+.result-title{
+  font-family:var(--sans);font-size:1rem;font-weight:600;
+  color:var(--text);line-height:1.4;flex:1;min-width:0;
+}
+.result-title a{color:inherit;text-decoration:none}
+.result-title a:hover{color:var(--teal)}
+.type-badge{
+  font-family:var(--mono);font-size:0.62rem;
+  letter-spacing:0.05em;text-transform:uppercase;font-weight:500;
+  padding:3px 9px;border-radius:4px;
+  border:1px solid var(--border2);
+  color:var(--text2);
+  flex-shrink:0;
+}
+.type-badge.paper{border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)}
+.type-badge.patent{color:var(--text2)}
+
+.result-meta{
+  display:flex;flex-wrap:wrap;gap:1rem;
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--text3);
+  margin-bottom:0.6rem;
+}
+.result-meta .sep::before{content:'•';margin-right:1rem;color:var(--text4)}
+.result-meta b{color:var(--text2);font-weight:500}
+
+.result-abstract{
+  font-size:0.85rem;color:var(--text3);line-height:1.6;
+  margin-bottom:0.75rem;
+}
+.result-actions{
+  display:flex;gap:0.5rem;flex-wrap:wrap;
+}
+.result-actions a, .result-actions button{
+  font-family:var(--mono);font-size:0.7rem;
+  letter-spacing:0.03em;
+  padding:6px 12px;border-radius:5px;
+  background:transparent;border:1px solid var(--border2);
+  color:var(--text2);text-decoration:none;cursor:pointer;
+  transition:all var(--transition);
+}
+.result-actions a:hover, .result-actions button:hover{
+  border-color:var(--teal);color:var(--teal);background:var(--teal-dim);
+}
+
+.empty-state{
+  text-align:center;
+  padding:4rem 2rem;
+  color:var(--text3);
+}
+.empty-icon{
+  font-size:2rem;margin-bottom:1rem;
+  color:var(--text4);
+}
+.empty-state p{font-size:0.9rem}
+
+.log-section{
+  max-width:1280px;margin:0 auto;
+  padding:0 2rem 4rem;
+}
+.log-header{
+  font-family:var(--sans);font-size:0.7rem;font-weight:500;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text3);margin-bottom:0.75rem;
+}
+.log-box{
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1rem 1.25rem;
+  font-family:var(--mono);font-size:0.78rem;
+  color:var(--text2);line-height:1.8;
+  max-height:220px;overflow-y:auto;
+}
+.log-line{display:flex;gap:0.6rem;align-items:flex-start}
+.log-line .prefix{color:var(--teal);flex-shrink:0}
+.log-line.warn .prefix{color:#f5c518}
+.log-line.err .prefix{color:#ff3355}
+
+.footer{
+  max-width:1280px;margin:0 auto;
+  padding:2rem;
+  border-top:1px solid var(--border);
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--text4);
+  display:flex;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+}
+.footer a{color:var(--text3);text-decoration:none}
+.footer a:hover{color:var(--teal)}
+
+@media(max-width:700px){
+  header{padding:0.9rem 1.25rem}
+  .logo{font-size:1.25rem}
+  .hero{padding:3rem 1.25rem 2rem}
+  .hero h1{font-size:2.5rem}
+  .search-section{padding:1.75rem 1.25rem 2rem}
+  .main{padding:1.25rem}
+  .log-section{padding:0 1.25rem 3rem}
+  .search-box{flex-direction:column;padding:0.75rem;gap:0.5rem}
+  .search-box .search-icon{display:none}
+  .search-input{width:100%;padding:0.5rem 0.75rem}
+  .search-btn{width:100%;justify-content:center}
+}
+</style>
 </head>
 <body>
-  <header>
-    <h1>🔬 Brightscope</h1>
-    <p class="tagline">Search papers and patents from Crossref, arXiv, and open patent sources in one place.</p>
-    <p class="ready">⚡ Ready – enter a topic</p>
-  </header>
 
-  <div class="search-container">
-    <div class="search-row">
-      <input id="query" type="text" placeholder="Enter a research topic, paper title, or keyword..." />
-      <button id="searchBtn">Search All Sources</button>
+<header>
+  <div class="logo">Bright<span>scope</span></div>
+  <div class="header-right">
+    <span><span class="status-dot"></span>Crossref · arXiv · Patents</span>
+  </div>
+</header>
+
+<section class="hero">
+  <h1><span class="halo">Brightscope</span></h1>
+  <p>Search papers and patents from Crossref, arXiv, and open patent sources in one place.</p>
+  <div class="hero-status" id="heroStatus">Ready — enter a topic</div>
+</section>
+
+<section class="search-section">
+  <div class="search-wrap">
+    <div class="search-box">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" id="searchInput" placeholder="Enter a research topic, paper title, or keyword..." autocomplete="off">
+      <button class="search-btn" id="searchBtn" onclick="runSearch()">
+        <div class="btn-spin" id="btnSpin"></div>
+        <span id="btnText">Search All Sources</span>
+      </button>
+    </div>
+    <div class="suggestions">
+      <span class="sug" onclick="quickSearch(this)">Iron ores</span>
+      <span class="sug" onclick="quickSearch(this)">Graphene</span>
+      <span class="sug" onclick="quickSearch(this)">Quantum computing</span>
+      <span class="sug" onclick="quickSearch(this)">Machine learning</span>
+      <span class="sug" onclick="quickSearch(this)">Climate change</span>
+      <span class="sug" onclick="quickSearch(this)">CRISPR</span>
+      <span class="sug" onclick="quickSearch(this)">Transformer models</span>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header"><span class="icon">👨‍🔬</span>Top Authors</div>
+      <div class="stat-list" id="authorsList"><div class="stat-empty">Results will appear here</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-header"><span class="icon">🔥</span>Top Topics</div>
+      <div class="stat-list" id="topicsList"><div class="stat-empty">Results will appear here</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-header"><span class="icon">📚</span>Top Papers</div>
+      <div class="stat-list" id="papersList"><div class="stat-empty">Results will appear here</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-header"><span class="icon">📜</span>Recent Patents</div>
+      <div class="stat-list" id="patentsList"><div class="stat-empty">Results will appear here</div></div>
     </div>
   </div>
 
-  <section class="dashboard">
-    <div class="card">
-      <h3>👨‍🔬 Top Authors</h3>
-      <div id="authorsPanel">Results will appear here</div>
+  <div class="results-header">
+    <h2>All Results</h2>
+    <span class="count" id="resultsCount">0</span>
+  </div>
+  <div class="results-list" id="resultsList">
+    <div class="empty-state">
+      <div class="empty-icon">◯</div>
+      <p>Search something to get started</p>
     </div>
-    <div class="card">
-      <h3>🔥 Top Topics</h3>
-      <div id="topicsPanel">Results will appear here</div>
-    </div>
-    <div class="card">
-      <h3>📚 Top Papers</h3>
-      <div id="papersPanel">Results will appear here</div>
-    </div>
-    <div class="card">
-      <h3>📜 Recent Patents</h3>
-      <div id="patentsPanel">Results will appear here</div>
-    </div>
-  </section>
+  </div>
+</main>
 
-  <section class="results">
-    <h2>📋 All Results</h2>
-    <div id="resultsList">
-      <div class="empty-message">Search something to get started</div>
-    </div>
-  </section>
+<section class="log-section">
+  <div class="log-header">Activity Log</div>
+  <div class="log-box" id="logBox">
+    <div class="log-line"><span class="prefix">›</span><span>Idle.</span></div>
+  </div>
+</section>
 
-  <div id="debug">Idle.</div>
+<footer class="footer">
+  <div>Brightscope — Research Aggregator</div>
+  <div>
+    <a href="https://github.com/Gitcoder12/Brightscope" target="_blank" rel="noopener">GitHub</a>
+  </div>
+</footer>
 
 <script>
-const queryInput = document.getElementById('query');
-const searchBtn = document.getElementById('searchBtn');
-const debugDiv = document.getElementById('debug');
-const authorsPanel = document.getElementById('authorsPanel');
-const topicsPanel = document.getElementById('topicsPanel');
-const papersPanel = document.getElementById('papersPanel');
-const patentsPanel = document.getElementById('patentsPanel');
-const resultsList = document.getElementById('resultsList');
+// ── STATE ──
+let allResults = [];
 
-function escapeHtml(str = '') {
-  return str
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+// ── LOGGING ──
+function log(msg, type) {
+  const box = document.getElementById('logBox');
+  const line = document.createElement('div');
+  line.className = 'log-line' + (type ? ' ' + type : '');
+  const prefix = type === 'err' ? '✗' : type === 'warn' ? '⚠' : '›';
+  line.innerHTML = `<span class="prefix">${prefix}</span><span>${escapeHtml(msg)}</span>`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+function clearLog() {
+  document.getElementById('logBox').innerHTML = '';
 }
 
-function appendDebug(msg) {
-  debugDiv.innerHTML += `${msg}<br>`;
+// ── HELPERS ──
+function escapeHtml(s) {
+  if (s === undefined || s === null) return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function setHeroStatus(text, isWorking) {
+  const el = document.getElementById('heroStatus');
+  el.textContent = text;
+  el.style.color = isWorking ? '#00e0b8' : '';
+}
+function setBusy(on) {
+  document.getElementById('searchBtn').disabled = on;
+  document.getElementById('btnSpin').style.display = on ? 'block' : 'none';
+  document.getElementById('btnText').textContent = on ? 'Searching...' : 'Search All Sources';
 }
 
-function setLoading(query) {
-  debugDiv.innerHTML = `🔍 Searching for "<b>${escapeHtml(query)}</b>" ...<br>`;
-  resultsList.innerHTML = '<div class="empty-message">⏳ Loading results from all sources...</div>';
-  authorsPanel.innerHTML = '<div class="empty-message">📊 Computing authors...</div>';
-  topicsPanel.innerHTML = '<div class="empty-message">📊 Extracting topics...</div>';
-  papersPanel.innerHTML = '<div class="empty-message">📚 Loading papers...</div>';
-  patentsPanel.innerHTML = '<div class="empty-message">📜 Preparing patent links...</div>';
-  searchBtn.disabled = true;
-  searchBtn.textContent = 'Searching...';
+// ── SEARCH ──
+function quickSearch(el) {
+  document.getElementById('searchInput').value = el.textContent;
+  runSearch();
 }
 
-function setIdle() {
-  searchBtn.disabled = false;
-  searchBtn.textContent = 'Search All Sources';
+async function runSearch() {
+  const query = document.getElementById('searchInput').value.trim();
+  if (!query) return;
+
+  clearLog();
+  allResults = [];
+  setBusy(true);
+  setHeroStatus(`Searching for "${query}"...`, true);
+  log(`Searching for "${query}" ...`);
+
+  const t0 = performance.now();
+
+  // Clear previous stat cards
+  resetStatCard('authorsList');
+  resetStatCard('topicsList');
+  resetStatCard('papersList');
+  resetStatCard('patentsList');
+
+  // Fetch from sources in parallel
+  const [crossref, arxiv, patents] = await Promise.all([
+    fetchCrossref(query),
+    fetchArxiv(query),
+    buildPatentLinks(query),
+  ]);
+
+  allResults = [...crossref, ...arxiv, ...patents];
+
+  const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
+  const paperCount = crossref.length + arxiv.length;
+  const patentCount = patents.length;
+  log(`Done in ${elapsed}s • ${paperCount} papers + ${patentCount} patent links`, 'ok');
+
+  renderAll();
+  setHeroStatus(`${allResults.length} results for "${query}"`, false);
+  setBusy(false);
 }
 
-async function fetchJSON(url) {
-  const res = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+function resetStatCard(id) {
+  document.getElementById(id).innerHTML = '<div class="stat-empty">Results will appear here</div>';
 }
 
-async function fetchText(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.text();
-}
-
+// ── CROSSREF ──
 async function fetchCrossref(query) {
-  const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=12&sort=relevance&order=desc`;
-  const data = await fetchJSON(url);
-  return (data.message?.items || []).map(item => ({
-    type: 'paper',
-    source: 'Crossref',
-    title: item.title?.[0] || 'Untitled',
-    authors: (item.author || []).map(a => [a.given, a.family].filter(Boolean).join(' ')).filter(Boolean),
-    date: (item.published?.['date-parts']?.[0] || item.created?.['date-parts']?.[0] || []).join('-'),
-    year: item.published?.['date-parts']?.[0]?.[0] || item.created?.['date-parts']?.[0]?.[0] || '',
-    abstract: '',
-    url: item.URL || '',
-    venue: item['container-title']?.[0] || ''
+  try {
+    const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=20&select=title,author,issued,abstract,DOI,container-title,type`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const items = data.message?.items || [];
+    log(`Crossref: ${items.length}`, 'ok');
+
+    return items
+      .filter(it => it.title && it.title.length)
+      .map(it => ({
+        type: 'paper',
+        source: 'Crossref',
+        title: it.title[0],
+        authors: (it.author || []).map(a => [a.given, a.family].filter(Boolean).join(' ')).filter(Boolean),
+        year: it.issued?.['date-parts']?.[0]?.[0] || null,
+        venue: it['container-title']?.[0] || null,
+        abstract: it.abstract ? stripHtml(it.abstract).slice(0, 300) : null,
+        doi: it.DOI,
+        url: it.DOI ? `https://doi.org/${it.DOI}` : null,
+        scholarUrl: `https://scholar.google.com/scholar?q=${encodeURIComponent(it.title[0])}`,
+      }));
+  } catch (e) {
+    log(`Crossref failed: ${e.message}`, 'err');
+    return [];
+  }
+}
+
+// ── ARXIV (usually CORS-blocked in browser) ──
+async function fetchArxiv(query) {
+  try {
+    const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=10`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const text = await res.text();
+    const xml = new DOMParser().parseFromString(text, 'text/xml');
+    const entries = Array.from(xml.querySelectorAll('entry'));
+    log(`arXiv: ${entries.length}`, 'ok');
+
+    return entries.map(e => ({
+      type: 'paper',
+      source: 'arXiv',
+      title: e.querySelector('title')?.textContent?.trim() || '',
+      authors: Array.from(e.querySelectorAll('author > name')).map(n => n.textContent.trim()),
+      year: e.querySelector('published')?.textContent?.slice(0, 4) || null,
+      venue: 'arXiv',
+      abstract: e.querySelector('summary')?.textContent?.trim().slice(0, 300) || null,
+      url: e.querySelector('id')?.textContent?.trim() || null,
+      scholarUrl: null,
+    })).filter(r => r.title);
+  } catch (e) {
+    log(`arXiv unavailable in browser: ${e.message}`, 'warn');
+    return [];
+  }
+}
+
+// ── PATENTS (just links, no free CORS API) ──
+async function buildPatentLinks(query) {
+  const q = encodeURIComponent(query);
+  const links = [
+    { name: 'Google Patents', url: `https://patents.google.com/?q=${q}`, host: 'Google Patents' },
+    { name: 'USPTO', url: `https://ppubs.uspto.gov/pubwebapp/static/pages/ppubsbasic.html#${q}`, host: 'USPTO' },
+    { name: 'WIPO PATENTSCOPE', url: `https://patentscope.wipo.int/search/en/result.jsf?query=${q}`, host: 'WIPO PATENTSCOPE' },
+  ];
+  return links.map(l => ({
+    type: 'patent',
+    source: l.host,
+    title: `Search ${l.name} for "${query}"`,
+    description: `Open live patent search results in ${l.name}.`,
+    url: l.url,
   }));
 }
 
-async function fetchArxiv(query) {
-  const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&start=0&max_results=8`;
-  const xmlText = await fetchText(url);
-  const xml = new DOMParser().parseFromString(xmlText, 'text/xml');
-  const entries = [...xml.getElementsByTagName('entry')];
-  return entries.map(entry => {
-    const getText = tag => entry.getElementsByTagName(tag)[0]?.textContent?.trim() || '';
-    const authors = [...entry.getElementsByTagName('author')]
-      .map(a => a.getElementsByTagName('name')[0]?.textContent?.trim())
-      .filter(Boolean);
-    return {
-      type: 'paper',
-      source: 'arXiv',
-      title: getText('title').replace(/\s+/g, ' '),
-      authors,
-      date: getText('published').slice(0, 10),
-      year: getText('published').slice(0, 4),
-      abstract: getText('summary').replace(/\s+/g, ' '),
-      url: getText('id'),
-      venue: 'arXiv'
-    };
-  });
+// ── RENDER ──
+function renderAll() {
+  renderStats();
+  renderResults();
 }
 
-function buildPatentLinks(query) {
-  return [
-    {
-      type: 'patent-link',
-      source: 'Google Patents',
-      title: `Search Google Patents for "${query}"`,
-      authors: [],
-      date: '',
-      year: '',
-      abstract: 'Open live patent search results in Google Patents.',
-      url: `https://patents.google.com/?q=${encodeURIComponent(query)}`,
-      venue: 'Patent Search'
-    },
-    {
-      type: 'patent-link',
-      source: 'USPTO',
-      title: `Search USPTO Patent Public Search for "${query}"`,
-      authors: [],
-      date: '',
-      year: '',
-      abstract: 'Open the USPTO patent search portal for U.S. patent records.',
-      url: `https://www.uspto.gov/patents/search/patent-public-search`,
-      venue: 'Patent Search'
-    },
-    {
-      type: 'patent-link',
-      source: 'WIPO PATENTSCOPE',
-      title: `Search WIPO PATENTSCOPE for "${query}"`,
-      authors: [],
-      date: '',
-      year: '',
-      abstract: 'Open WIPO PATENTSCOPE for international patent applications and collections.',
-      url: `https://www.wipo.int/en/web/patentscope`,
-      venue: 'Patent Search'
-    }
-  ];
-}
+function renderStats() {
+  const papers = allResults.filter(r => r.type === 'paper');
+  const patents = allResults.filter(r => r.type === 'patent');
 
-function normalizeTitle(title = '') {
-  return title
-    .toLowerCase()
-    .replace(/[^\w\s]/g, ' ')
-    .replace(/\b(the|a|an|and|of|for|in|on|to|with)\b/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
+  // Top authors
+  const authorCount = {};
+  papers.forEach(p => (p.authors || []).forEach(a => {
+    if (!a) return;
+    authorCount[a] = (authorCount[a] || 0) + 1;
+  }));
+  const topAuthors = Object.entries(authorCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+  document.getElementById('authorsList').innerHTML = topAuthors.length
+    ? topAuthors.map(([name, count]) =>
+        `<div class="stat-item"><span class="name">${escapeHtml(name)}</span><span class="count">${count}</span></div>`
+      ).join('')
+    : '<div class="stat-empty">No authors found</div>';
 
-function dedupeResults(items) {
-  const seen = new Map();
-  for (const item of items) {
-    const key = `${item.type}::${normalizeTitle(item.title)}`;
-    if (!item.title) continue;
-    if (!seen.has(key)) seen.set(key, item);
-  }
-  return [...seen.values()];
-}
-
-function scoreResult(item, query) {
-  const q = query.toLowerCase().trim();
-  const title = (item.title || '').toLowerCase();
-  let score = 0;
-  if (title === q) score += 100;
-  if (title.includes(q)) score += 40;
-  if ((item.source || '') === 'arXiv') score += 8;
-  if ((item.abstract || '').length > 40) score += 6;
-  if (item.year) score += Math.min(10, Math.max(0, Number(item.year) - 2015));
-  return score;
-}
-
-function extractTopics(items, query) {
-  const stop = new Set([
-    'the','and','for','with','from','into','using','based','study','analysis','system','method',
-    'methods','data','model','models','approach','approaches','paper','via','new','toward','towards',
-    'over','under','that','this','their','its','are','can','not','been','than','here','work','results',
-    'devices','requirements'
-  ]);
-  const q = query.toLowerCase();
-  const counts = new Map();
-
-  items.forEach(item => {
-    const text = `${item.title || ''} ${item.abstract || ''}`;
-    text.split(/\s+/).forEach(raw => {
-      const w = raw.toLowerCase().replace(/[^a-z0-9\-]/g, '').trim();
-      if (!w || w.length < 4 || stop.has(w) || w === q) return;
-      counts.set(w, (counts.get(w) || 0) + 1);
+  // Top topics (word freq from titles)
+  const stop = new Set(['the','a','an','of','in','on','and','or','for','to','with','from','by','at','as','is','are','was','were','this','that','these','those','it','its','be','been','being','has','have','had','do','does','did','but','not','no','can','could','will','would','should','may','might','must','study','research','paper','analysis','article']);
+  const wordCount = {};
+  papers.forEach(p => {
+    (p.title || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).forEach(w => {
+      if (w.length < 4 || stop.has(w)) return;
+      wordCount[w] = (wordCount[w] || 0) + 1;
     });
   });
+  const topTopics = Object.entries(wordCount)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 6);
+  document.getElementById('topicsList').innerHTML = topTopics.length
+    ? topTopics.map(([w, count]) =>
+        `<div class="stat-item"><span class="name">${escapeHtml(w)}</span><span class="count">${count}</span></div>`
+      ).join('')
+    : '<div class="stat-empty">No topics extracted</div>';
 
-  return [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8);
+  // Top papers
+  const topPapers = papers.slice(0, 5);
+  document.getElementById('papersList').innerHTML = topPapers.length
+    ? topPapers.map(p =>
+        `<div class="stat-item"><span class="name">${escapeHtml(p.title.slice(0, 60))}${p.title.length > 60 ? '…' : ''}</span><span class="count">${escapeHtml(p.source)}</span></div>`
+      ).join('')
+    : '<div class="stat-empty">No papers found</div>';
+
+  // Patents
+  document.getElementById('patentsList').innerHTML = patents.length
+    ? patents.map(p =>
+        `<div class="stat-item"><span class="name">${escapeHtml(p.source)}</span><span class="count">Open</span></div>`
+      ).join('')
+    : '<div class="stat-empty">No patent links</div>';
 }
 
-function updateDashboard(papers, patentLinks, query) {
-  const authorCount = new Map();
-  papers.forEach(p => (p.authors || []).forEach(a => authorCount.set(a, (authorCount.get(a) || 0) + 1)));
-  const topAuthors = [...authorCount.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-  const topTopics = extractTopics(papers, query);
-  const topPapers = [...papers].slice(0, 5);
+function renderResults() {
+  const list = document.getElementById('resultsList');
+  document.getElementById('resultsCount').textContent = `${allResults.length} results`;
 
-  authorsPanel.innerHTML = topAuthors.length
-    ? topAuthors.map(([name, count]) => `<div class="mini-item"><strong>${escapeHtml(name)}</strong><div class="muted">${count} result(s)</div></div>`).join('')
-    : '<div class="empty-message">No author data found</div>';
-
-  topicsPanel.innerHTML = topTopics.length
-    ? topTopics.map(([topic, count]) => `<div class="mini-item"><strong>${escapeHtml(topic)}</strong><div class="muted">${count} mention(s)</div></div>`).join('')
-    : '<div class="empty-message">No clean topics found</div>';
-
-  papersPanel.innerHTML = topPapers.length
-    ? topPapers.map(p => `<div class="mini-item"><strong>${escapeHtml(p.title)}</strong><div class="muted">${escapeHtml(p.source)}${p.year ? ' • ' + escapeHtml(String(p.year)) : ''}</div></div>`).join('')
-    : '<div class="empty-message">No papers found</div>';
-
-  patentsPanel.innerHTML = patentLinks.length
-    ? patentLinks.map(p => `<div class="mini-item"><strong>${escapeHtml(p.source)}</strong><div class="muted"><a href="${p.url}" target="_blank" rel="noopener noreferrer">Open patent search</a></div></div>`).join('')
-    : '<div class="empty-message">No patent links available</div>';
-}
-
-function renderCombinedResults(items) {
-  if (!items.length) {
-    resultsList.innerHTML = '<div class="empty-message">No results found. Try another keyword.</div>';
+  if (!allResults.length) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">◯</div>
+        <p>No results found.</p>
+      </div>`;
     return;
   }
 
-  resultsList.innerHTML = items.map(item => `
-    <article class="result-item">
-      <div class="result-type ${item.type === 'paper' ? 'type-paper' : 'type-patent'}">
-        ${item.type === 'paper' ? 'paper' : 'patent search'}
+  list.innerHTML = allResults.map((r, i) => {
+    const isPatent = r.type === 'patent';
+    const metaParts = [];
+    if (r.source) metaParts.push(`<b>${escapeHtml(r.source)}</b>`);
+    if (r.venue && r.venue !== r.source) metaParts.push(escapeHtml(r.venue));
+    if (r.year) metaParts.push(String(r.year));
+    if (r.authors && r.authors.length) metaParts.push(escapeHtml(r.authors.slice(0, 2).join(', ')) + (r.authors.length > 2 ? ' et al.' : ''));
+
+    const actions = [];
+    if (r.url) actions.push(`<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">Open</a>`);
+    if (r.scholarUrl) actions.push(`<a href="${escapeHtml(r.scholarUrl)}" target="_blank" rel="noopener">Scholar</a>`);
+
+    const abstract = r.abstract
+      ? `<div class="result-abstract">${escapeHtml(r.abstract)}</div>`
+      : (isPatent
+          ? `<div class="result-abstract">${escapeHtml(r.description || '')}</div>`
+          : `<div class="result-abstract" style="color:var(--text4)">No abstract available.</div>`);
+
+    return `
+      <div class="result-card" style="animation-delay:${i * 0.02}s">
+        <div class="result-top">
+          <div class="result-title">
+            ${r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a>` : escapeHtml(r.title)}
+          </div>
+          <span class="type-badge ${isPatent ? 'patent' : 'paper'}">${isPatent ? 'patent search' : 'paper'}</span>
+        </div>
+        ${metaParts.length ? `<div class="result-meta">${metaParts.map((p, i) => i === 0 ? `<span>${p}</span>` : `<span class="sep">${p}</span>`).join('')}</div>` : ''}
+        ${abstract}
+        ${actions.length ? `<div class="result-actions">${actions.join('')}</div>` : ''}
       </div>
-      <h3>${escapeHtml(item.title || 'Untitled')}</h3>
-      <div class="meta">
-        ${escapeHtml(item.source || 'Unknown source')}
-        ${item.venue ? ` • ${escapeHtml(item.venue)}` : ''}
-        ${item.year ? ` • ${escapeHtml(String(item.year))}` : ''}
-        ${(item.authors && item.authors.length) ? ` • ${escapeHtml(item.authors.slice(0, 4).join(', '))}` : ''}
-      </div>
-      <div class="abstract">${escapeHtml(item.abstract || 'No abstract available.')}</div>
-      <div class="links">
-        ${item.url ? `<a href="${item.url}" target="_blank" rel="noopener noreferrer">Open</a>` : ''}
-        ${item.type === 'paper' ? `<a class="secondary" href="https://scholar.google.com/scholar?q=${encodeURIComponent(item.title)}" target="_blank" rel="noopener noreferrer">Scholar</a>` : ''}
-      </div>
-    </article>
-  `).join('');
+    `;
+  }).join('');
 }
 
-async function searchAll() {
-  const query = queryInput.value.trim();
-  if (!query) {
-    debugDiv.innerHTML = '⚠️ Please enter a topic';
-    return;
-  }
-
-  setLoading(query);
-  const start = performance.now();
-
-  const [cross, arxiv] = await Promise.allSettled([
-    fetchCrossref(query).catch(e => {
-      appendDebug(`Crossref error: ${escapeHtml(e.message)}`);
-      return [];
-    }),
-    fetchArxiv(query).catch(e => {
-      appendDebug(`arXiv unavailable in browser: ${escapeHtml(e.message)}`);
-      return [];
-    })
-  ]);
-
-  let papers = [];
-  if (cross.status === 'fulfilled' && Array.isArray(cross.value)) {
-    papers.push(...cross.value);
-    appendDebug(`✅ Crossref: ${cross.value.length}`);
-  }
-  if (arxiv.status === 'fulfilled' && Array.isArray(arxiv.value)) {
-    papers.push(...arxiv.value);
-    appendDebug(`✅ arXiv: ${arxiv.value.length}`);
-  }
-
-  papers = dedupeResults(papers)
-    .sort((a, b) => scoreResult(b, query) - scoreResult(a, query));
-
-  const patentLinks = buildPatentLinks(query);
-  const combined = [...papers, ...patentLinks];
-
-  updateDashboard(papers, patentLinks, query);
-  renderCombinedResults(combined);
-
-  const elapsed = ((performance.now() - start) / 1000).toFixed(1);
-  appendDebug(`✅ Done in ${elapsed}s • ${papers.length} papers + ${patentLinks.length} patent links`);
-  setIdle();
-}
-
-searchBtn.addEventListener('click', searchAll);
-queryInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') searchAll();
+// ── ENTER KEY ──
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') runSearch();
 });
 </script>
 </body>
