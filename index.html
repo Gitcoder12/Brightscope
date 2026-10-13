@@ -9,438 +9,198 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:       #0a0a0a;
-  --bg2:      #111111;
-  --bg3:      #1a1a1a;
-  --surface:  #131313;
-  --surface2: #1a1a1a;
-  --border:   #2a2a2a;
-  --border2:  #3a3a3a;
-  --border3:  #525252;
-  --text:     #ffffff;
-  --text2:    #b8b8b8;
-  --text3:    #808080;
-  --text4:    #4d4d4d;
-  --teal:     #00e0b8;
-  --teal2:    #00b894;
-  --teal-dim: rgba(0,224,184,0.12);
-  --teal-border: rgba(0,224,184,0.35);
-  --mono:     'IBM Plex Mono', ui-monospace, monospace;
-  --sans:     'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --display:  'Anton', 'Inter', sans-serif;
-  --radius:   8px;
-  --transition: 0.15s ease;
+  --bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--surface:#131313;--surface2:#1a1a1a;
+  --border:#2a2a2a;--border2:#3a3a3a;--border3:#525252;
+  --text:#fff;--text2:#b8b8b8;--text3:#808080;--text4:#4d4d4d;
+  --teal:#00e0b8;--teal2:#00b894;--teal-dim:rgba(0,224,184,0.12);--teal-border:rgba(0,224,184,0.35);
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --sans:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+  --display:'Anton','Inter',sans-serif;
+  --radius:8px;--transition:0.15s ease;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-body{
-  font-family:var(--sans);
-  background:var(--bg); color:var(--text);
-  min-height:100vh; overflow-x:hidden;
-  font-size:15px; line-height:1.6;
-  -webkit-font-smoothing:antialiased;
-}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased}
 ::-webkit-scrollbar{width:10px;height:10px}
 ::-webkit-scrollbar-track{background:var(--bg)}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:5px}
 ::-webkit-scrollbar-thumb:hover{background:var(--border3)}
-
-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1.15rem 2rem;
-  background:var(--bg);
-  border-bottom:1px solid var(--border);
-  position:sticky;top:0;z-index:100;
-}
-.logo{
-  font-family:var(--display);font-size:1.5rem;font-weight:400;
-  letter-spacing:0.03em;text-transform:uppercase;
-  color:var(--text);line-height:1;
-}
+header{display:flex;align-items:center;justify-content:space-between;padding:1.15rem 2rem;background:var(--bg);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.logo{font-family:var(--display);font-size:1.5rem;font-weight:400;letter-spacing:0.03em;text-transform:uppercase;color:var(--text);line-height:1}
 .logo span{color:var(--teal)}
-.header-right{
-  display:flex;align-items:center;gap:1rem;
-  font-family:var(--mono);font-size:0.72rem;
-  color:var(--text3);letter-spacing:0.03em;
-}
-.status-dot{
-  width:7px;height:7px;border-radius:50%;
-  background:var(--teal);
-  display:inline-block;margin-right:6px;
-  box-shadow:0 0 8px var(--teal);
-  animation:blink 2s ease-in-out infinite;
-}
+.header-right{display:flex;align-items:center;gap:1rem;font-family:var(--mono);font-size:0.72rem;color:var(--text3);letter-spacing:0.03em}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);display:inline-block;margin-right:6px;box-shadow:0 0 8px var(--teal);animation:blink 2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-kbd{
-  font-family:var(--mono);font-size:0.65rem;
-  padding:2px 6px;border-radius:3px;
-  background:var(--surface2);border:1px solid var(--border2);
-  color:var(--text3);
-}
-
-.hero{
-  position:relative;
-  padding:4rem 2rem 3rem;
-  text-align:center;
-  border-bottom:1px solid var(--border);
-  overflow:hidden;
-  min-height:280px;
-  transition:min-height 0.4s ease;
-}
+kbd{font-family:var(--mono);font-size:0.65rem;padding:2px 6px;border-radius:3px;background:var(--surface2);border:1px solid var(--border2);color:var(--text3)}
+.hero{position:relative;padding:4rem 2rem 3rem;text-align:center;border-bottom:1px solid var(--border);overflow:hidden;min-height:280px;transition:min-height 0.4s ease}
 .hero.has-image{min-height:380px}
-.hero-image{
-  position:absolute;
-  inset:0;
-  z-index:0;
-  animation:fadeIn 0.6s ease-out;
-}
-.hero-image img{
-  width:100%;height:100%;
-  object-fit:cover;
-  opacity:0.28;
-  filter:grayscale(0.7) contrast(1.15) brightness(0.9);
-}
-.hero-image-overlay{
-  position:absolute;inset:0;
-  background:radial-gradient(ellipse at center, transparent 0%, rgba(10,10,10,0.6) 50%, var(--bg) 85%);
-}
+.hero-image{position:absolute;inset:0;z-index:0;animation:fadeIn 0.6s ease-out}
+.hero-image img{width:100%;height:100%;object-fit:cover;opacity:0.28;filter:grayscale(0.7) contrast(1.15) brightness(0.9)}
+.hero-image-overlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 0%,rgba(10,10,10,0.6) 50%,var(--bg) 85%)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.hero-content{
-  position:relative;
-  z-index:1;
-  max-width:800px;
-  margin:0 auto;
-}
-.hero h1{
-  font-family:var(--display);
-  font-size:clamp(2.5rem,7vw,5rem);
-  font-weight:400;line-height:1;
-  letter-spacing:0.02em;
-  text-transform:uppercase;
-  color:var(--teal);
-  margin-bottom:1.5rem;
-}
-.hero h1 .halo{
-  display:inline-block;
-  position:relative;
-}
-.hero h1 .halo::after{
-  content:'';
-  position:absolute;
-  inset:-14px -22px;
-  border:1px solid var(--teal);
-  border-radius:50%;
-  opacity:0.15;
-  transform:rotate(-3deg);
-}
-.hero p{
-  font-size:1.05rem;color:var(--text3);
-  max-width:520px;margin:0 auto 1.25rem;
-  line-height:1.7;
-}
-.hero-status{
-  font-family:var(--mono);font-size:0.8rem;
-  color:var(--teal);
-  display:inline-flex;align-items:center;gap:0.5rem;
-  padding:6px 14px;
-  border:1px solid var(--teal-border);
-  border-radius:100px;
-  background:var(--teal-dim);
-}
+.hero-content{position:relative;z-index:1;max-width:800px;margin:0 auto}
+.hero h1{font-family:var(--display);font-size:clamp(2.5rem,7vw,5rem);font-weight:400;line-height:1;letter-spacing:0.02em;text-transform:uppercase;color:var(--teal);margin-bottom:1.5rem}
+.hero h1 .halo{display:inline-block;position:relative}
+.hero h1 .halo::after{content:'';position:absolute;inset:-14px -22px;border:1px solid var(--teal);border-radius:50%;opacity:0.15;transform:rotate(-3deg)}
+.hero p{font-size:1.05rem;color:var(--text3);max-width:560px;margin:0 auto 1.25rem;line-height:1.7}
+.hero-status{font-family:var(--mono);font-size:0.8rem;color:var(--teal);display:inline-flex;align-items:center;gap:0.5rem;padding:6px 14px;border:1px solid var(--teal-border);border-radius:100px;background:var(--teal-dim)}
 .hero-status::before{content:'◆';font-size:0.7rem;color:var(--teal)}
-
-.search-section{
-  padding:2.5rem 2rem 3rem;
-  background:var(--bg);
-  border-bottom:1px solid var(--border);
-}
+.search-section{padding:2.5rem 2rem 3rem;background:var(--bg);border-bottom:1px solid var(--border)}
 .search-wrap{max-width:720px;margin:0 auto}
-.search-box{
-  display:flex;align-items:center;
-  background:var(--surface);
-  border:1px solid var(--border2);
-  border-radius:var(--radius);
-  padding:0.55rem 0.55rem 0.55rem 1.25rem;
-  gap:0.75rem;
-  transition:border-color var(--transition);
-}
+.search-box{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);padding:0.55rem 0.55rem 0.55rem 1.25rem;gap:0.75rem;transition:border-color var(--transition)}
 .search-box:focus-within{border-color:var(--teal)}
 .search-icon{color:var(--text3);font-size:1.05rem;flex-shrink:0}
-.search-input{
-  flex:1;background:none;border:none;outline:none;
-  color:var(--text);font-family:var(--sans);
-  font-size:1rem;font-weight:500;
-}
+.search-input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--sans);font-size:1rem;font-weight:500}
 .search-input::placeholder{color:var(--text3)}
-.clear-input{
-  background:none;border:none;color:var(--text3);
-  cursor:pointer;font-size:0.9rem;padding:4px 8px;
-  border-radius:4px;transition:all var(--transition);
-  display:none;
-}
+.clear-input{background:none;border:none;color:var(--text3);cursor:pointer;font-size:0.9rem;padding:4px 8px;border-radius:4px;transition:all var(--transition);display:none}
 .clear-input:hover{color:var(--text);background:var(--surface2)}
 .clear-input.visible{display:block}
-.search-btn{
-  display:inline-flex;align-items:center;gap:0.5rem;
-  padding:0.75rem 1.5rem;
-  background:var(--teal);color:var(--bg);
-  font-family:var(--sans);font-size:0.9rem;font-weight:600;
-  border:none;border-radius:6px;cursor:pointer;
-  transition:transform var(--transition), background var(--transition), box-shadow var(--transition);
-  flex-shrink:0;
-}
+.search-btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.75rem 1.5rem;background:var(--teal);color:var(--bg);font-family:var(--sans);font-size:0.9rem;font-weight:600;border:none;border-radius:6px;cursor:pointer;transition:transform var(--transition),background var(--transition);flex-shrink:0}
 .search-btn:hover:not(:disabled){background:var(--teal2)}
 .search-btn:active:not(:disabled){transform:scale(0.97)}
 .search-btn:disabled{opacity:0.6;cursor:not-allowed}
-.btn-spin{
-  width:14px;height:14px;
-  border:2px solid rgba(0,0,0,0.25);border-top-color:var(--bg);
-  border-radius:50%;animation:spin 0.6s linear infinite;
-  display:none;
-}
+.btn-spin{width:14px;height:14px;border:2px solid rgba(0,0,0,0.25);border-top-color:var(--bg);border-radius:50%;animation:spin 0.6s linear infinite;display:none}
 @keyframes spin{to{transform:rotate(360deg)}}
-
-.suggestions{
-  display:flex;flex-wrap:wrap;gap:0.45rem;
-  justify-content:center;margin-top:1.25rem;
-}
-.sug{
-  font-family:var(--mono);font-size:0.7rem;letter-spacing:0.03em;
-  padding:5px 12px;border-radius:100px;
-  background:transparent;border:1px solid var(--border2);
-  color:var(--text3);cursor:pointer;transition:all var(--transition);
-}
+.suggestions{display:flex;flex-wrap:wrap;gap:0.45rem;justify-content:center;margin-top:1.25rem}
+.sug{font-family:var(--mono);font-size:0.7rem;letter-spacing:0.03em;padding:5px 12px;border-radius:100px;background:transparent;border:1px solid var(--border2);color:var(--text3);cursor:pointer;transition:all var(--transition)}
 .sug:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
 .sug:active{transform:scale(0.96)}
-
 .main{max-width:1280px;margin:0 auto;padding:2rem}
-
-.stats-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:1rem;
-  margin-bottom:2.5rem;
-}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
 @media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.stats-grid{grid-template-columns:1fr}}
-
-.stat-card{
-  background:var(--bg2);
-  border:none;
-  border-radius:var(--radius);
-  padding:1.5rem;
-  transition:background var(--transition), transform var(--transition), box-shadow var(--transition);
-}
-.stat-card:hover{
-  background:var(--surface);
-  transform:translateY(-2px);
-  box-shadow:0 8px 24px rgba(0,0,0,0.3);
-}
-.stat-header{
-  display:flex;align-items:center;gap:0.5rem;
-  font-family:var(--display);font-size:0.9rem;font-weight:400;
-  letter-spacing:0.05em;text-transform:uppercase;
-  color:var(--teal);
-  margin-bottom:1.25rem;
-  opacity:0.85;
-}
+.stat-card{background:var(--bg2);border:none;border-radius:var(--radius);padding:1.5rem;transition:background var(--transition),transform var(--transition),box-shadow var(--transition)}
+.stat-card:hover{background:var(--surface);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.stat-header{display:flex;align-items:center;gap:0.5rem;font-family:var(--display);font-size:0.9rem;font-weight:400;letter-spacing:0.05em;text-transform:uppercase;color:var(--teal);margin-bottom:1.25rem;opacity:0.85}
 .stat-header .icon{font-size:0.9rem}
 .stat-list{display:flex;flex-direction:column;gap:0.5rem}
-.stat-item{
-  display:flex;justify-content:space-between;align-items:baseline;
-  gap:0.75rem;
-  font-size:0.85rem;
-  padding:5px 8px;
-  line-height:1.4;
-  border-radius:4px;
-  transition:background var(--transition);
-}
+.stat-item{display:flex;justify-content:space-between;align-items:baseline;gap:0.75rem;font-size:0.85rem;padding:5px 8px;line-height:1.4;border-radius:4px;transition:background var(--transition)}
 .stat-item.clickable{cursor:pointer}
 .stat-item.clickable:hover{background:var(--surface)}
 .stat-item.clickable:hover .name{color:var(--teal)}
-.stat-item .name{
-  color:var(--text);font-weight:500;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  flex:1;
-  transition:color var(--transition);
-}
-.stat-item .count{
-  font-family:var(--mono);font-size:0.68rem;
-  color:var(--text4);flex-shrink:0;
-  padding-top:1px;
-}
-.stat-empty{
-  font-family:var(--mono);font-size:0.75rem;
-  color:var(--text4);padding:0.5rem 0;
-}
+.stat-item .name{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;transition:color var(--transition)}
+.stat-item .count{font-family:var(--mono);font-size:0.68rem;color:var(--text4);flex-shrink:0;padding-top:1px}
+.stat-empty{font-family:var(--mono);font-size:0.75rem;color:var(--text4);padding:0.5rem 0}
 
-.results-header{
-  display:flex;align-items:baseline;justify-content:space-between;
-  padding-bottom:0.75rem;margin-bottom:0;
-  border-bottom:1px solid var(--border2);
-  flex-wrap:wrap;gap:0.75rem;
+/* ─── TIMELINE ─── */
+.timeline-section{
+  background:var(--bg2);
+  border-radius:var(--radius);
+  padding:1.75rem 1.75rem 1.5rem;
+  margin-bottom:2rem;
+  display:none;
+  animation:slideIn 0.3s ease both;
 }
-.results-header h2{
-  font-family:var(--display);font-size:1.5rem;font-weight:400;
-  letter-spacing:0.03em;text-transform:uppercase;
-}
-.results-meta{
-  display:flex;align-items:center;gap:0.75rem;
-  font-family:var(--mono);font-size:0.72rem;
-  color:var(--text3);
-  flex-wrap:wrap;
-}
-.source-chip{
-  padding:2px 8px;border-radius:3px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  color:var(--text3);
-}
-
-.results-list{display:flex;flex-direction:column;gap:0}
-.result-card{
-  background:transparent;
-  border:none;
-  border-bottom:1px solid var(--border);
-  border-radius:0;
-  padding:1.25rem 0.25rem;
-  transition:padding var(--transition);
-  animation:slideIn 0.25s ease both;
-  position:relative;
-}
-.result-card::before{
-  content:'';
-  position:absolute;
-  left:-12px;top:1.25rem;bottom:1.25rem;
-  width:2px;
-  background:transparent;
-  transition:background var(--transition);
-  border-radius:2px;
-}
-.result-card:hover{padding-left:1rem}
-.result-card:hover::before{background:var(--teal)}
-@keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-
-.result-top{
-  display:flex;justify-content:space-between;align-items:flex-start;
-  gap:1rem;margin-bottom:0.65rem;flex-wrap:wrap;
-}
-.result-title{
-  font-family:var(--sans);font-size:1rem;font-weight:600;
-  color:var(--text);line-height:1.4;flex:1;min-width:0;
-}
-.result-title a{color:inherit;text-decoration:none}
-.result-title a:hover{color:var(--teal)}
-.type-badge{
-  font-family:var(--mono);font-size:0.62rem;
-  letter-spacing:0.05em;text-transform:uppercase;font-weight:500;
-  padding:3px 9px;border-radius:4px;
-  border:1px solid var(--border2);
-  color:var(--text2);
-  flex-shrink:0;
-}
-.type-badge.paper{border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)}
-.type-badge.patent{color:var(--text2)}
-
-.result-meta{
-  display:flex;flex-wrap:wrap;gap:1rem;
-  font-family:var(--mono);font-size:0.72rem;
-  color:var(--text3);
-  margin-bottom:0.5rem;
-}
-.result-meta .sep::before{content:'•';margin-right:1rem;color:var(--text4)}
-.result-meta b{color:var(--text2);font-weight:500}
-
-.result-abstract{
-  font-size:0.85rem;color:var(--text3);line-height:1.6;
-  margin-bottom:0.65rem;
-}
-.result-actions{
-  display:flex;gap:0.5rem;flex-wrap:wrap;
-}
-.result-actions a, .result-actions button{
-  font-family:var(--mono);font-size:0.7rem;
-  letter-spacing:0.03em;
-  padding:6px 12px;border-radius:5px;
-  background:transparent;border:1px solid var(--border2);
-  color:var(--text2);text-decoration:none;cursor:pointer;
-  transition:all var(--transition);
-}
-.result-actions a:hover, .result-actions button:hover{
-  border-color:var(--teal);color:var(--teal);background:var(--teal-dim);
-}
-.result-actions a:active, .result-actions button:active{transform:scale(0.96)}
-
-.empty-state{
-  text-align:center;
-  padding:4rem 2rem;
-  color:var(--text3);
-}
-.empty-icon{
-  font-size:2rem;margin-bottom:1rem;
-  color:var(--text4);
-}
-.empty-state p{font-size:0.9rem}
-
-.log-section{
-  max-width:1280px;margin:0 auto;
-  padding:0 2rem 4rem;
-}
-.log-header{
+.timeline-section.visible{display:block}
+.timeline-header{
   display:flex;align-items:center;justify-content:space-between;
-  font-family:var(--sans);font-size:0.7rem;font-weight:500;
-  letter-spacing:0.1em;text-transform:uppercase;
-  color:var(--text3);margin-bottom:0.75rem;
+  flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;
 }
-.log-clear{
+.timeline-title{
+  font-family:var(--display);font-size:1rem;font-weight:400;
+  letter-spacing:0.05em;text-transform:uppercase;
+  color:var(--teal);opacity:0.85;
+}
+.timeline-meta{
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--text3);display:flex;gap:1rem;flex-wrap:wrap;
+}
+.timeline-meta b{color:var(--text);font-weight:500}
+.timeline-clear{
   font-family:var(--mono);font-size:0.65rem;
   padding:3px 10px;border-radius:4px;
-  background:transparent;border:1px solid var(--border2);
-  color:var(--text3);cursor:pointer;
+  background:transparent;border:1px solid var(--teal-border);
+  color:var(--teal);cursor:pointer;
   transition:all var(--transition);
   letter-spacing:0.05em;text-transform:uppercase;
 }
+.timeline-clear:hover{background:var(--teal-dim)}
+
+.timeline-bars{
+  display:flex;align-items:flex-end;
+  gap:4px;height:140px;
+  padding-bottom:0.5rem;
+  border-bottom:1px solid var(--border);
+  overflow-x:auto;
+}
+.year-bar{
+  flex:1;min-width:20px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-end;
+  height:100%;position:relative;cursor:pointer;
+  transition:opacity var(--transition);
+}
+.year-bar.dimmed{opacity:0.25}
+.year-bar:hover .year-fill{background:var(--teal2)}
+.year-bar.selected .year-fill{background:var(--teal)}
+.year-bar.selected .year-label{color:var(--teal);font-weight:600}
+.year-fill{
+  width:100%;background:var(--border3);
+  border-radius:3px 3px 0 0;
+  transition:background var(--transition), height 0.4s ease;
+  min-height:2px;
+}
+.year-count{
+  position:absolute;top:-22px;
+  font-family:var(--mono);font-size:0.62rem;
+  color:var(--text3);
+  opacity:0;
+  transition:opacity var(--transition);
+}
+.year-bar:hover .year-count{opacity:1}
+.year-label{
+  font-family:var(--mono);font-size:0.62rem;
+  color:var(--text4);margin-top:0.5rem;
+  white-space:nowrap;transition:color var(--transition);
+}
+.year-bar:hover .year-label{color:var(--text2)}
+
+/* ─── RESULTS ─── */
+.results-header{display:flex;align-items:baseline;justify-content:space-between;padding-bottom:0.75rem;margin-bottom:0;border-bottom:1px solid var(--border2);flex-wrap:wrap;gap:0.75rem}
+.results-header h2{font-family:var(--display);font-size:1.5rem;font-weight:400;letter-spacing:0.03em;text-transform:uppercase}
+.results-meta{display:flex;align-items:center;gap:0.75rem;font-family:var(--mono);font-size:0.72rem;color:var(--text3);flex-wrap:wrap}
+.source-chip{padding:2px 8px;border-radius:3px;background:var(--surface);border:1px solid var(--border);color:var(--text3);cursor:pointer;transition:all var(--transition)}
+.source-chip:hover{border-color:var(--teal);color:var(--teal)}
+.source-chip.active{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
+.results-list{display:flex;flex-direction:column;gap:0}
+.result-card{background:transparent;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:1.25rem 0.25rem;transition:padding var(--transition);animation:slideIn 0.25s ease both;position:relative}
+.result-card::before{content:'';position:absolute;left:-12px;top:1.25rem;bottom:1.25rem;width:2px;background:transparent;transition:background var(--transition);border-radius:2px}
+.result-card:hover{padding-left:1rem}
+.result-card:hover::before{background:var(--teal)}
+@keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.result-top{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:0.65rem;flex-wrap:wrap}
+.result-title{font-family:var(--sans);font-size:1rem;font-weight:600;color:var(--text);line-height:1.4;flex:1;min-width:0}
+.result-title a{color:inherit;text-decoration:none}
+.result-title a:hover{color:var(--teal)}
+.type-badge{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.05em;text-transform:uppercase;font-weight:500;padding:3px 9px;border-radius:4px;border:1px solid var(--border2);color:var(--text2);flex-shrink:0}
+.type-badge.paper{border-color:var(--teal-border);color:var(--teal);background:var(--teal-dim)}
+.type-badge.patent{color:var(--text2)}
+.result-meta{display:flex;flex-wrap:wrap;gap:1rem;font-family:var(--mono);font-size:0.72rem;color:var(--text3);margin-bottom:0.5rem}
+.result-meta .sep::before{content:'•';margin-right:1rem;color:var(--text4)}
+.result-meta b{color:var(--text2);font-weight:500}
+.result-abstract{font-size:0.85rem;color:var(--text3);line-height:1.6;margin-bottom:0.65rem}
+.result-actions{display:flex;gap:0.5rem;flex-wrap:wrap}
+.result-actions a,.result-actions button{font-family:var(--mono);font-size:0.7rem;letter-spacing:0.03em;padding:6px 12px;border-radius:5px;background:transparent;border:1px solid var(--border2);color:var(--text2);text-decoration:none;cursor:pointer;transition:all var(--transition)}
+.result-actions a:hover,.result-actions button:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
+.result-actions a:active,.result-actions button:active{transform:scale(0.96)}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--text3)}
+.empty-icon{font-size:2rem;margin-bottom:1rem;color:var(--text4)}
+.empty-state p{font-size:0.9rem}
+.log-section{max-width:1280px;margin:0 auto;padding:0 2rem 4rem}
+.log-header{display:flex;align-items:center;justify-content:space-between;font-family:var(--sans);font-size:0.7rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3);margin-bottom:0.75rem}
+.log-clear{font-family:var(--mono);font-size:0.65rem;padding:3px 10px;border-radius:4px;background:transparent;border:1px solid var(--border2);color:var(--text3);cursor:pointer;transition:all var(--transition);letter-spacing:0.05em;text-transform:uppercase}
 .log-clear:hover{border-color:var(--teal);color:var(--teal)}
 .log-clear:active{transform:scale(0.96)}
-.log-box{
-  background:var(--bg3);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:1rem 1.25rem;
-  font-family:var(--mono);font-size:0.78rem;
-  color:var(--text2);line-height:1.8;
-  max-height:220px;overflow-y:auto;
-}
+.log-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;font-family:var(--mono);font-size:0.78rem;color:var(--text2);line-height:1.8;max-height:220px;overflow-y:auto}
 .log-line{display:flex;gap:0.6rem;align-items:flex-start}
 .log-line .prefix{color:var(--teal);flex-shrink:0}
 .log-line.warn .prefix{color:#f5c518}
 .log-line.err .prefix{color:#ff3355}
-
-.footer{
-  max-width:1280px;margin:0 auto;
-  padding:2rem;
-  border-top:1px solid var(--border);
-  font-family:var(--mono);font-size:0.72rem;
-  color:var(--text4);
-  display:flex;justify-content:space-between;
-  flex-wrap:wrap;gap:1rem;
-}
+.footer{max-width:1280px;margin:0 auto;padding:2rem;border-top:1px solid var(--border);font-family:var(--mono);font-size:0.72rem;color:var(--text4);display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem}
 .footer a{color:var(--text3);text-decoration:none}
 .footer a:hover{color:var(--teal)}
-
-.toast{
-  position:fixed;bottom:1.5rem;right:1.5rem;
-  background:var(--surface2);border:1px solid var(--border2);
-  border-left:3px solid var(--teal);
-  color:var(--text);font-family:var(--mono);font-size:0.78rem;
-  padding:0.75rem 1.1rem;border-radius:6px;
-  box-shadow:0 12px 32px rgba(0,0,0,0.6);
-  transform:translateY(60px);opacity:0;
-  transition:all 0.25s ease;
-  z-index:9999;pointer-events:none;
-}
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface2);border:1px solid var(--border2);border-left:3px solid var(--teal);color:var(--text);font-family:var(--mono);font-size:0.78rem;padding:0.75rem 1.1rem;border-radius:6px;box-shadow:0 12px 32px rgba(0,0,0,0.6);transform:translateY(60px);opacity:0;transition:all 0.25s ease;z-index:9999;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
-
 @media(max-width:700px){
   header{padding:0.9rem 1.25rem}
   .logo{font-size:1.25rem}
@@ -454,6 +214,8 @@ kbd{
   .search-input{width:100%;padding:0.5rem 0.75rem}
   .search-btn{width:100%;justify-content:center}
   .header-right kbd{display:none}
+  .timeline-section{padding:1.25rem}
+  .timeline-bars{height:110px}
 }
 </style>
 </head>
@@ -462,7 +224,7 @@ kbd{
 <header>
   <div class="logo">Bright<span>scope</span></div>
   <div class="header-right">
-    <span><span class="status-dot"></span>Crossref · arXiv · Patents</span>
+    <span><span class="status-dot"></span>8 sources live</span>
     <span><kbd>Ctrl</kbd> <kbd>K</kbd></span>
   </div>
 </header>
@@ -474,7 +236,7 @@ kbd{
   </div>
   <div class="hero-content">
     <h1><span class="halo">Brightscope</span></h1>
-    <p>Search papers and patents from Crossref, arXiv, and open patent sources in one place.</p>
+    <p>Search 500M+ papers from arXiv, OpenAlex, Crossref, PubMed, Semantic Scholar, Europe PMC, bioRxiv and DOAJ — plus open patent sources.</p>
     <div class="hero-status" id="heroStatus">Ready — enter a topic</div>
   </div>
 </section>
@@ -491,21 +253,32 @@ kbd{
       </button>
     </div>
     <div class="suggestions">
-      <span class="sug" onclick="quickSearch(this)">Iron ores</span>
       <span class="sug" onclick="quickSearch(this)">Graphene</span>
       <span class="sug" onclick="quickSearch(this)">Quantum computing</span>
       <span class="sug" onclick="quickSearch(this)">Machine learning</span>
-      <span class="sug" onclick="quickSearch(this)">Climate change</span>
       <span class="sug" onclick="quickSearch(this)">CRISPR</span>
+      <span class="sug" onclick="quickSearch(this)">Climate change</span>
       <span class="sug" onclick="quickSearch(this)">Transformer models</span>
+      <span class="sug" onclick="quickSearch(this)">Alzheimer</span>
+      <span class="sug" onclick="quickSearch(this)">Iron ores</span>
     </div>
   </div>
 </section>
 
 <main class="main">
+
+  <!-- Timeline -->
+  <div class="timeline-section" id="timelineSection">
+    <div class="timeline-header">
+      <div class="timeline-title">Publication Timeline</div>
+      <div class="timeline-meta" id="timelineMeta"></div>
+    </div>
+    <div class="timeline-bars" id="timelineBars"></div>
+  </div>
+
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="stat-header"><span class="icon">👨‍🔬</span>Top Authors</div>
+      <div class="stat-header"><span class="icon">◇</span>Top Authors</div>
       <div class="stat-list" id="authorsList"><div class="stat-empty">Results will appear here</div></div>
     </div>
     <div class="stat-card">
@@ -548,19 +321,24 @@ kbd{
 
 <footer class="footer">
   <div>Brightscope — Research Aggregator</div>
-  <div>
-    <a href="https://github.com/Gitcoder12/Brightscope" target="_blank" rel="noopener">GitHub</a>
-  </div>
+  <div><a href="https://github.com/Gitcoder12/Brightscope" target="_blank" rel="noopener">GitHub</a></div>
 </footer>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ── STATE ──
+// ═══════════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════════
 let allResults = [];
+let filteredResults = [];
 let lastQuery = '';
+let selectedYear = null;
+let selectedSource = null;
 
-// ── LOGGING ──
+// ═══════════════════════════════════════════════════════════
+//  LOGGING
+// ═══════════════════════════════════════════════════════════
 function log(msg, type) {
   const box = document.getElementById('logBox');
   const line = document.createElement('div');
@@ -574,7 +352,9 @@ function clearLog() {
   document.getElementById('logBox').innerHTML = '<div class="log-line"><span class="prefix">›</span><span>Idle.</span></div>';
 }
 
-// ── HELPERS ──
+// ═══════════════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════════════
 function escapeHtml(s) {
   if (s === undefined || s === null) return '';
   return String(s)
@@ -611,52 +391,63 @@ function clearInput() {
   updateClearBtn();
 }
 function updateClearBtn() {
-  const input = document.getElementById('searchInput');
   const btn = document.getElementById('clearBtn');
-  btn.classList.toggle('visible', Boolean(input.value));
+  btn.classList.toggle('visible', Boolean(document.getElementById('searchInput').value));
 }
 
-// ── TOPIC IMAGE (Wikipedia REST API — no key, no backend) ──
+// ═══════════════════════════════════════════════════════════
+//  CORS-PROXY FETCH CHAIN
+// ═══════════════════════════════════════════════════════════
+const CORS_PROXIES = [
+  { name: 'direct',     build: url => url },
+  { name: 'allorigins', build: url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}` },
+  { name: 'codetabs',   build: url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}` },
+  { name: 'corsproxy',  build: url => `https://corsproxy.io/?${encodeURIComponent(url)}` },
+];
+
+async function fetchWithProxy(targetUrl, options = {}) {
+  let lastErr = null;
+  for (const proxy of CORS_PROXIES) {
+    try {
+      const url = proxy.build(targetUrl);
+      const res = await fetch(url, { ...options, signal: AbortSignal.timeout(15000) });
+      if (res.ok) return { res, proxy: proxy.name };
+      lastErr = new Error(`${proxy.name} HTTP ${res.status}`);
+    } catch (e) { lastErr = e; }
+  }
+  throw lastErr || new Error('All proxies failed');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  TOPIC IMAGE (Wikipedia)
+// ═══════════════════════════════════════════════════════════
 async function fetchTopicImage(topic) {
   try {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) return null;
     const data = await res.json();
-    // Prefer the full-resolution original image, fall back to thumbnail
     return data.originalimage?.source || data.thumbnail?.source || null;
-  } catch {
-    return null;
-  }
+  } catch { return null; }
 }
-
 async function updateHeroImage(topic) {
   const heroEl = document.getElementById('hero');
   const imgWrap = document.getElementById('heroImage');
   const imgEl = document.getElementById('heroImageImg');
-
-  // Reset state before applying new image
   heroEl.classList.remove('has-image');
   imgWrap.style.display = 'none';
   imgEl.src = '';
-
   if (!topic) return;
-
   const imgUrl = await fetchTopicImage(topic);
   if (!imgUrl) return;
-
-  imgEl.onload = () => {
-    imgWrap.style.display = 'block';
-    heroEl.classList.add('has-image');
-  };
-  imgEl.onerror = () => {
-    imgWrap.style.display = 'none';
-    heroEl.classList.remove('has-image');
-  };
+  imgEl.onload = () => { imgWrap.style.display = 'block'; heroEl.classList.add('has-image'); };
+  imgEl.onerror = () => { imgWrap.style.display = 'none'; heroEl.classList.remove('has-image'); };
   imgEl.src = imgUrl;
 }
 
-// ── SEARCH ──
+// ═══════════════════════════════════════════════════════════
+//  SEARCH FLOW
+// ═══════════════════════════════════════════════════════════
 function quickSearch(el) {
   document.getElementById('searchInput').value = el.textContent;
   updateClearBtn();
@@ -666,36 +457,49 @@ function quickSearch(el) {
 async function runSearch() {
   const query = document.getElementById('searchInput').value.trim();
   if (!query) return;
-
   lastQuery = query;
+  selectedYear = null;
+  selectedSource = null;
   try { localStorage.setItem('brightscope_last', query); } catch {}
 
   clearLog();
   allResults = [];
+  filteredResults = [];
   setBusy(true);
   setHeroStatus(`Searching for "${query}"...`, true);
-  log(`Searching for "${query}" ...`);
+  log(`Searching for "${query}" across 8 sources...`);
 
-  // Kick off topic image fetch in parallel with searches
   updateHeroImage(query);
-
   const t0 = performance.now();
 
   resetStatCard('authorsList');
   resetStatCard('topicsList');
   resetStatCard('papersList');
   resetStatCard('patentsList');
+  document.getElementById('timelineSection').classList.remove('visible');
 
-  const [crossref, arxiv, patents] = await Promise.all([
-    fetchCrossref(query),
+  // Fire all sources in parallel — each independently fails gracefully
+  const [arxiv, openalex, crossref, pubmed, semanticscholar, europepmc, biorxiv, doaj, patents] = await Promise.all([
     fetchArxiv(query),
+    fetchOpenAlex(query),
+    fetchCrossref(query),
+    fetchPubMed(query),
+    fetchSemanticScholar(query),
+    fetchEuropePMC(query),
+    fetchBiorxiv(query),
+    fetchDoaj(query),
     buildPatentLinks(query),
   ]);
 
-  allResults = [...crossref, ...arxiv, ...patents];
+  allResults = dedupe([
+    ...arxiv, ...openalex, ...crossref, ...pubmed,
+    ...semanticscholar, ...europepmc, ...biorxiv, ...doaj,
+    ...patents,
+  ]);
+  filteredResults = [...allResults];
 
   const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
-  const paperCount = crossref.length + arxiv.length;
+  const paperCount = allResults.filter(r => r.type === 'paper').length;
   const patentCount = patents.length;
   log(`Done in ${elapsed}s · ${paperCount} papers + ${patentCount} patent links`, 'ok');
 
@@ -708,111 +512,377 @@ function resetStatCard(id) {
   document.getElementById(id).innerHTML = '<div class="stat-empty">Results will appear here</div>';
 }
 
-// ── CROSSREF ──
+function normalizeTitle(t) {
+  return String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 80);
+}
+function dedupe(items) {
+  const seen = new Set();
+  const out = [];
+  for (const it of items) {
+    const key = it.type === 'paper' ? normalizeTitle(it.title) : 'patent:' + it.url;
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(it);
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: arXiv
+// ═══════════════════════════════════════════════════════════
+async function fetchArxiv(query) {
+  try {
+    const target = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=30&sortBy=relevance`;
+    const { res, proxy } = await fetchWithProxy(target, { headers: { 'Accept': 'application/atom+xml' } });
+    const text = await res.text();
+    const xml = new DOMParser().parseFromString(text, 'text/xml');
+    const entries = Array.from(xml.querySelectorAll('entry'));
+    log(`arXiv: ${entries.length} (via ${proxy})`, 'ok');
+    return entries.map(e => {
+      const id = e.querySelector('id')?.textContent?.trim() || '';
+      const arxivId = id.split('/abs/').pop();
+      return {
+        type: 'paper', source: 'arXiv',
+        title: e.querySelector('title')?.textContent?.trim().replace(/\s+/g, ' ') || '',
+        authors: Array.from(e.querySelectorAll('author > name')).map(n => n.textContent.trim()),
+        year: e.querySelector('published')?.textContent?.slice(0, 4) ? parseInt(e.querySelector('published').textContent.slice(0, 4)) : null,
+        venue: 'arXiv preprint',
+        abstract: e.querySelector('summary')?.textContent?.trim().replace(/\s+/g, ' ').slice(0, 320) || null,
+        url: id || null,
+        pdf: e.querySelector('link[title="pdf"]')?.getAttribute('href') || null,
+        scholarUrl: null, arxivId,
+      };
+    }).filter(r => r.title);
+  } catch (e) { log(`arXiv failed: ${e.message}`, 'err'); return []; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: OpenAlex
+// ═══════════════════════════════════════════════════════════
+async function fetchOpenAlex(query) {
+  try {
+    const url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&per_page=50&mailto=brightscope@example.com`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const items = data.results || [];
+    log(`OpenAlex: ${items.length}`, 'ok');
+    return items.map(it => {
+      const doi = it.doi ? it.doi.replace('https://doi.org/', '') : null;
+      return {
+        type: 'paper', source: 'OpenAlex',
+        title: (it.display_name || it.title || '').trim(),
+        authors: (it.authorships || []).map(a => a.author?.display_name).filter(Boolean),
+        year: it.publication_year || null,
+        venue: it.primary_location?.source?.display_name || null,
+        abstract: it.abstract_inverted_index ? invertedToAbstract(it.abstract_inverted_index).slice(0, 320) : null,
+        doi, url: it.doi || it.id,
+        citedBy: it.cited_by_count || 0,
+        scholarUrl: it.display_name ? `https://scholar.google.com/scholar?q=${encodeURIComponent(it.display_name)}` : null,
+      };
+    }).filter(r => r.title);
+  } catch (e) { log(`OpenAlex failed: ${e.message}`, 'err'); return []; }
+}
+function invertedToAbstract(inv) {
+  if (!inv || typeof inv !== 'object') return '';
+  const words = [];
+  for (const [word, positions] of Object.entries(inv)) {
+    for (const pos of positions) words[pos] = word;
+  }
+  return words.filter(Boolean).join(' ');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: Crossref
+// ═══════════════════════════════════════════════════════════
 async function fetchCrossref(query) {
   try {
-    const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=20&select=title,author,issued,abstract,DOI,container-title,type`;
+    const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=50&select=title,author,issued,abstract,DOI,container-title,type`;
     const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const items = data.message?.items || [];
     log(`Crossref: ${items.length}`, 'ok');
-
     return items
-      .filter(it => it.title && it.title.length)
+      .filter(it => it.title && it.title.length && it.type !== 'dataset')
       .map(it => ({
-        type: 'paper',
-        source: 'Crossref',
+        type: 'paper', source: 'Crossref',
         title: it.title[0],
         authors: (it.author || []).map(a => [a.given, a.family].filter(Boolean).join(' ')).filter(Boolean),
         year: it.issued?.['date-parts']?.[0]?.[0] || null,
         venue: it['container-title']?.[0] || null,
-        abstract: it.abstract ? stripHtml(it.abstract).slice(0, 300) : null,
+        abstract: it.abstract ? stripHtml(it.abstract).slice(0, 320) : null,
         doi: it.DOI,
         url: it.DOI ? `https://doi.org/${it.DOI}` : null,
         scholarUrl: `https://scholar.google.com/scholar?q=${encodeURIComponent(it.title[0])}`,
       }));
-  } catch (e) {
-    log(`Crossref failed: ${e.message}`, 'err');
-    return [];
-  }
+  } catch (e) { log(`Crossref failed: ${e.message}`, 'err'); return []; }
 }
 
-// ── ARXIV (usually CORS-blocked in browser) ──
-async function fetchArxiv(query) {
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: PubMed
+// ═══════════════════════════════════════════════════════════
+async function fetchPubMed(query) {
   try {
-    const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=10`;
+    const searchUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmode=json&retmax=30`;
+    const { res: searchRes, proxy } = await fetchWithProxy(searchUrl);
+    const searchData = await searchRes.json();
+    const ids = searchData.esearchresult?.idlist || [];
+    if (!ids.length) { log(`PubMed: 0`, 'ok'); return []; }
+    const summaryUrl = `https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`;
+    const { res: summaryRes } = await fetchWithProxy(summaryUrl);
+    const summaryData = await summaryRes.json();
+    const result = summaryData.result || {};
+    const papers = ids.map(id => result[id]).filter(Boolean);
+    log(`PubMed: ${papers.length} (via ${proxy})`, 'ok');
+    return papers.map(p => {
+      const doi = (p.articleids || []).find(x => x.idtype === 'doi')?.value || null;
+      return {
+        type: 'paper', source: 'PubMed',
+        title: p.title?.replace(/<[^>]*>/g, '').trim() || '',
+        authors: (p.authors || []).map(a => a.name).filter(Boolean),
+        year: p.pubdate ? parseInt(p.pubdate.slice(0, 4)) || null : null,
+        venue: p.fulljournalname || p.source || null,
+        abstract: null, doi,
+        url: `https://pubmed.ncbi.nlm.nih.gov/${p.uid}/`,
+        scholarUrl: p.title ? `https://scholar.google.com/scholar?q=${encodeURIComponent(p.title)}` : null,
+        pubmedId: p.uid,
+      };
+    }).filter(r => r.title);
+  } catch (e) { log(`PubMed failed: ${e.message}`, 'err'); return []; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: Semantic Scholar  (200M+ papers, CORS enabled)
+// ═══════════════════════════════════════════════════════════
+async function fetchSemanticScholar(query) {
+  try {
+    const url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=30&fields=title,authors,year,abstract,externalIds,venue,citationCount,openAccessPdf`;
     const res = await fetch(url);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const text = await res.text();
-    const xml = new DOMParser().parseFromString(text, 'text/xml');
-    const entries = Array.from(xml.querySelectorAll('entry'));
-    log(`arXiv: ${entries.length}`, 'ok');
-
-    return entries.map(e => ({
-      type: 'paper',
-      source: 'arXiv',
-      title: e.querySelector('title')?.textContent?.trim() || '',
-      authors: Array.from(e.querySelectorAll('author > name')).map(n => n.textContent.trim()),
-      year: e.querySelector('published')?.textContent?.slice(0, 4) || null,
-      venue: 'arXiv',
-      abstract: e.querySelector('summary')?.textContent?.trim().slice(0, 300) || null,
-      url: e.querySelector('id')?.textContent?.trim() || null,
-      scholarUrl: null,
-    })).filter(r => r.title);
-  } catch (e) {
-    log(`arXiv unavailable in browser: ${e.message}`, 'warn');
-    return [];
-  }
+    const data = await res.json();
+    const items = data.data || [];
+    log(`Semantic Scholar: ${items.length}`, 'ok');
+    return items.map(it => {
+      const doi = it.externalIds?.DOI || null;
+      const arxivId = it.externalIds?.ArXiv || null;
+      let url = null;
+      if (doi) url = `https://doi.org/${doi}`;
+      else if (arxivId) url = `https://arxiv.org/abs/${arxivId}`;
+      return {
+        type: 'paper', source: 'Semantic Scholar',
+        title: (it.title || '').trim(),
+        authors: (it.authors || []).map(a => a.name).filter(Boolean),
+        year: it.year || null,
+        venue: it.venue || null,
+        abstract: it.abstract ? it.abstract.slice(0, 320) : null,
+        doi, arxivId, url,
+        citedBy: it.citationCount || 0,
+        pdf: it.openAccessPdf?.url || null,
+        scholarUrl: it.title ? `https://scholar.google.com/scholar?q=${encodeURIComponent(it.title)}` : null,
+      };
+    }).filter(r => r.title);
+  } catch (e) { log(`Semantic Scholar failed: ${e.message}`, 'err'); return []; }
 }
 
-// ── PATENTS (just links, no free CORS API) ──
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: Europe PMC  (open biomedical)
+// ═══════════════════════════════════════════════════════════
+async function fetchEuropePMC(query) {
+  try {
+    const url = `https://www.ebi.ac.uk/europepmc/webservices/rest/search?query=${encodeURIComponent(query)}&format=json&pageSize=30&resultType=core`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const items = data.resultList?.result || [];
+    log(`Europe PMC: ${items.length}`, 'ok');
+    return items.map(it => ({
+      type: 'paper', source: 'Europe PMC',
+      title: (it.title || '').replace(/<[^>]*>/g, '').trim(),
+      authors: it.authorString ? it.authorString.split(', ').map(a => a.trim()) : [],
+      year: it.pubYear ? parseInt(it.pubYear) : null,
+      venue: it.journalTitle || null,
+      abstract: it.abstractText ? stripHtml(it.abstractText).slice(0, 320) : null,
+      doi: it.doi || null,
+      url: it.doi ? `https://doi.org/${it.doi}` : (it.pmid ? `https://pubmed.ncbi.nlm.nih.gov/${it.pmid}/` : null),
+      citedBy: it.citedByCount || 0,
+      scholarUrl: it.title ? `https://scholar.google.com/scholar?q=${encodeURIComponent(it.title)}` : null,
+    })).filter(r => r.title);
+  } catch (e) { log(`Europe PMC failed: ${e.message}`, 'err'); return []; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: bioRxiv  (life sciences preprints)
+// ═══════════════════════════════════════════════════════════
+async function fetchBiorxiv(query) {
+  try {
+    const url = `https://api.biorxiv.org/details/biorxiv/2015-01-01/${new Date().toISOString().slice(0,10)}/0/json`;
+    const { res, proxy } = await fetchWithProxy(url);
+    const data = await res.json();
+    const collection = data.collection || [];
+    const q = query.toLowerCase();
+    const matches = collection.filter(p =>
+      (p.title || '').toLowerCase().includes(q) ||
+      (p.abstract || '').toLowerCase().includes(q)
+    ).slice(0, 20);
+    log(`bioRxiv: ${matches.length} (via ${proxy})`, 'ok');
+    return matches.map(p => ({
+      type: 'paper', source: 'bioRxiv',
+      title: (p.title || '').trim(),
+      authors: p.authors ? p.authors.split(';').map(a => a.trim()) : [],
+      year: p.date ? parseInt(p.date.slice(0, 4)) : null,
+      venue: 'bioRxiv preprint',
+      abstract: p.abstract ? p.abstract.slice(0, 320) : null,
+      doi: p.doi || null,
+      url: p.doi ? `https://doi.org/${p.doi}` : `https://www.biorxiv.org/content/${p.doi}`,
+      scholarUrl: p.title ? `https://scholar.google.com/scholar?q=${encodeURIComponent(p.title)}` : null,
+    })).filter(r => r.title);
+  } catch (e) { log(`bioRxiv failed: ${e.message}`, 'err'); return []; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: DOAJ  (open access journals)
+// ═══════════════════════════════════════════════════════════
+async function fetchDoaj(query) {
+  try {
+    const url = `https://doaj.org/api/search/articles/${encodeURIComponent(query)}?pageSize=25`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    const items = data.results || [];
+    log(`DOAJ: ${items.length}`, 'ok');
+    return items.map(it => {
+      const b = it.bibjson || {};
+      const doi = (b.identifier || []).find(i => i.type === 'doi')?.id || null;
+      return {
+        type: 'paper', source: 'DOAJ',
+        title: (b.title || '').trim(),
+        authors: (b.author || []).map(a => a.name).filter(Boolean),
+        year: b.year ? parseInt(b.year) : null,
+        venue: b.journal?.title || null,
+        abstract: b.abstract ? stripHtml(b.abstract).slice(0, 320) : null,
+        doi,
+        url: b.link ? b.link[0]?.url : (doi ? `https://doi.org/${doi}` : null),
+        scholarUrl: b.title ? `https://scholar.google.com/scholar?q=${encodeURIComponent(b.title)}` : null,
+      };
+    }).filter(r => r.title);
+  } catch (e) { log(`DOAJ failed: ${e.message}`, 'err'); return []; }
+}
+
+// ═══════════════════════════════════════════════════════════
+//  SOURCE: Patents
+// ═══════════════════════════════════════════════════════════
 async function buildPatentLinks(query) {
   const q = encodeURIComponent(query);
-  const links = [
-    { name: 'Google Patents', url: `https://patents.google.com/?q=${q}`, host: 'Google Patents' },
-    { name: 'USPTO', url: `https://ppubs.uspto.gov/pubwebapp/static/pages/ppubsbasic.html#${q}`, host: 'USPTO' },
-    { name: 'WIPO PATENTSCOPE', url: `https://patentscope.wipo.int/search/en/result.jsf?query=${q}`, host: 'WIPO PATENTSCOPE' },
+  return [
+    { type: 'patent', source: 'Google Patents',   title: `Search Google Patents for "${query}"`,   description: `Open live patent search results in Google Patents.`,   url: `https://patents.google.com/?q=${q}` },
+    { type: 'patent', source: 'USPTO',            title: `Search USPTO for "${query}"`,            description: `Open the USPTO patent search portal.`,              url: `https://ppubs.uspto.gov/pubwebapps/rest/patent/search` },
+    { type: 'patent', source: 'WIPO PATENTSCOPE', title: `Search WIPO PATENTSCOPE for "${query}"`, description: `Open WIPO PATENTSCOPE for international patents.`,  url: `https://patentscope.wipo.int/search/en/result.jsf?query=${q}` },
   ];
-  return links.map(l => ({
-    type: 'patent',
-    source: l.host,
-    title: `Search ${l.name} for "${query}"`,
-    description: `Open live patent search results in ${l.name}.`,
-    url: l.url,
-  }));
 }
 
-// ── RENDER ──
+// ═══════════════════════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════════════════════
 function renderAll() {
+  renderTimeline();
   renderStats();
   renderResults();
 }
 
+// ─── TIMELINE (year-wise chart) ───
+function renderTimeline() {
+  const papers = allResults.filter(r => r.type === 'paper' && r.year);
+  if (!papers.length) { document.getElementById('timelineSection').classList.remove('visible'); return; }
+
+  const yearCounts = {};
+  papers.forEach(p => { yearCounts[p.year] = (yearCounts[p.year] || 0) + 1; });
+
+  const currentYear = new Date().getFullYear();
+  const years = Object.keys(yearCounts).map(Number).sort((a, b) => a - b);
+  const minYear = Math.max(currentYear - 24, Math.min(...years));
+  const maxYear = currentYear;
+
+  const range = [];
+  for (let y = minYear; y <= maxYear; y++) {
+    range.push({ year: y, count: yearCounts[y] || 0 });
+  }
+
+  const maxCount = Math.max(...range.map(r => r.count), 1);
+
+  // Meta stats
+  const peak = range.reduce((best, r) => r.count > best.count ? r : best, { year: 0, count: 0 });
+  const recentPapers = papers.filter(p => p.year >= currentYear - 4).length;
+  const avgYear = Math.round(papers.reduce((s, p) => s + p.year, 0) / papers.length);
+
+  document.getElementById('timelineMeta').innerHTML = `
+    <span>Most active: <b>${peak.year} (${peak.count})</b></span>
+    <span>Last 5 years: <b>${recentPapers}</b></span>
+    <span>Avg year: <b>${avgYear}</b></span>
+    ${selectedYear ? `<button class="timeline-clear" onclick="clearYearFilter()">Clear filter ×</button>` : ''}
+  `;
+
+  document.getElementById('timelineBars').innerHTML = range.map(r => {
+    const height = (r.count / maxCount) * 100;
+    const isSelected = selectedYear === r.year;
+    const isDimmed = selectedYear && !isSelected;
+    return `
+      <div class="year-bar ${isSelected ? 'selected' : ''} ${isDimmed ? 'dimmed' : ''}"
+           onclick="toggleYearFilter(${r.year})"
+           title="${r.year}: ${r.count} papers">
+        <span class="year-count">${r.count}</span>
+        <div class="year-fill" style="height:${height}%"></div>
+        <div class="year-label">${String(r.year).slice(-2)}</div>
+      </div>`;
+  }).join('');
+
+  document.getElementById('timelineSection').classList.add('visible');
+}
+
+function toggleYearFilter(year) {
+  if (selectedYear === year) { clearYearFilter(); return; }
+  selectedYear = year;
+  applyFilters();
+  renderTimeline();
+}
+
+function clearYearFilter() {
+  selectedYear = null;
+  applyFilters();
+  renderTimeline();
+}
+
+function applyFilters() {
+  let items = [...allResults];
+  if (selectedYear) items = items.filter(r => r.type !== 'paper' || r.year === selectedYear);
+  if (selectedSource) items = items.filter(r => r.source === selectedSource);
+  filteredResults = items;
+  renderResults();
+  renderStats();
+}
+
+function toggleSourceFilter(src) {
+  selectedSource = selectedSource === src ? null : src;
+  applyFilters();
+}
+
+// ─── STATS ───
 function renderStats() {
-  const papers = allResults.filter(r => r.type === 'paper');
-  const patents = allResults.filter(r => r.type === 'patent');
+  const papers = filteredResults.filter(r => r.type === 'paper');
+  const patents = filteredResults.filter(r => r.type === 'patent');
 
   // Top authors
   const authorCount = {};
-  papers.forEach(p => (p.authors || []).forEach(a => {
-    if (!a) return;
-    authorCount[a] = (authorCount[a] || 0) + 1;
-  }));
-  const topAuthors = Object.entries(authorCount)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 5);
+  papers.forEach(p => (p.authors || []).forEach(a => { if (a) authorCount[a] = (authorCount[a] || 0) + 1; }));
+  const topAuthors = Object.entries(authorCount).sort((a,b) => b[1]-a[1]).slice(0, 5);
   document.getElementById('authorsList').innerHTML = topAuthors.length
     ? topAuthors.map(([name, count], i) =>
-        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i * 0.04}s" onclick="searchFor(${JSON.stringify(name)})">
-          <span class="name">${escapeHtml(name)}</span>
-          <span class="count">${count}</span>
-        </div>`
-      ).join('')
+        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i*0.04}s" onclick="searchFor(${JSON.stringify(name)})">
+          <span class="name">${escapeHtml(name)}</span><span class="count">${count}</span></div>`).join('')
     : '<div class="stat-empty">No authors found</div>';
 
   // Top topics
-  const stop = new Set(['the','a','an','of','in','on','and','or','for','to','with','from','by','at','as','is','are','was','were','this','that','these','those','it','its','be','been','being','has','have','had','do','does','did','but','not','no','can','could','will','would','should','may','might','must','study','research','paper','analysis','article']);
+  const stop = new Set(['the','a','an','of','in','on','and','or','for','to','with','from','by','at','as','is','are','was','were','this','that','these','those','it','its','be','been','being','has','have','had','do','does','did','but','not','no','can','could','will','would','should','may','might','must','study','research','paper','analysis','article','using','based','via','toward','towards','novel','new','review','results','method','methods']);
   const wordCount = {};
   papers.forEach(p => {
     (p.title || '').toLowerCase().replace(/[^a-z0-9\s-]/g, ' ').split(/\s+/).forEach(w => {
@@ -820,75 +890,62 @@ function renderStats() {
       wordCount[w] = (wordCount[w] || 0) + 1;
     });
   });
-  const topTopics = Object.entries(wordCount)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 6);
+  const topTopics = Object.entries(wordCount).sort((a,b) => b[1]-a[1]).slice(0, 6);
   document.getElementById('topicsList').innerHTML = topTopics.length
     ? topTopics.map(([w, count], i) =>
-        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i * 0.04}s" onclick="searchFor(${JSON.stringify(w)})">
-          <span class="name">${escapeHtml(w)}</span>
-          <span class="count">${count}</span>
-        </div>`
-      ).join('')
+        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i*0.04}s" onclick="searchFor(${JSON.stringify(w)})">
+          <span class="name">${escapeHtml(w)}</span><span class="count">${count}</span></div>`).join('')
     : '<div class="stat-empty">No topics extracted</div>';
 
   // Top papers
   const topPapers = papers.slice(0, 5);
   document.getElementById('papersList').innerHTML = topPapers.length
     ? topPapers.map((p, i) =>
-        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i * 0.04}s" ${p.url ? `onclick="window.open('${escapeHtml(p.url)}','_blank')"` : ''}>
+        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i*0.04}s" ${p.url ? `onclick="window.open('${escapeHtml(p.url)}','_blank')"` : ''}>
           <span class="name" title="${escapeHtml(p.title)}">${escapeHtml(p.title.slice(0, 60))}${p.title.length > 60 ? '…' : ''}</span>
-          <span class="count">${escapeHtml(p.source)}</span>
-        </div>`
-      ).join('')
+          <span class="count">${escapeHtml(p.source)}</span></div>`).join('')
     : '<div class="stat-empty">No papers found</div>';
 
   // Patents
   document.getElementById('patentsList').innerHTML = patents.length
     ? patents.map((p, i) =>
-        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i * 0.04}s" onclick="window.open('${escapeHtml(p.url)}','_blank')">
-          <span class="name">${escapeHtml(p.source)}</span>
-          <span class="count">Open</span>
-        </div>`
-      ).join('')
+        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i*0.04}s" onclick="window.open('${escapeHtml(p.url)}','_blank')">
+          <span class="name">${escapeHtml(p.source)}</span><span class="count">Open</span></div>`).join('')
     : '<div class="stat-empty">No patent links</div>';
 }
 
+// ─── RESULTS ───
 function renderResults() {
   const list = document.getElementById('resultsList');
-  document.getElementById('resultsCount').textContent = `${allResults.length} results`;
+  const items = filteredResults;
 
   const sourceCounts = {};
-  allResults.forEach(r => {
-    sourceCounts[r.source] = (sourceCounts[r.source] || 0) + 1;
-  });
-  const meta = document.getElementById('resultsMeta');
-  const chips = Object.entries(sourceCounts).map(([src, cnt]) =>
-    `<span class="source-chip">${escapeHtml(src)}: ${cnt}</span>`
-  ).join('');
-  meta.innerHTML = `<span id="resultsCount">${allResults.length} results</span>${chips}`;
+  allResults.forEach(r => { sourceCounts[r.source] = (sourceCounts[r.source] || 0) + 1; });
+  const chips = Object.entries(sourceCounts).sort((a,b) => b[1]-a[1]).map(([src, cnt]) =>
+    `<span class="source-chip ${selectedSource === src ? 'active' : ''}" onclick="toggleSourceFilter('${escapeHtml(src)}')">${escapeHtml(src)}: ${cnt}</span>`).join('');
 
-  if (!allResults.length) {
-    list.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">◯</div>
-        <p>No results found.</p>
-      </div>`;
+  document.getElementById('resultsMeta').innerHTML =
+    `<span id="resultsCount">${items.length} result${items.length === 1 ? '' : 's'}${selectedYear ? ` · ${selectedYear}` : ''}</span>${chips}`;
+
+  if (!items.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">◯</div><p>${allResults.length ? 'No results match the current filter.' : 'No results found.'}</p></div>`;
     return;
   }
 
-  list.innerHTML = allResults.map((r, i) => {
+  list.innerHTML = items.map((r, i) => {
     const isPatent = r.type === 'patent';
     const metaParts = [];
     if (r.source) metaParts.push(`<b>${escapeHtml(r.source)}</b>`);
     if (r.venue && r.venue !== r.source) metaParts.push(escapeHtml(r.venue));
     if (r.year) metaParts.push(String(r.year));
     if (r.authors && r.authors.length) metaParts.push(escapeHtml(r.authors.slice(0, 2).join(', ')) + (r.authors.length > 2 ? ' et al.' : ''));
+    if (r.citedBy) metaParts.push(`${r.citedBy} cited`);
 
     const actions = [];
     if (r.url) actions.push(`<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">Open</a>`);
+    if (r.pdf) actions.push(`<a href="${escapeHtml(r.pdf)}" target="_blank" rel="noopener">PDF</a>`);
     if (r.scholarUrl) actions.push(`<a href="${escapeHtml(r.scholarUrl)}" target="_blank" rel="noopener">Scholar</a>`);
-    if (r.doi) actions.push(`<button onclick="copyCitation(${i})">Copy Citation</button>`);
+    if (r.doi || r.arxivId) actions.push(`<button onclick="copyCitation(${i})">Copy Citation</button>`);
 
     const abstract = r.abstract
       ? `<div class="result-abstract">${escapeHtml(r.abstract)}</div>`
@@ -897,7 +954,7 @@ function renderResults() {
           : `<div class="result-abstract" style="color:var(--text4)">No abstract available.</div>`);
 
     return `
-      <div class="result-card" style="animation-delay:${i * 0.02}s">
+      <div class="result-card" style="animation-delay:${Math.min(i * 0.01, 0.3)}s">
         <div class="result-top">
           <div class="result-title">
             ${r.url ? `<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a>` : escapeHtml(r.title)}
@@ -907,12 +964,13 @@ function renderResults() {
         ${metaParts.length ? `<div class="result-meta">${metaParts.map((p, i) => i === 0 ? `<span>${p}</span>` : `<span class="sep">${p}</span>`).join('')}</div>` : ''}
         ${abstract}
         ${actions.length ? `<div class="result-actions">${actions.join('')}</div>` : ''}
-      </div>
-    `;
+      </div>`;
   }).join('');
 }
 
-// ── SEARCH FOR (from stat card clicks) ──
+// ═══════════════════════════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════════════════════════
 function searchFor(term) {
   document.getElementById('searchInput').value = term;
   updateClearBtn();
@@ -920,60 +978,59 @@ function searchFor(term) {
   runSearch();
 }
 
-// ── COPY CITATION ──
 function copyCitation(index) {
-  const r = allResults[index];
+  const r = filteredResults[index];
   if (!r) return;
-
   const authors = (r.authors || []).join(', ');
-  const citation = `${authors} (${r.year || 'n.d.'}). "${r.title}". ${r.venue || r.source}.${r.doi ? ` https://doi.org/${r.doi}` : ''}`;
+  const venue = r.venue || r.source;
+  let tail = '';
+  if (r.doi) tail = ` https://doi.org/${r.doi}`;
+  else if (r.arxivId) tail = ` arXiv:${r.arxivId}`;
+  const citation = `${authors || 'Unknown'} (${r.year || 'n.d.'}). "${r.title}". ${venue}.${tail}`;
 
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(citation).then(() => toast('Citation copied')).catch(() => toast('Copy failed'));
     return;
   }
   const ta = document.createElement('textarea');
-  ta.value = citation;
-  ta.style.position = 'fixed';
-  ta.style.opacity = '0';
-  document.body.appendChild(ta);
-  ta.select();
+  ta.value = citation; ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.select();
   try { document.execCommand('copy'); toast('Citation copied'); }
   catch { toast('Copy failed'); }
   document.body.removeChild(ta);
 }
 
-// ── INPUT BINDING ──
+// ═══════════════════════════════════════════════════════════
+//  INPUT BINDING
+// ═══════════════════════════════════════════════════════════
 const searchInput = document.getElementById('searchInput');
 searchInput.addEventListener('input', updateClearBtn);
-searchInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') runSearch();
-});
+searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
 
-// ── KEYBOARD SHORTCUTS ──
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
-    searchInput.focus();
-    searchInput.select();
+    searchInput.focus(); searchInput.select();
   }
-  if (e.key === 'Escape' && document.activeElement === searchInput) {
-    if (searchInput.value) {
-      clearInput();
-    } else {
-      searchInput.blur();
+  if (e.key === 'Escape') {
+    if (document.activeElement === searchInput) {
+      if (searchInput.value) clearInput(); else searchInput.blur();
+    } else if (selectedYear) {
+      clearYearFilter();
+    } else if (selectedSource) {
+      selectedSource = null;
+      applyFilters();
     }
   }
 });
 
-// ── INIT ──
+// ═══════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════
 (function init() {
   try {
     const last = localStorage.getItem('brightscope_last');
-    if (last) {
-      searchInput.value = last;
-      updateClearBtn();
-    }
+    if (last) { searchInput.value = last; updateClearBtn(); }
   } catch {}
 })();
 </script>
