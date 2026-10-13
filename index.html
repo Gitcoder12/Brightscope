@@ -59,7 +59,7 @@ header{
 }
 .logo span{color:var(--teal)}
 .header-right{
-  display:flex;align-items:center;gap:0.75rem;
+  display:flex;align-items:center;gap:1rem;
   font-family:var(--mono);font-size:0.72rem;
   color:var(--text3);letter-spacing:0.03em;
 }
@@ -71,12 +71,45 @@ header{
   animation:blink 2s ease-in-out infinite;
 }
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+kbd{
+  font-family:var(--mono);font-size:0.65rem;
+  padding:2px 6px;border-radius:3px;
+  background:var(--surface2);border:1px solid var(--border2);
+  color:var(--text3);
+}
 
 .hero{
-  padding:4rem 2rem 2.5rem;
+  position:relative;
+  padding:4rem 2rem 3rem;
   text-align:center;
-  max-width:800px;margin:0 auto;
   border-bottom:1px solid var(--border);
+  overflow:hidden;
+  min-height:280px;
+  transition:min-height 0.4s ease;
+}
+.hero.has-image{min-height:380px}
+.hero-image{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  animation:fadeIn 0.6s ease-out;
+}
+.hero-image img{
+  width:100%;height:100%;
+  object-fit:cover;
+  opacity:0.28;
+  filter:grayscale(0.7) contrast(1.15) brightness(0.9);
+}
+.hero-image-overlay{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse at center, transparent 0%, rgba(10,10,10,0.6) 50%, var(--bg) 85%);
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.hero-content{
+  position:relative;
+  z-index:1;
+  max-width:800px;
+  margin:0 auto;
 }
 .hero h1{
   font-family:var(--display);
@@ -94,7 +127,7 @@ header{
 .hero h1 .halo::after{
   content:'';
   position:absolute;
-  inset:-12px -20px;
+  inset:-14px -22px;
   border:1px solid var(--teal);
   border-radius:50%;
   opacity:0.15;
@@ -114,7 +147,7 @@ header{
   border-radius:100px;
   background:var(--teal-dim);
 }
-.hero-status::before{content:'⚡';font-size:0.9rem}
+.hero-status::before{content:'◆';font-size:0.7rem;color:var(--teal)}
 
 .search-section{
   padding:2.5rem 2rem 3rem;
@@ -139,15 +172,25 @@ header{
   font-size:1rem;font-weight:500;
 }
 .search-input::placeholder{color:var(--text3)}
+.clear-input{
+  background:none;border:none;color:var(--text3);
+  cursor:pointer;font-size:0.9rem;padding:4px 8px;
+  border-radius:4px;transition:all var(--transition);
+  display:none;
+}
+.clear-input:hover{color:var(--text);background:var(--surface2)}
+.clear-input.visible{display:block}
 .search-btn{
   display:inline-flex;align-items:center;gap:0.5rem;
   padding:0.75rem 1.5rem;
   background:var(--teal);color:var(--bg);
   font-family:var(--sans);font-size:0.9rem;font-weight:600;
   border:none;border-radius:6px;cursor:pointer;
-  transition:all var(--transition);flex-shrink:0;
+  transition:transform var(--transition), background var(--transition), box-shadow var(--transition);
+  flex-shrink:0;
 }
 .search-btn:hover:not(:disabled){background:var(--teal2)}
+.search-btn:active:not(:disabled){transform:scale(0.97)}
 .search-btn:disabled{opacity:0.6;cursor:not-allowed}
 .btn-spin{
   width:14px;height:14px;
@@ -168,6 +211,7 @@ header{
   color:var(--text3);cursor:pointer;transition:all var(--transition);
 }
 .sug:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-dim)}
+.sug:active{transform:scale(0.96)}
 
 .main{max-width:1280px;margin:0 auto;padding:2rem}
 
@@ -181,38 +225,49 @@ header{
 @media(max-width:520px){.stats-grid{grid-template-columns:1fr}}
 
 .stat-card{
-  background:var(--surface);
-  border:1px solid var(--border);
+  background:var(--bg2);
+  border:none;
   border-radius:var(--radius);
-  padding:1.25rem;
-  transition:border-color var(--transition);
+  padding:1.5rem;
+  transition:background var(--transition), transform var(--transition), box-shadow var(--transition);
 }
-.stat-card:hover{border-color:var(--border3)}
+.stat-card:hover{
+  background:var(--surface);
+  transform:translateY(-2px);
+  box-shadow:0 8px 24px rgba(0,0,0,0.3);
+}
 .stat-header{
   display:flex;align-items:center;gap:0.5rem;
-  font-family:var(--display);font-size:0.95rem;font-weight:400;
-  letter-spacing:0.04em;text-transform:uppercase;
-  color:var(--text2);
-  margin-bottom:1rem;
-  padding-bottom:0.75rem;
-  border-bottom:1px solid var(--border);
+  font-family:var(--display);font-size:0.9rem;font-weight:400;
+  letter-spacing:0.05em;text-transform:uppercase;
+  color:var(--teal);
+  margin-bottom:1.25rem;
+  opacity:0.85;
 }
-.stat-header .icon{font-size:1rem}
+.stat-header .icon{font-size:0.9rem}
 .stat-list{display:flex;flex-direction:column;gap:0.5rem}
 .stat-item{
-  display:flex;justify-content:space-between;align-items:center;
+  display:flex;justify-content:space-between;align-items:baseline;
   gap:0.75rem;
-  font-size:0.82rem;
-  padding:4px 0;
+  font-size:0.85rem;
+  padding:5px 8px;
+  line-height:1.4;
+  border-radius:4px;
+  transition:background var(--transition);
 }
+.stat-item.clickable{cursor:pointer}
+.stat-item.clickable:hover{background:var(--surface)}
+.stat-item.clickable:hover .name{color:var(--teal)}
 .stat-item .name{
   color:var(--text);font-weight:500;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   flex:1;
+  transition:color var(--transition);
 }
 .stat-item .count{
-  font-family:var(--mono);font-size:0.7rem;
-  color:var(--text3);flex-shrink:0;
+  font-family:var(--mono);font-size:0.68rem;
+  color:var(--text4);flex-shrink:0;
+  padding-top:1px;
 }
 .stat-empty{
   font-family:var(--mono);font-size:0.75rem;
@@ -220,34 +275,55 @@ header{
 }
 
 .results-header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding-bottom:1rem;margin-bottom:1.5rem;
-  border-bottom:1px solid var(--border);
+  display:flex;align-items:baseline;justify-content:space-between;
+  padding-bottom:0.75rem;margin-bottom:0;
+  border-bottom:1px solid var(--border2);
+  flex-wrap:wrap;gap:0.75rem;
 }
 .results-header h2{
   font-family:var(--display);font-size:1.5rem;font-weight:400;
   letter-spacing:0.03em;text-transform:uppercase;
 }
-.results-header .count{
-  font-family:var(--mono);font-size:0.75rem;
+.results-meta{
+  display:flex;align-items:center;gap:0.75rem;
+  font-family:var(--mono);font-size:0.72rem;
+  color:var(--text3);
+  flex-wrap:wrap;
+}
+.source-chip{
+  padding:2px 8px;border-radius:3px;
+  background:var(--surface);
+  border:1px solid var(--border);
   color:var(--text3);
 }
 
-.results-list{display:flex;flex-direction:column;gap:0.75rem}
+.results-list{display:flex;flex-direction:column;gap:0}
 .result-card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:1.25rem 1.4rem;
-  transition:all var(--transition);
+  background:transparent;
+  border:none;
+  border-bottom:1px solid var(--border);
+  border-radius:0;
+  padding:1.25rem 0.25rem;
+  transition:padding var(--transition);
   animation:slideIn 0.25s ease both;
+  position:relative;
 }
+.result-card::before{
+  content:'';
+  position:absolute;
+  left:-12px;top:1.25rem;bottom:1.25rem;
+  width:2px;
+  background:transparent;
+  transition:background var(--transition);
+  border-radius:2px;
+}
+.result-card:hover{padding-left:1rem}
+.result-card:hover::before{background:var(--teal)}
 @keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-.result-card:hover{border-color:var(--border3);background:var(--surface2)}
 
 .result-top{
   display:flex;justify-content:space-between;align-items:flex-start;
-  gap:1rem;margin-bottom:0.75rem;flex-wrap:wrap;
+  gap:1rem;margin-bottom:0.65rem;flex-wrap:wrap;
 }
 .result-title{
   font-family:var(--sans);font-size:1rem;font-weight:600;
@@ -270,14 +346,14 @@ header{
   display:flex;flex-wrap:wrap;gap:1rem;
   font-family:var(--mono);font-size:0.72rem;
   color:var(--text3);
-  margin-bottom:0.6rem;
+  margin-bottom:0.5rem;
 }
 .result-meta .sep::before{content:'•';margin-right:1rem;color:var(--text4)}
 .result-meta b{color:var(--text2);font-weight:500}
 
 .result-abstract{
   font-size:0.85rem;color:var(--text3);line-height:1.6;
-  margin-bottom:0.75rem;
+  margin-bottom:0.65rem;
 }
 .result-actions{
   display:flex;gap:0.5rem;flex-wrap:wrap;
@@ -293,6 +369,7 @@ header{
 .result-actions a:hover, .result-actions button:hover{
   border-color:var(--teal);color:var(--teal);background:var(--teal-dim);
 }
+.result-actions a:active, .result-actions button:active{transform:scale(0.96)}
 
 .empty-state{
   text-align:center;
@@ -310,10 +387,21 @@ header{
   padding:0 2rem 4rem;
 }
 .log-header{
+  display:flex;align-items:center;justify-content:space-between;
   font-family:var(--sans);font-size:0.7rem;font-weight:500;
   letter-spacing:0.1em;text-transform:uppercase;
   color:var(--text3);margin-bottom:0.75rem;
 }
+.log-clear{
+  font-family:var(--mono);font-size:0.65rem;
+  padding:3px 10px;border-radius:4px;
+  background:transparent;border:1px solid var(--border2);
+  color:var(--text3);cursor:pointer;
+  transition:all var(--transition);
+  letter-spacing:0.05em;text-transform:uppercase;
+}
+.log-clear:hover{border-color:var(--teal);color:var(--teal)}
+.log-clear:active{transform:scale(0.96)}
 .log-box{
   background:var(--bg3);
   border:1px solid var(--border);
@@ -340,6 +428,19 @@ header{
 .footer a{color:var(--text3);text-decoration:none}
 .footer a:hover{color:var(--teal)}
 
+.toast{
+  position:fixed;bottom:1.5rem;right:1.5rem;
+  background:var(--surface2);border:1px solid var(--border2);
+  border-left:3px solid var(--teal);
+  color:var(--text);font-family:var(--mono);font-size:0.78rem;
+  padding:0.75rem 1.1rem;border-radius:6px;
+  box-shadow:0 12px 32px rgba(0,0,0,0.6);
+  transform:translateY(60px);opacity:0;
+  transition:all 0.25s ease;
+  z-index:9999;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
 @media(max-width:700px){
   header{padding:0.9rem 1.25rem}
   .logo{font-size:1.25rem}
@@ -352,6 +453,7 @@ header{
   .search-box .search-icon{display:none}
   .search-input{width:100%;padding:0.5rem 0.75rem}
   .search-btn{width:100%;justify-content:center}
+  .header-right kbd{display:none}
 }
 </style>
 </head>
@@ -361,13 +463,20 @@ header{
   <div class="logo">Bright<span>scope</span></div>
   <div class="header-right">
     <span><span class="status-dot"></span>Crossref · arXiv · Patents</span>
+    <span><kbd>Ctrl</kbd> <kbd>K</kbd></span>
   </div>
 </header>
 
-<section class="hero">
-  <h1><span class="halo">Brightscope</span></h1>
-  <p>Search papers and patents from Crossref, arXiv, and open patent sources in one place.</p>
-  <div class="hero-status" id="heroStatus">Ready — enter a topic</div>
+<section class="hero" id="hero">
+  <div class="hero-image" id="heroImage" style="display:none">
+    <img id="heroImageImg" alt="">
+    <div class="hero-image-overlay"></div>
+  </div>
+  <div class="hero-content">
+    <h1><span class="halo">Brightscope</span></h1>
+    <p>Search papers and patents from Crossref, arXiv, and open patent sources in one place.</p>
+    <div class="hero-status" id="heroStatus">Ready — enter a topic</div>
+  </div>
 </section>
 
 <section class="search-section">
@@ -375,6 +484,7 @@ header{
     <div class="search-box">
       <span class="search-icon">⌕</span>
       <input class="search-input" id="searchInput" placeholder="Enter a research topic, paper title, or keyword..." autocomplete="off">
+      <button class="clear-input" id="clearBtn" onclick="clearInput()" title="Clear">✕</button>
       <button class="search-btn" id="searchBtn" onclick="runSearch()">
         <div class="btn-spin" id="btnSpin"></div>
         <span id="btnText">Search All Sources</span>
@@ -399,22 +509,24 @@ header{
       <div class="stat-list" id="authorsList"><div class="stat-empty">Results will appear here</div></div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><span class="icon">🔥</span>Top Topics</div>
+      <div class="stat-header"><span class="icon">◆</span>Top Topics</div>
       <div class="stat-list" id="topicsList"><div class="stat-empty">Results will appear here</div></div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><span class="icon">📚</span>Top Papers</div>
+      <div class="stat-header"><span class="icon">▤</span>Top Papers</div>
       <div class="stat-list" id="papersList"><div class="stat-empty">Results will appear here</div></div>
     </div>
     <div class="stat-card">
-      <div class="stat-header"><span class="icon">📜</span>Recent Patents</div>
+      <div class="stat-header"><span class="icon">▷</span>Recent Patents</div>
       <div class="stat-list" id="patentsList"><div class="stat-empty">Results will appear here</div></div>
     </div>
   </div>
 
   <div class="results-header">
     <h2>All Results</h2>
-    <span class="count" id="resultsCount">0</span>
+    <div class="results-meta" id="resultsMeta">
+      <span id="resultsCount">0</span>
+    </div>
   </div>
   <div class="results-list" id="resultsList">
     <div class="empty-state">
@@ -425,7 +537,10 @@ header{
 </main>
 
 <section class="log-section">
-  <div class="log-header">Activity Log</div>
+  <div class="log-header">
+    <span>Activity Log</span>
+    <button class="log-clear" onclick="clearLog()">Clear</button>
+  </div>
   <div class="log-box" id="logBox">
     <div class="log-line"><span class="prefix">›</span><span>Idle.</span></div>
   </div>
@@ -438,22 +553,25 @@ header{
   </div>
 </footer>
 
+<div class="toast" id="toast"></div>
+
 <script>
 // ── STATE ──
 let allResults = [];
+let lastQuery = '';
 
 // ── LOGGING ──
 function log(msg, type) {
   const box = document.getElementById('logBox');
   const line = document.createElement('div');
   line.className = 'log-line' + (type ? ' ' + type : '');
-  const prefix = type === 'err' ? '✗' : type === 'warn' ? '⚠' : '›';
+  const prefix = type === 'err' ? '✗' : type === 'warn' ? '!' : '›';
   line.innerHTML = `<span class="prefix">${prefix}</span><span>${escapeHtml(msg)}</span>`;
   box.appendChild(line);
   box.scrollTop = box.scrollHeight;
 }
 function clearLog() {
-  document.getElementById('logBox').innerHTML = '';
+  document.getElementById('logBox').innerHTML = '<div class="log-line"><span class="prefix">›</span><span>Idle.</span></div>';
 }
 
 // ── HELPERS ──
@@ -462,6 +580,11 @@ function escapeHtml(s) {
   return String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function stripHtml(s) {
+  const tmp = document.createElement('div');
+  tmp.innerHTML = s;
+  return tmp.textContent || tmp.innerText || '';
 }
 function setHeroStatus(text, isWorking) {
   const el = document.getElementById('heroStatus');
@@ -473,10 +596,70 @@ function setBusy(on) {
   document.getElementById('btnSpin').style.display = on ? 'block' : 'none';
   document.getElementById('btnText').textContent = on ? 'Searching...' : 'Search All Sources';
 }
+let _toastTimer;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+function clearInput() {
+  const input = document.getElementById('searchInput');
+  input.value = '';
+  input.focus();
+  updateClearBtn();
+}
+function updateClearBtn() {
+  const input = document.getElementById('searchInput');
+  const btn = document.getElementById('clearBtn');
+  btn.classList.toggle('visible', Boolean(input.value));
+}
+
+// ── TOPIC IMAGE (Wikipedia REST API — no key, no backend) ──
+async function fetchTopicImage(topic) {
+  try {
+    const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    // Prefer the full-resolution original image, fall back to thumbnail
+    return data.originalimage?.source || data.thumbnail?.source || null;
+  } catch {
+    return null;
+  }
+}
+
+async function updateHeroImage(topic) {
+  const heroEl = document.getElementById('hero');
+  const imgWrap = document.getElementById('heroImage');
+  const imgEl = document.getElementById('heroImageImg');
+
+  // Reset state before applying new image
+  heroEl.classList.remove('has-image');
+  imgWrap.style.display = 'none';
+  imgEl.src = '';
+
+  if (!topic) return;
+
+  const imgUrl = await fetchTopicImage(topic);
+  if (!imgUrl) return;
+
+  imgEl.onload = () => {
+    imgWrap.style.display = 'block';
+    heroEl.classList.add('has-image');
+  };
+  imgEl.onerror = () => {
+    imgWrap.style.display = 'none';
+    heroEl.classList.remove('has-image');
+  };
+  imgEl.src = imgUrl;
+}
 
 // ── SEARCH ──
 function quickSearch(el) {
   document.getElementById('searchInput').value = el.textContent;
+  updateClearBtn();
   runSearch();
 }
 
@@ -484,21 +667,25 @@ async function runSearch() {
   const query = document.getElementById('searchInput').value.trim();
   if (!query) return;
 
+  lastQuery = query;
+  try { localStorage.setItem('brightscope_last', query); } catch {}
+
   clearLog();
   allResults = [];
   setBusy(true);
   setHeroStatus(`Searching for "${query}"...`, true);
   log(`Searching for "${query}" ...`);
 
+  // Kick off topic image fetch in parallel with searches
+  updateHeroImage(query);
+
   const t0 = performance.now();
 
-  // Clear previous stat cards
   resetStatCard('authorsList');
   resetStatCard('topicsList');
   resetStatCard('papersList');
   resetStatCard('patentsList');
 
-  // Fetch from sources in parallel
   const [crossref, arxiv, patents] = await Promise.all([
     fetchCrossref(query),
     fetchArxiv(query),
@@ -510,7 +697,7 @@ async function runSearch() {
   const elapsed = ((performance.now() - t0) / 1000).toFixed(1);
   const paperCount = crossref.length + arxiv.length;
   const patentCount = patents.length;
-  log(`Done in ${elapsed}s • ${paperCount} papers + ${patentCount} patent links`, 'ok');
+  log(`Done in ${elapsed}s · ${paperCount} papers + ${patentCount} patent links`, 'ok');
 
   renderAll();
   setHeroStatus(`${allResults.length} results for "${query}"`, false);
@@ -616,12 +803,15 @@ function renderStats() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
   document.getElementById('authorsList').innerHTML = topAuthors.length
-    ? topAuthors.map(([name, count]) =>
-        `<div class="stat-item"><span class="name">${escapeHtml(name)}</span><span class="count">${count}</span></div>`
+    ? topAuthors.map(([name, count], i) =>
+        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i * 0.04}s" onclick="searchFor(${JSON.stringify(name)})">
+          <span class="name">${escapeHtml(name)}</span>
+          <span class="count">${count}</span>
+        </div>`
       ).join('')
     : '<div class="stat-empty">No authors found</div>';
 
-  // Top topics (word freq from titles)
+  // Top topics
   const stop = new Set(['the','a','an','of','in','on','and','or','for','to','with','from','by','at','as','is','are','was','were','this','that','these','those','it','its','be','been','being','has','have','had','do','does','did','but','not','no','can','could','will','would','should','may','might','must','study','research','paper','analysis','article']);
   const wordCount = {};
   papers.forEach(p => {
@@ -634,23 +824,32 @@ function renderStats() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 6);
   document.getElementById('topicsList').innerHTML = topTopics.length
-    ? topTopics.map(([w, count]) =>
-        `<div class="stat-item"><span class="name">${escapeHtml(w)}</span><span class="count">${count}</span></div>`
+    ? topTopics.map(([w, count], i) =>
+        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i * 0.04}s" onclick="searchFor(${JSON.stringify(w)})">
+          <span class="name">${escapeHtml(w)}</span>
+          <span class="count">${count}</span>
+        </div>`
       ).join('')
     : '<div class="stat-empty">No topics extracted</div>';
 
   // Top papers
   const topPapers = papers.slice(0, 5);
   document.getElementById('papersList').innerHTML = topPapers.length
-    ? topPapers.map(p =>
-        `<div class="stat-item"><span class="name">${escapeHtml(p.title.slice(0, 60))}${p.title.length > 60 ? '…' : ''}</span><span class="count">${escapeHtml(p.source)}</span></div>`
+    ? topPapers.map((p, i) =>
+        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i * 0.04}s" ${p.url ? `onclick="window.open('${escapeHtml(p.url)}','_blank')"` : ''}>
+          <span class="name" title="${escapeHtml(p.title)}">${escapeHtml(p.title.slice(0, 60))}${p.title.length > 60 ? '…' : ''}</span>
+          <span class="count">${escapeHtml(p.source)}</span>
+        </div>`
       ).join('')
     : '<div class="stat-empty">No papers found</div>';
 
   // Patents
   document.getElementById('patentsList').innerHTML = patents.length
-    ? patents.map(p =>
-        `<div class="stat-item"><span class="name">${escapeHtml(p.source)}</span><span class="count">Open</span></div>`
+    ? patents.map((p, i) =>
+        `<div class="stat-item clickable" style="animation:slideIn 0.3s ease both;animation-delay:${i * 0.04}s" onclick="window.open('${escapeHtml(p.url)}','_blank')">
+          <span class="name">${escapeHtml(p.source)}</span>
+          <span class="count">Open</span>
+        </div>`
       ).join('')
     : '<div class="stat-empty">No patent links</div>';
 }
@@ -658,6 +857,16 @@ function renderStats() {
 function renderResults() {
   const list = document.getElementById('resultsList');
   document.getElementById('resultsCount').textContent = `${allResults.length} results`;
+
+  const sourceCounts = {};
+  allResults.forEach(r => {
+    sourceCounts[r.source] = (sourceCounts[r.source] || 0) + 1;
+  });
+  const meta = document.getElementById('resultsMeta');
+  const chips = Object.entries(sourceCounts).map(([src, cnt]) =>
+    `<span class="source-chip">${escapeHtml(src)}: ${cnt}</span>`
+  ).join('');
+  meta.innerHTML = `<span id="resultsCount">${allResults.length} results</span>${chips}`;
 
   if (!allResults.length) {
     list.innerHTML = `
@@ -679,6 +888,7 @@ function renderResults() {
     const actions = [];
     if (r.url) actions.push(`<a href="${escapeHtml(r.url)}" target="_blank" rel="noopener">Open</a>`);
     if (r.scholarUrl) actions.push(`<a href="${escapeHtml(r.scholarUrl)}" target="_blank" rel="noopener">Scholar</a>`);
+    if (r.doi) actions.push(`<button onclick="copyCitation(${i})">Copy Citation</button>`);
 
     const abstract = r.abstract
       ? `<div class="result-abstract">${escapeHtml(r.abstract)}</div>`
@@ -702,10 +912,70 @@ function renderResults() {
   }).join('');
 }
 
-// ── ENTER KEY ──
-document.getElementById('searchInput').addEventListener('keydown', e => {
+// ── SEARCH FOR (from stat card clicks) ──
+function searchFor(term) {
+  document.getElementById('searchInput').value = term;
+  updateClearBtn();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  runSearch();
+}
+
+// ── COPY CITATION ──
+function copyCitation(index) {
+  const r = allResults[index];
+  if (!r) return;
+
+  const authors = (r.authors || []).join(', ');
+  const citation = `${authors} (${r.year || 'n.d.'}). "${r.title}". ${r.venue || r.source}.${r.doi ? ` https://doi.org/${r.doi}` : ''}`;
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(citation).then(() => toast('Citation copied')).catch(() => toast('Copy failed'));
+    return;
+  }
+  const ta = document.createElement('textarea');
+  ta.value = citation;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); toast('Citation copied'); }
+  catch { toast('Copy failed'); }
+  document.body.removeChild(ta);
+}
+
+// ── INPUT BINDING ──
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', updateClearBtn);
+searchInput.addEventListener('keydown', e => {
   if (e.key === 'Enter') runSearch();
 });
+
+// ── KEYBOARD SHORTCUTS ──
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }
+  if (e.key === 'Escape' && document.activeElement === searchInput) {
+    if (searchInput.value) {
+      clearInput();
+    } else {
+      searchInput.blur();
+    }
+  }
+});
+
+// ── INIT ──
+(function init() {
+  try {
+    const last = localStorage.getItem('brightscope_last');
+    if (last) {
+      searchInput.value = last;
+      updateClearBtn();
+    }
+  } catch {}
+})();
 </script>
 </body>
 </html>
