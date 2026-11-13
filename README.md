@@ -62,3 +62,15 @@ See [LICENSE](LICENSE).
 - [README quality checklist](README_QUALITY_CHECKLIST.md)
 - [Contributing](CONTRIBUTING.md)
 - [Agent instructions](AGENTS.md) · [Agent skills](SKILLS.md)
+
+## Understanding the project
+
+### In plain language
+
+A research search page that lets a user look for academic papers across several open scholarly indexes from one place.
+
+### Technical and research view
+
+Browser-based research discovery UI with adapters for OpenAlex, Crossref, arXiv and other providers, metadata normalisation and deduplication. The audit found a Python Flask app incorrectly stored as .env.example, a missing templates/index.html, GitHub Pages deployment mismatch and a public-proxy fetch monkeypatch to verify.
+
+See [FEATURE_UPGRADE_PLAN.md](FEATURE_UPGRADE_PLAN.md), [ACTIVITY_LOG.md](ACTIVITY_LOG.md), [COMPANY_FIT.md](COMPANY_FIT.md) and [CONTRIBUTING.md](CONTRIBUTING.md) for the roadmap and collaboration workflow.
