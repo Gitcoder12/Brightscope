@@ -1,76 +1,134 @@
 # BrightScope
 
-**Search academic literature across open research indexes from one interface.**
+BrightScope is an open research discovery platform that helps users search across academic literature from multiple sources through a single interface.
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-brightgreen)](https://gitcoder12.github.io/Brightscope/)
-[![License](https://img.shields.io/badge/license-see%20LICENSE-lightgrey)](LICENSE)
+**Live Demo:** https://gitcoder12.github.io/Brightscope/
 
-BrightScope is a browser-based research discovery interface. It brings together metadata from open scholarly sources so users can search for papers without manually switching between several services.
+---
 
-## Features
+## Overview
 
-- Unified paper search across supported open scholarly sources.
-- Source-aware results with publication metadata and links.
-- Author and research-record details where returned by the provider.
-- Deduplication and normalization across result sources.
-- Responsive single-page interface.
+BrightScope queries multiple open academic sources and returns unified results in one place.
 
-## Data Sources
+Instead of searching multiple databases separately, users can search once and explore research from a single interface.
 
-The repository includes adapters for sources such as OpenAlex, Crossref, arXiv, and additional research or patent indexes. Returned fields depend on each provider; citation counts, abstracts, and author details may not be available for every record.
+Current data sources:
 
-## Tech Stack
+* OpenAlex
+* Crossref
 
-HTML · CSS · Vanilla JavaScript · OpenAlex · Crossref · arXiv · GitHub Pages
+No API keys are required.
+
+---
+
+## Core Features
+
+* Unified research search
+* Multi-source aggregation
+* Research paper discovery
+* Author information
+* Source attribution
+* Deduplicated results
+* Mobile-friendly interface
+* GitHub Pages deployment
+
+---
+
+## Example
+
+Search:
+
+```text
+graphene battery
+```
+
+Results:
+
+* Research papers
+* Author information
+* Publication metadata
+* Source attribution
+
+---
 
 ## Quick Start
 
 ```bash
 git clone https://github.com/Gitcoder12/Brightscope.git
 cd Brightscope
+
 python -m http.server 8000
 ```
 
-Open `http://localhost:8000` in a browser. Some API adapters may require a compatible serverless deployment or proxy configuration; a static local server does not execute server-side JavaScript functions.
-
-## Project Structure
+Open:
 
 ```text
-Brightscope/
-├── index.html   # Browser interface
-├── css/         # Application styles
-├── js/          # Search and UI modules
-└── api/         # Research-provider adapters
+http://localhost:8000
 ```
-
-## Scope and Limitations
-
-BrightScope depends on third-party public APIs. Results can be delayed, rate-limited, incomplete, or differently indexed across providers. It is a discovery aid, not a systematic-review protocol or a substitute for checking the publisher's record.
-
-## License
-
-See [LICENSE](LICENSE).
 
 ---
 
-## Project handbook
+## Roadmap
 
-- [Activity log](ACTIVITY_LOG.md)
-- [Feature upgrade plan](FEATURE_UPGRADE_PLAN.md)
-- [Company and team fit](COMPANY_FIT.md)
-- [README explanation draft](README_ADDENDUM_DRAFT.md)
-- [README quality checklist](README_QUALITY_CHECKLIST.md)
-- [Contributing](CONTRIBUTING.md)
-- [Agent instructions](AGENTS.md) · [Agent skills](SKILLS.md)
+### V2 — Research Intelligence
 
-## Understanding the project
+* Top authors
+* Top institutions
+* Top topics
+* Citation insights
 
-### In plain language
+### V3 — Research Analytics
 
-A research search page that lets a user look for academic papers across several open scholarly indexes from one place.
+* Trend detection
+* Topic clustering
+* Emerging research areas
 
-### Technical and research view
+### V4 — Patent Intelligence
+ 
+* Patent search
+* Inventor search
+* Technology landscapes
 
-Browser-based research discovery UI with adapters for OpenAlex, Crossref, arXiv and other providers, metadata normalisation and deduplication. The audit found a Python Flask app incorrectly stored as .env.example, a missing templates/index.html, GitHub Pages deployment mismatch and a public-proxy fetch monkeypatch to verify.
+### V5 — Innovation Engine
 
-See [FEATURE_UPGRADE_PLAN.md](FEATURE_UPGRADE_PLAN.md), [ACTIVITY_LOG.md](ACTIVITY_LOG.md), [COMPANY_FIT.md](COMPANY_FIT.md) and [CONTRIBUTING.md](CONTRIBUTING.md) for the roadmap and collaboration workflow.
+* Research gap detection
+* Opportunity discovery
+* Commercialization insights
+
+---
+
+## Technology Stack
+
+* HTML
+* CSS
+* Vanilla JavaScript
+* OpenAlex API
+* Crossref API
+* GitHub Pages
+
+---
+
+## Status
+
+Current Version: **V1**
+
+Active development.
+
+---
+
+## Goal
+
+Make research discovery accessible to students, researchers, founders, inventors, and builders by providing a fast and open platform for exploring scientific knowledge.
+
+
+---
+
+## AI-maintained project notes (secondary — 2026-11-13)
+
+This section supplements the maintainer-authored README above. The original text has been restored verbatim from Git-history baseline `146aeef987c2275811e5213fca50edb428bbbe56`; this addendum does not replace or certify the original claims.
+
+- The source tree, runtime data and tests are the implementation source of truth. Do not treat roadmap items, draft PRs or AI-generated descriptions as shipped features.
+- Preserve existing maintainer-provided data. Never replace real data with synthetic or placeholder records. Any test fixture must be clearly labelled and isolated from runtime data.
+- Mark unverified sources, IDs, records, metrics and external claims as unknown/unverified rather than guessing.
+- Verify installation, execution, tests and public claims against the exact current commit before presenting this project to recruiters, researchers or professors.
+- See [MODEL_AUDIT_ROUTER.md](MODEL_AUDIT_ROUTER.md) for the independent multi-model review and merge gate.
