@@ -50,3 +50,15 @@ BrightScope depends on third-party public APIs. Results can be delayed, rate-lim
 ## License
 
 See [LICENSE](LICENSE).
+
+---
+
+## Project handbook
+
+- [Activity log](ACTIVITY_LOG.md)
+- [Feature upgrade plan](FEATURE_UPGRADE_PLAN.md)
+- [Company and team fit](COMPANY_FIT.md)
+- [README explanation draft](README_ADDENDUM_DRAFT.md)
+- [README quality checklist](README_QUALITY_CHECKLIST.md)
+- [Contributing](CONTRIBUTING.md)
+- [Agent instructions](AGENTS.md) · [Agent skills](SKILLS.md)
