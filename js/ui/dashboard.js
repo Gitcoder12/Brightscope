@@ -11,9 +11,9 @@ export function renderResults(container, items) {
         <div class="result-title"><a href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.title)}</a></div>
         <div class="result-details">
           <span class="badge-source">${escapeHtml(item.source)}</span>
-          <span>📅 ${escapeHtml(item.date)}</span>
-          <span>${item.type === 'patent' ? '⚖️ Patent' : '📖 Paper'}</span>
-          ${item.citations ? `<span>📊 ${item.citations} citations</span>` : ''}
+          <span> ${escapeHtml(item.date)}</span>
+          <span>${item.type === 'patent' ? ' Patent' : ' Paper'}</span>
+          ${item.citations ? `<span> ${item.citations} citations</span>` : ''}
         </div>
         <div class="abstract">${escapeHtml(item.abstract) || 'No abstract available.'}</div>
       </div>
