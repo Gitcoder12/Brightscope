@@ -132,3 +132,21 @@ This section supplements the maintainer-authored README above. The original text
 - Mark unverified sources, IDs, records, metrics and external claims as unknown/unverified rather than guessing.
 - Verify installation, execution, tests and public claims against the exact current commit before presenting this project to recruiters, researchers or professors.
 - See [MODEL_AUDIT_ROUTER.md](MODEL_AUDIT_ROUTER.md) for the independent multi-model review and merge gate.
+
+---
+
+## Engineering Audit & Handover — 2026-11-17
+
+**Review scope:** default branch `main`; static inspection of `api/core.js`. Runtime tests were not executed.
+
+### Confirmed findings
+- `fetchWithTimeout()` returns the raw Fetch `Response` without checking `response.ok`. Callers must explicitly handle HTTP error statuses; otherwise error responses may be treated as successful payloads.
+- `escapeHtml()` escapes ampersands and angle brackets, but not quotation marks. This is suitable only for text-node escaping; it must not be assumed safe for interpolated HTML attributes.
+- The timeout helper clears its timer after the fetch resolves, but body parsing occurs later in callers and is not covered by this timeout.
+
+### Next actions
+1. Standardize HTTP status handling and error reporting in every API wrapper.
+2. Use context-appropriate escaping or DOM text APIs; do not reuse this helper for HTML attributes.
+3. Decide whether the timeout should cover response-body consumption, then add tests for non-2xx responses, timeouts, malformed JSON, and escaping contexts.
+
+**Verification status:** shared utility inspection only; API integrations, browser behavior, and tests remain unverified.
