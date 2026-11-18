@@ -150,3 +150,10 @@ This section supplements the maintainer-authored README above. The original text
 3. Decide whether the timeout should cover response-body consumption, then add tests for non-2xx responses, timeouts, malformed JSON, and escaping contexts.
 
 **Verification status:** shared utility inspection only; API integrations, browser behavior, and tests remain unverified.
+
+---
+
+## Examples Used
+- Discovering research on graphene batteries
+- Aggregating the same paper from OpenAlex and Crossref
+- Comparing publication metadata and author records
