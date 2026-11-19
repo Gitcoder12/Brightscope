@@ -157,3 +157,27 @@ This section supplements the maintainer-authored README above. The original text
 - Discovering research on graphene batteries
 - Aggregating the same paper from OpenAlex and Crossref
 - Comparing publication metadata and author records
+
+
+---
+
+## Comparison with Existing Open-Source Projects
+
+BrightScope is documented as a unified research-discovery interface that aggregates academic metadata from sources such as OpenAlex and Crossref. The following projects provide relevant discovery, knowledge-graph and scholarly-workflow comparisons.
+
+| Project | Established focus | Relationship to BrightScope |
+|---|---|---|
+| [Open Knowledge Maps](https://github.com/openknowledgemaps/orkg) | Visual discovery and exploration of scientific knowledge | Stronger emphasis on visual knowledge maps and structured research exploration; BrightScope's current distinction is a lightweight, multi-source search interface. |
+| [Open Research Knowledge Graph (ORKG)](https://github.com/orkg/orkg) | Structured scholarly knowledge, comparisons and research contributions | A broader knowledge-graph approach; BrightScope currently focuses on paper discovery and metadata aggregation rather than authoring structured research contributions. |
+| [Zotero](https://github.com/zotero/zotero) | Reference management, collection organization and citation workflows | Mature researcher-library workflow; BrightScope is positioned earlier in the discovery stage and is not a replacement for reference management. |
+
+### Where BrightScope is different
+- **Cross-source search in one interface:** its stated V1 purpose is to query multiple open scholarly metadata sources without requiring users to search each separately.
+- **Lightweight deployment:** the README describes a browser-based application deployable through GitHub Pages, with no API keys required for its current OpenAlex/Crossref sources.
+- **Discovery-first scope:** the current product is narrower than a full reference manager or scholarly knowledge graph.
+
+### Where established projects are stronger
+Zotero and ORKG have deeper workflows and mature ecosystems; Open Knowledge Maps has a specialized visual exploration approach. BrightScope should not claim better coverage, citation quality or research recommendations without comparative evaluation.
+
+### Evidence and limitations
+Document source attribution, retrieval time, deduplication rules, metadata conflicts and API failure behavior. The README labels author analytics, trend detection, patent intelligence and research-gap discovery as roadmap items; do not present them as shipped V1 capabilities unless verified in the current code. This is a scope comparison, not a benchmark or exhaustive product audit.
