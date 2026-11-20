@@ -51,20 +51,25 @@ Results:
 
 ---
 
-## Quick Start
+## Open BrightScope locally (VS Code)
+
+1. Clone the repository and open the folder in VS Code:
 
 ```bash
 git clone https://github.com/Gitcoder12/Brightscope.git
 cd Brightscope
+```
 
+2. Start a local static web server from the repository root:
+
+```bash
 python -m http.server 8000
 ```
 
-Open:
+3. Open **http://localhost:8000** in your browser.
+4. Keep the terminal running while using the site; press **Ctrl+C** to stop the server.
 
-```text
-http://localhost:8000
-```
+No npm installation or build step is required. An internet connection is needed for the OpenAlex and Crossref requests and externally hosted fonts.
 
 ---
 
